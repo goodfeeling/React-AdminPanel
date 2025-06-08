@@ -27,41 +27,61 @@ export const navData: NavProps["data"] = [
 				path: "/management",
 				icon: <Icon icon="local:ic-management" size="24" />,
 				children: [
+					// {
+					// 	title: "sys.menu.user.index",
+					// 	path: "/management/user",
+					// 	children: [
+					// 		{
+					// 			title: "sys.menu.user.profile",
+					// 			path: "/management/user/profile",
+					// 		},
+					// 		{
+					// 			title: "sys.menu.user.account",
+					// 			path: "/management/user/account",
+					// 		},
+					// 	],
+					// },
+					// {
+					// 	title: "sys.menu.system.index",
+					// 	path: "/management/system",
+					// 	children: [
+					// 		{
+					// 			title: "sys.menu.system.organization",
+					// 			path: "/management/system/organization",
+					// 		},
+					// 		{
+					// 			title: "sys.menu.system.permission",
+					// 			path: "/management/system/permission",
+					// 		},
+					// 		{
+					// 			title: "sys.menu.system.role",
+					// 			path: "/management/system/role",
+					// 		},
+					// 		{
+					// 			title: "sys.menu.system.user",
+					// 			path: "/management/system/user",
+					// 		},
+					// 	],
+					// },
 					{
-						title: "sys.menu.user.index",
-						path: "/management/user",
-						children: [
-							{
-								title: "sys.menu.user.profile",
-								path: "/management/user/profile",
-							},
-							{
-								title: "sys.menu.user.account",
-								path: "/management/user/account",
-							},
-						],
+						title: "sys.menu.user.account",
+						path: "/management/user/account",
 					},
 					{
-						title: "sys.menu.system.index",
-						path: "/management/system",
-						children: [
-							{
-								title: "sys.menu.system.organization",
-								path: "/management/system/organization",
-							},
-							{
-								title: "sys.menu.system.permission",
-								path: "/management/system/permission",
-							},
-							{
-								title: "sys.menu.system.role",
-								path: "/management/system/role",
-							},
-							{
-								title: "sys.menu.system.user",
-								path: "/management/system/user",
-							},
-						],
+						title: "sys.menu.system.organization",
+						path: "/management/system/organization",
+					},
+					{
+						title: "sys.menu.system.permission",
+						path: "/management/system/permission",
+					},
+					{
+						title: "sys.menu.system.role",
+						path: "/management/system/role",
+					},
+					{
+						title: "sys.menu.system.user",
+						path: "/management/system/user",
 					},
 				],
 			},

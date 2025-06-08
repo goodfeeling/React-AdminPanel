@@ -23,7 +23,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
 	const form = useForm<SignInReq>({
 		defaultValues: {
-			username: DEFAULT_USER.username,
+			user_name: DEFAULT_USER.username,
 			password: DEFAULT_USER.password,
 		},
 	});
@@ -50,7 +50,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 
 					<FormField
 						control={form.control}
-						name="username"
+						name="user_name"
 						rules={{ required: t("sys.login.accountPlaceholder") }}
 						render={({ field }) => (
 							<FormItem>

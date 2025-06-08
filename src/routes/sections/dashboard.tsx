@@ -98,8 +98,8 @@ export const dashboardRoutes: RouteObject[] = [
 					{
 						path: "user",
 						children: [
-							{ index: true, element: <Navigate to="profile" replace /> },
-							{ path: "profile", element: <ProfilePage /> },
+							{ index: true, element: <Navigate to="account" replace /> },
+							// { path: "profile", element: <ProfilePage /> },
 							{ path: "account", element: <AccountPage /> },
 						],
 					},

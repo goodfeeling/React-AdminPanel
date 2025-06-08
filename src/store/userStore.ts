@@ -66,6 +66,8 @@ export const useSignIn = () => {
 	const signIn = async (data: SignInReq) => {
 		try {
 			const res = await signInMutation.mutateAsync(data);
+			console.log("res =", res);
+
 			const { user, accessToken, refreshToken } = res;
 			setUserToken({ accessToken, refreshToken });
 			setUserInfo(user);
@@ -79,7 +81,6 @@ export const useSignIn = () => {
 			});
 		}
 	};
-
 	return signIn;
 };
 
