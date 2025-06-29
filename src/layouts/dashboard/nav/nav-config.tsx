@@ -63,10 +63,10 @@ export const navData: NavProps["data"] = [
 					// 		},
 					// 	],
 					// },
-					{
-						title: "sys.menu.user.account",
-						path: "/management/user/account",
-					},
+					// {
+					// 	title: "sys.menu.user.account",
+					// 	path: "/management/user/account",
+					// },
 					{
 						title: "sys.menu.system.organization",
 						path: "/management/system/organization",

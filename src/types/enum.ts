@@ -13,6 +13,7 @@ export enum StorageEnum {
 	UserInfo = "userInfo",
 	UserToken = "userToken",
 	Settings = "settings",
+	Nav = "nav",
 	I18N = "i18nextLng",
 }
 
@@ -60,4 +61,9 @@ export enum PermissionType {
 export enum HtmlDataAttribute {
 	ColorPalette = "data-color-palette",
 	ThemeMode = "data-theme-mode",
+}
+
+export enum SortDirection {
+	SortASC = "asc",
+	SortDesc = "desc",
 }

@@ -159,6 +159,18 @@
 			"closeRight": "Close Right",
 			"fullscreen": "FullScreen",
 			"refresh": "Refresh"
+		},
+		"account": {
+			"general": "General",
+			"notifications": "Notifications",
+			"security": "Security",
+			"username": "Username",
+			"phone": "Phone",
+			"email": "Email",
+			"nickname": "Nickname",
+			"old_password": "Old Password",
+			"new_password": "New Password",
+			"confirm_new_password": "Confirm New Password"
 		}
 	}
 }

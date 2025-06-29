@@ -18,7 +18,7 @@ function RegisterForm() {
 
 	const form = useForm({
 		defaultValues: {
-			username: "",
+			user_name: "",
 			email: "",
 			password: "",
 			confirmPassword: "",
@@ -42,12 +42,12 @@ function RegisterForm() {
 
 				<FormField
 					control={form.control}
-					name="username"
+					name="user_name"
 					rules={{ required: t("sys.login.accountPlaceholder") }}
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
-								<Input placeholder={t("sys.login.userName")} {...field} />
+								<Input placeholder={t("sys.login.accountPlaceholder")} {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -61,7 +61,7 @@ function RegisterForm() {
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
-								<Input placeholder={t("sys.login.email")} {...field} />
+								<Input placeholder={t("sys.login.emaildPlaceholder")} {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -75,7 +75,7 @@ function RegisterForm() {
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
-								<Input type="password" placeholder={t("sys.login.password")} {...field} />
+								<Input type="password" placeholder={t("sys.login.passwordPlaceholder")} {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>
@@ -92,7 +92,7 @@ function RegisterForm() {
 					render={({ field }) => (
 						<FormItem>
 							<FormControl>
-								<Input type="password" placeholder={t("sys.login.confirmPassword")} {...field} />
+								<Input type="password" placeholder={t("sys.login.confirmPasswordPlaceholder")} {...field} />
 							</FormControl>
 							<FormMessage />
 						</FormItem>

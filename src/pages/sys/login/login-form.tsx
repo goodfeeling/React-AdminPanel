@@ -56,7 +56,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<FormItem>
 								<FormLabel>{t("sys.login.userName")}</FormLabel>
 								<FormControl>
-									<Input placeholder="admin/test" {...field} />
+									<Input placeholder={t("sys.login.accountPlaceholder")} {...field} />
 								</FormControl>
 								<FormMessage />
 							</FormItem>
@@ -71,7 +71,12 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 							<FormItem>
 								<FormLabel>{t("sys.login.password")}</FormLabel>
 								<FormControl>
-									<Input type="password" placeholder={t("sys.login.password")} {...field} suppressHydrationWarning />
+									<Input
+										type="password"
+										placeholder={t("sys.login.passwordPlaceholder")}
+										{...field}
+										suppressHydrationWarning
+									/>
 								</FormControl>
 								<FormMessage />
 							</FormItem>

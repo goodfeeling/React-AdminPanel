@@ -2,13 +2,13 @@ import Logo from "@/components/logo";
 import { down, useMediaQuery } from "@/hooks";
 import { useSettings } from "@/store/settingStore";
 import { cn } from "@/utils";
+import type { FC } from "react";
 import { ThemeLayout } from "#/enum";
 import Header from "./header";
 import Main from "./main";
 import { NavHorizontalLayout, NavMobileLayout, NavToggleButton, NavVerticalLayout, navData } from "./nav";
-
 // Dashboard Layout
-export default function DashboardLayout() {
+const DashboardLayout: FC = () => {
 	const isMobile = useMediaQuery(down("md"));
 	const { themeLayout } = useSettings();
 
@@ -22,7 +22,8 @@ export default function DashboardLayout() {
 			{isMobile ? <MobileLayout /> : <PcLayout />}
 		</div>
 	);
-}
+};
+export default DashboardLayout;
 
 // Pc Layout
 function PcLayout() {

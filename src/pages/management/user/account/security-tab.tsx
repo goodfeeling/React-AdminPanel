@@ -3,6 +3,7 @@ import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 type FieldType = {
@@ -12,6 +13,8 @@ type FieldType = {
 };
 
 export default function SecurityTab() {
+	const { t } = useTranslation();
+
 	const form = useForm<FieldType>({
 		defaultValues: {
 			oldPassword: "",
@@ -36,7 +39,7 @@ export default function SecurityTab() {
 							rules={{ required: "Old password is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Old Password</FormLabel>
+									<FormLabel>{t("sys.account.old_password")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -51,7 +54,7 @@ export default function SecurityTab() {
 							rules={{ required: "New password is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>New Password</FormLabel>
+									<FormLabel>{t("sys.account.new_password")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -69,7 +72,7 @@ export default function SecurityTab() {
 							}}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Confirm New Password</FormLabel>
+									<FormLabel>{t("sys.account.confirm_new_password")}</FormLabel>
 									<FormControl>
 										<Input type="password" {...field} />
 									</FormControl>
@@ -79,7 +82,7 @@ export default function SecurityTab() {
 						/>
 
 						<div className="flex w-full justify-end">
-							<Button type="submit">Save Changes</Button>
+							<Button type="submit">{t("common.saveText")}</Button>
 						</div>
 					</form>
 				</Form>

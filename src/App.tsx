@@ -8,7 +8,6 @@ import { RouteLoadingProgress } from "./components/loading";
 import Toast from "./components/toast";
 import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
-
 function App({ children }: { children: React.ReactNode }) {
 	return (
 		<HelmetProvider>

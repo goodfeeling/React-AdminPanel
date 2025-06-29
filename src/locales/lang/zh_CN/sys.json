@@ -91,7 +91,7 @@
 			"dashboard": "仪表板",
 			"workbench": "工作台",
 			"analysis": "分析",
-			"management": "管理",
+			"management": "系统管理",
 			"user": {
 				"index": "用户",
 				"profile": "个人资料",
@@ -165,6 +165,18 @@
 			"accordion": "手风琴菜单",
 			"fullscreen": "全屏",
 			"exitFullscreen": "退出全屏"
+		},
+		"account": {
+			"general": "资料设置",
+			"notifications": "通知设置",
+			"security": "密码重置",
+			"username": "用户名",
+			"phone": "手机号码",
+			"email": "邮箱",
+			"nickname": "昵称",
+			"old_password": "旧密码",
+			"new_password": "新密码",
+			"confirm_new_password": "确认新密码"
 		}
 	}
 }

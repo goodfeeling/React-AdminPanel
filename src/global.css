@@ -138,3 +138,12 @@
   --layout-header-height: 64px;
   --layout-multi-tabs-height: 48px;
 }
+
+input:-webkit-autofill,
+input:-webkit-autofill:hover,
+input:-webkit-autofill:focus, 
+input:-webkit-autofill:active {
+	-webkit-transition: color 99999s ease-out, background-color 99999s ease-out;
+	transition: color 99999s ease-out, background-color 99999s ease-out;
+    -webkit-text-fill-color: #ffffff;
+}

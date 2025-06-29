@@ -11,8 +11,9 @@ import { beforeAvatarUpload, getBlobUrl } from "./utils";
 interface Props extends UploadProps {
 	defaultAvatar?: string;
 	helperText?: React.ReactElement | string;
+	onHeaderImgChange?: (url: string) => void;
 }
-export function UploadAvatar({ helperText, defaultAvatar = "", ...other }: Props) {
+export function UploadAvatar({ helperText, onHeaderImgChange, defaultAvatar = "", ...other }: Props) {
 	const [imageUrl, setImageUrl] = useState<string>(defaultAvatar);
 
 	const [isHover, setIsHover] = useState(false);
@@ -21,13 +22,17 @@ export function UploadAvatar({ helperText, defaultAvatar = "", ...other }: Props
 	};
 
 	const handleChange: UploadProps["onChange"] = (info: UploadChangeParam<UploadFile>) => {
+		console.log("status", info.file.status);
 		if (info.file.status === "uploading") {
 			return;
 		}
 		if (info.file.status === "done" || info.file.status === "error") {
-			// TODO: Get this url from response in real world.
-			if (info.file.originFileObj) {
-				setImageUrl(getBlobUrl(info.file.originFileObj));
+			if (info.file.response?.status === 200) {
+				// change headerImage
+				if (onHeaderImgChange) {
+					onHeaderImgChange(info.file.response?.data.file_url);
+				}
+				setImageUrl(info.file.response?.data.file_url);
 			}
 		}
 	};
@@ -68,7 +73,7 @@ export function UploadAvatar({ helperText, defaultAvatar = "", ...other }: Props
 	return (
 		<StyledUploadAvatar>
 			<Upload
-				name="avatar"
+				name="file"
 				showUploadList={false}
 				listType="picture-circle"
 				className="avatar-uploader flex! items-center justify-center"

@@ -66,11 +66,15 @@ export const useSignIn = () => {
 	const signIn = async (data: SignInReq) => {
 		try {
 			const res = await signInMutation.mutateAsync(data);
-			console.log("res =", res);
-
-			const { user, accessToken, refreshToken } = res;
-			setUserToken({ accessToken, refreshToken });
-			setUserInfo(user);
+			const { userinfo: userInfo, security } = res;
+			const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } = security;
+			setUserToken({
+				accessToken: jwtAccessToken,
+				refreshToken: jwtRefreshToken,
+				expirationAccessDateTime,
+				expirationRefreshDateTime,
+			});
+			setUserInfo(userInfo);
 			navigatge(HOMEPAGE, { replace: true });
 			toast.success("Sign in success!", {
 				closeButton: true,
@@ -83,5 +87,4 @@ export const useSignIn = () => {
 	};
 	return signIn;
 };
-
 export default useUserStore;

@@ -1,19 +1,58 @@
-import type { BasicStatus, PermissionType } from "./enum";
+import type { BasicStatus, PermissionType, SortDirection } from "./enum";
+
+export interface PageList<T> {
+	list: T[];
+	total: number;
+	page: number;
+	page_size: number;
+	total_page: number;
+	filters: DataFilters;
+}
+
+type StringMapOfStringArray = { [key: string]: string[] };
+interface DataRangeFilter {
+	field: string;
+	start: string;
+	end: string;
+}
+interface DataFilters {
+	likeFilters: StringMapOfStringArray;
+	matches: StringMapOfStringArray;
+	dataRanges: DataRangeFilter[] | null;
+	sortBy: string[];
+	sortDirection: string;
+	page: number;
+	pageSize: number;
+}
 
 export interface UserToken {
 	accessToken?: string;
 	refreshToken?: string;
+	expirationAccessDateTime?: string;
+	expirationRefreshDateTime?: string;
 }
 
 export interface UserInfo {
-	id: string;
+	id: number;
+	uuid: string;
 	email: string;
-	username: string;
-	password?: string;
-	avatar?: string;
-	role?: Role;
-	status?: BasicStatus;
-	permissions?: Permission[];
+	user_name: string;
+	nick_name: string;
+	header_img: string;
+	phone: string;
+	status?: boolean;
+	created_at: string;
+	updated_at: string;
+	// role?: Role;
+	// permissions?: Permission[];
+}
+
+export interface UpdateUser {
+	email: string;
+	user_name: string;
+	nick_name: string;
+	header_img: string;
+	phone: string;
 }
 
 export interface Organization {
@@ -51,4 +90,12 @@ export interface Role {
 	order?: number;
 	desc?: string;
 	permission?: Permission[];
+}
+
+export interface Upload {
+	id: string;
+	file_name: string;
+	file_path: string;
+	file_md5: string;
+	file_url: string;
 }

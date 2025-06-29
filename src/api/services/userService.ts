@@ -1,6 +1,6 @@
 import apiClient from "../apiClient";
 
-import type { UserInfo, UserToken } from "#/entity";
+import type { PageList, UpdateUser, UserInfo } from "#/entity";
 
 export interface SignInReq {
 	user_name: string;
@@ -10,24 +10,44 @@ export interface SignInReq {
 export interface SignUpReq extends SignInReq {
 	email: string;
 }
-export type SignInRes = UserToken & { user: UserInfo };
+export type SignInRes = {
+	security: {
+		expirationAccessDateTime: string;
+		expirationRefreshDateTime: string;
+		jwtAccessToken: string;
+		jwtRefreshToken: string;
+	};
+	userinfo: UserInfo;
+};
 
 export enum UserApi {
-	SignIn = "/auth/login",
+	SignIn = "/auth/signin",
 	SignUp = "/auth/signup",
 	Logout = "/auth/logout",
-	Refresh = "/auth/refresh",
+	Refresh = "/auth/access-token",
 	User = "/user",
+	SearchUser = "/user/search",
 }
 
 const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.SignIn, data });
 const signup = (data: SignUpReq) => apiClient.post<SignInRes>({ url: UserApi.SignUp, data });
 const logout = () => apiClient.get({ url: UserApi.Logout });
+const refreshToken = (refreshToken: string) =>
+	apiClient.post<SignInRes>({ url: UserApi.Refresh, data: { refreshToken } });
 const findById = (id: string) => apiClient.get<UserInfo[]>({ url: `${UserApi.User}/${id}` });
+
+const updateUser = (id: string, userInfo: UpdateUser) =>
+	apiClient.put<UserInfo>({ url: `${UserApi.User}/${id}`, data: userInfo });
+
+const searchPageList = (searchStr: string) =>
+	apiClient.get<PageList<UserInfo>>({ url: `${UserApi.SearchUser}?${searchStr}` });
 
 export default {
 	signin,
 	signup,
 	findById,
 	logout,
+	updateUser,
+	refreshToken,
+	searchPageList,
 };

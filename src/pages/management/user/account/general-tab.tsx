@@ -1,55 +1,63 @@
+import { UploadApi } from "@/api/services/uploadService";
+import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
 import { useUserInfo } from "@/store/userStore";
+import userStore from "@/store/userStore";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardFooter } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
-import { Switch } from "@/ui/switch";
-import { Textarea } from "@/ui/textarea";
-import { faker } from "@faker-js/faker";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
-
+import type { UpdateUser } from "#/entity";
 type FieldType = {
-	name?: string;
+	user_name?: string;
 	email?: string;
+	nick_name: string;
+	header_img: string;
 	phone?: string;
-	address?: string;
-	city?: string;
-	code?: string;
-	about: string;
 };
 
 export default function GeneralTab() {
-	const { avatar, username, email } = useUserInfo();
+	const { t } = useTranslation();
+	const { header_img, user_name, email, phone, nick_name, id = "" } = useUserInfo();
 	const form = useForm<FieldType>({
 		defaultValues: {
-			name: username,
+			user_name,
 			email,
-			phone: faker.phone.number(),
-			address: faker.location.county(),
-			city: faker.location.city(),
-			code: faker.location.zipCode(),
-			about: faker.lorem.paragraphs(),
+			phone,
+			nick_name,
 		},
 	});
 
-	const handleClick = () => {
-		toast.success("Update success!");
+	const handleClick = async () => {
+		try {
+			const { user_name = "", email = "", phone = "", header_img, nick_name = "" } = await form.getValues();
+			const updateUser: UpdateUser = { user_name, email, phone, header_img, nick_name };
+			const { actions } = userStore.getState();
+			const userInfo = await userService.updateUser(id, updateUser);
+			actions.setUserInfo(userInfo);
+			toast.success("Update success!");
+		} catch (error) {
+			console.error("error:", error);
+		}
+	};
+
+	const onHeaderImgChange = (fileUrl: string) => {
+		form.setValue("header_img", fileUrl);
 	};
 
 	return (
 		<div className="grid grid-cols-1 gap-4 lg:grid-cols-2">
 			<div className="flex-1">
 				<Card className="flex-col px-6! pb-10! pt-20!">
-					<UploadAvatar defaultAvatar={avatar} />
-
-					<div className="flex items-center py-6 gap-2">
-						<div>Public Profile</div>
-						<Switch />
-					</div>
-
-					<Button variant="destructive">Delete User</Button>
+					<UploadAvatar
+						defaultAvatar={header_img}
+						onHeaderImgChange={onHeaderImgChange}
+						action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
+					/>
+					<Button variant="destructive">{t("common.delAccountText")}</Button>
 				</Card>
 			</div>
 			<div className="flex-2">
@@ -59,10 +67,10 @@ export default function GeneralTab() {
 							<div className="grid grid-cols-1 gap-4 md:grid-cols-2">
 								<FormField
 									control={form.control}
-									name="name"
+									name="user_name"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Username</FormLabel>
+											<FormLabel>{t("sys.account.username")}</FormLabel>
 											<FormControl>
 												<Input {...field} />
 											</FormControl>
@@ -74,7 +82,7 @@ export default function GeneralTab() {
 									name="email"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Email</FormLabel>
+											<FormLabel>{t("sys.account.email")}</FormLabel>
 											<FormControl>
 												<Input {...field} />
 											</FormControl>
@@ -86,7 +94,7 @@ export default function GeneralTab() {
 									name="phone"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Phone</FormLabel>
+											<FormLabel>{t("sys.account.phone")}</FormLabel>
 											<FormControl>
 												<Input {...field} />
 											</FormControl>
@@ -95,48 +103,12 @@ export default function GeneralTab() {
 								/>
 								<FormField
 									control={form.control}
-									name="address"
+									name="nick_name"
 									render={({ field }) => (
 										<FormItem>
-											<FormLabel>Address</FormLabel>
+											<FormLabel>{t("sys.account.nickname")}</FormLabel>
 											<FormControl>
 												<Input {...field} />
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="city"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>City</FormLabel>
-											<FormControl>
-												<Input {...field} />
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="code"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>Code</FormLabel>
-											<FormControl>
-												<Input {...field} />
-											</FormControl>
-										</FormItem>
-									)}
-								/>
-								<FormField
-									control={form.control}
-									name="about"
-									render={({ field }) => (
-										<FormItem>
-											<FormLabel>About</FormLabel>
-											<FormControl>
-												<Textarea {...field} />
 											</FormControl>
 										</FormItem>
 									)}
@@ -145,7 +117,7 @@ export default function GeneralTab() {
 						</Form>
 					</CardContent>
 					<CardFooter>
-						<Button onClick={handleClick}>Save Changes</Button>
+						<Button onClick={handleClick}>{t("common.saveText")}</Button>
 					</CardFooter>
 				</Card>
 			</div>
