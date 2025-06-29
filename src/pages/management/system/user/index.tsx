@@ -1,13 +1,14 @@
+import { Badge } from "@/ui/badge";
 import type { GetProp, TableProps } from "antd";
-import { Table } from "antd";
+import { Button, Card, Table } from "antd";
 import type { AnyObject } from "antd/es/_util/type";
 import type { SorterResult } from "antd/es/table/interface";
-/* eslint-disable compat/compat */
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { PageList, UserInfo } from "#/entity";
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 type TablePaginationConfig = Exclude<GetProp<TableProps, "pagination">, boolean>;
 import userService from "@/api/services/userService";
+import { CardContent, CardHeader } from "@/ui/card";
 
 interface TableParams {
 	pagination?: TablePaginationConfig;
@@ -20,10 +21,26 @@ const columns: ColumnsType<UserInfo> = [
 	{
 		title: "ID",
 		dataIndex: "id",
+		sorter: true,
+		width: "5%",
 	},
 	{
-		title: "UUID",
-		dataIndex: "uuid",
+		title: "用户名",
+		dataIndex: "user_name",
+		width: 300,
+		render: (_, record) => {
+			console.log(record);
+
+			return (
+				<div className="flex">
+					<img alt="" src={record.header_img} className="h-10 w-10 rounded-full" />
+					<div className="ml-2 flex flex-col">
+						<span className="text-sm">{record.user_name}</span>
+						<span className="text-xs text-text-secondary">{record.email}</span>
+					</div>
+				</div>
+			);
+		},
 	},
 	{
 		title: "邮箱",
@@ -31,16 +48,8 @@ const columns: ColumnsType<UserInfo> = [
 	},
 
 	{
-		title: "用户名",
-		dataIndex: "user_name",
-	},
-	{
 		title: "昵称",
 		dataIndex: "nick_name",
-	},
-	{
-		title: "头像",
-		dataIndex: "header_img",
 	},
 	{
 		title: "手机",
@@ -49,6 +58,13 @@ const columns: ColumnsType<UserInfo> = [
 	{
 		title: "状态",
 		dataIndex: "status",
+		align: "center",
+		width: 120,
+		render: (status) => {
+			console.log(status);
+
+			return <Badge variant={status ? "error" : "success"}>{status ? "Disable" : "Enable"}</Badge>;
+		},
 	},
 	{
 		title: "创建时间",
@@ -153,14 +169,26 @@ const App: React.FC = () => {
 	};
 
 	return (
-		<Table<UserInfo>
-			columns={columns}
-			rowKey={(record) => record.id}
-			dataSource={data?.list}
-			pagination={tableParams.pagination}
-			loading={loading}
-			onChange={handleTableChange}
-		/>
+		<Card>
+			<CardHeader>
+				<div className="flex items-center justify-between">
+					<div>User List</div>
+					<Button onClick={() => {}}>New</Button>
+				</div>
+			</CardHeader>
+			<CardContent>
+				<Table<UserInfo>
+					rowKey={(record) => record.id}
+					size="small"
+					scroll={{ x: "max-content" }}
+					pagination={false}
+					columns={columns}
+					dataSource={data?.list}
+					loading={loading}
+					onChange={handleTableChange}
+				/>
+			</CardContent>
+		</Card>
 	);
 };
 
