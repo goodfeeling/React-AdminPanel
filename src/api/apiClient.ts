@@ -1,11 +1,11 @@
 import axios, { type AxiosRequestConfig, type AxiosError, type AxiosResponse } from "axios";
 
 import { t } from "@/locales/i18n";
-import userStore, { useUserActions, useUserToken } from "@/store/userStore";
+import userStore, { useUserActions } from "@/store/userStore";
+import { toast } from "sonner";
 import type { Result } from "#/api";
 import { ResultEnum } from "#/enum";
 import userService from "./services/userService";
-
 // 创建 axios 实例
 const axiosInstance = axios.create({
 	baseURL: import.meta.env.VITE_APP_BASE_API,
@@ -49,6 +49,7 @@ axiosInstance.interceptors.response.use(
 		if (hasSuccess) {
 			return data;
 		}
+		
 		// 业务请求错误
 		throw new Error(message || t("sys.api.apiRequestFailed"));
 	},
@@ -103,6 +104,9 @@ axiosInstance.interceptors.response.use(
 		} else {
 			const { response, message } = error || {};
 			const newError = new Error(response?.data?.error || message || t("sys.api.errorMessage"));
+			toast.error(newError.message, {
+				position: "top-center",
+			});
 			return Promise.reject(newError);
 		}
 	},

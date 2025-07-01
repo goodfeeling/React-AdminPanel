@@ -121,7 +121,9 @@
 				"permission": "Permission",
 				"role": "Role",
 				"user": "User",
-				"user_detail": "User Detail"
+				"api":"Api",
+				"dictionary":"Dictionary",
+				"log":"Log"
 			},
 			"toast": "Toast",
 			"token_expired": "Token Expired",

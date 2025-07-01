@@ -36,11 +36,15 @@ const refreshToken = (refreshToken: string) =>
 	apiClient.post<SignInRes>({ url: UserApi.Refresh, data: { refreshToken } });
 const findById = (id: string) => apiClient.get<UserInfo[]>({ url: `${UserApi.User}/${id}` });
 
-const updateUser = (id: string, userInfo: UpdateUser) =>
+const updateUser = (id: number, userInfo: UpdateUser) =>
 	apiClient.put<UserInfo>({ url: `${UserApi.User}/${id}`, data: userInfo });
+
+const createUser = (userInfo: UserInfo) => apiClient.post<UserInfo>({ url: `${UserApi.User}`, data: userInfo });
 
 const searchPageList = (searchStr: string) =>
 	apiClient.get<PageList<UserInfo>>({ url: `${UserApi.SearchUser}?${searchStr}` });
+
+const deleteUser = (id:number) => apiClient.delete<string>({url:`${UserApi.User}/${id}`})
 
 export default {
 	signin,
@@ -50,4 +54,6 @@ export default {
 	updateUser,
 	refreshToken,
 	searchPageList,
+	createUser,
+	deleteUser,
 };

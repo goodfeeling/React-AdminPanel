@@ -21,7 +21,7 @@ type FieldType = {
 
 export default function GeneralTab() {
 	const { t } = useTranslation();
-	const { header_img, user_name, email, phone, nick_name, id = "" } = useUserInfo();
+	const { header_img, user_name, email, phone, nick_name, id = 0 } = useUserInfo();
 	const form = useForm<FieldType>({
 		defaultValues: {
 			user_name,
