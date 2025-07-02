@@ -42,8 +42,8 @@ export interface UserInfo {
   status?: boolean;
   created_at: string;
   updated_at: string;
-  // role?: Role;
-  // permissions?: Permission[];
+  role?: Role;
+  permissions?: Permission[];
 }
 
 export interface UpdateUser {
@@ -94,6 +94,12 @@ export interface Role {
   updated_at: string;
   default_router: string;
   // permission?: Permission[];
+}
+
+export interface RoleTree {
+  value: string;
+  title: string;
+  children: RoleTree[];
 }
 
 export interface Upload {

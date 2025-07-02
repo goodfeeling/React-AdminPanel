@@ -1,12 +1,12 @@
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, PopconfirmProps, TableProps } from "antd";
+import type { GetProp, TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { AnyObject } from "antd/es/_util/type";
 import type { SorterResult } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
-import type { PageList, UpdateUser, UserInfo } from "#/entity";
+import type { PageList, UserInfo } from "#/entity";
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 type TablePaginationConfig = Exclude<
   GetProp<TableProps, "pagination">,
@@ -25,6 +25,7 @@ import {
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
 import PermissionModal, { type UserModalProps } from "./user-modal";
+
 interface TableParams {
   pagination?: TablePaginationConfig;
   sortField?: SorterResult<any>["field"];
@@ -67,8 +68,8 @@ const getRandomUserParams = (params: TableParams) => {
 
   // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
   if (sortField) {
-    result.orderby = sortField;
-    result.order = sortOrder === "ascend" ? "asc" : "desc";
+    result.sortby = sortField;
+    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
   }
 
   // 处理其他参数
@@ -77,6 +78,8 @@ const getRandomUserParams = (params: TableParams) => {
       result[key] = value;
     }
   }
+
+  // 头部搜索参数
   if (searchParams) {
     if (searchParams.user_name) {
       result["userName_like"] = searchParams.user_name;
@@ -119,7 +122,6 @@ const App: React.FC = () => {
       total: 0,
     },
   });
-
   const [userModalProps, setUserModalProps] = useState<UserModalProps>({
     formValue: { ...defaultUserValue },
     title: "New",
@@ -183,26 +185,6 @@ const App: React.FC = () => {
     JSON.stringify(tableParams.filters),
   ]);
 
-  const searchFormValues = searchForm.watch();
-
-  useEffect(() => {
-    setTableParams((prev) => ({
-      ...prev,
-      searchParams: {
-        user_name: searchFormValues.user_name || "",
-        status: searchFormValues.status,
-      },
-    }));
-    // 可选：重置分页到第一页
-    setTableParams((prev) => ({
-      ...prev,
-      pagination: {
-        ...prev.pagination,
-        current: 1,
-      },
-    }));
-  }, [searchFormValues.user_name, searchFormValues.status]);
-
   const handleTableChange: TableProps<UserInfo>["onChange"] = (
     pagination,
     filters,
@@ -242,9 +224,9 @@ const App: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await userService.deleteUser(id); // 假设这是你的删除接口
+      await userService.deleteUser(id);
       toast.success("删除成功");
-      getData(); // 刷新列表
+      getData();
     } catch (error) {
       console.error(error);
       toast.error("删除失败");
@@ -311,14 +293,20 @@ const App: React.FC = () => {
       dataIndex: "updated_at",
     },
     {
-      title: "Action",
+      title: "操作",
       key: "operation",
       align: "center",
       width: 100,
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
-          <Button variant="ghost" size="icon" onClick={() => onEdit(record)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(record)}
+            className="flex flex-col items-center justify-center gap-1 px-2 py-1"
+          >
             <Icon icon="solar:pen-bold-duotone" size={18} />
+            <span className="text-xs">修改</span>
           </Button>
           <Popconfirm
             title="Delete the task"
@@ -327,12 +315,17 @@ const App: React.FC = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button variant="ghost" size="icon">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="flex flex-col items-center justify-center gap-1 px-2 py-1 text-error"
+            >
               <Icon
                 icon="mingcute:delete-2-fill"
                 size={18}
                 className="text-error!"
               />
+              <span className="text-xs">删除</span>
             </Button>
           </Popconfirm>
         </div>
@@ -340,78 +333,124 @@ const App: React.FC = () => {
     },
   ];
 
-  return (
-    <Card title="User List">
-      <CardHeader>
-        <div className="flex flex-row items-start gap-4">
-          <Form {...searchForm}>
-            <FormField
-              control={searchForm.control}
-              name="user_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>UserName</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={searchForm.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <Select
-                    onValueChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    value={field.value}
-                  >
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select Status" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="3">
-                        <Badge variant="default">All</Badge>
-                      </SelectItem>
-                      <SelectItem value="1">
-                        <Badge variant="success">Enable</Badge>
-                      </SelectItem>
-                      <SelectItem value="0">
-                        <Badge variant="error">Disable</Badge>
-                      </SelectItem>
-                    </SelectContent>
-                  </Select>
-                </FormItem>
-              )}
-            />
-            <Button onClick={() => onCreate()}>New</Button>
-          </Form>
-        </div>
-      </CardHeader>
+  const onReset = () => {
+    setTableParams((prev) => ({
+      ...prev,
+      searchParams: {
+        user_name: "",
+        status: "3",
+      },
+      pagination: {
+        ...prev.pagination,
+        current: 1,
+      },
+    }));
+    searchForm.reset();
+  };
 
-      <CardContent>
-        <Table<UserInfo>
-          rowKey={(record) => record.id}
-          scroll={{ x: "max-content" }}
-          columns={columns}
-          pagination={{
-            current: tableParams.pagination?.current || 1,
-            pageSize: tableParams.pagination?.pageSize || 10,
-            total: tableParams?.pagination?.total || 0,
-            showTotal: (total) => `共 ${total} 条`,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50", "100"],
-          }}
-          dataSource={data?.list}
-          loading={loading}
-          onChange={handleTableChange}
-        />
-      </CardContent>
-      <PermissionModal {...userModalProps} />
-    </Card>
+  const onSearch = () => {
+    const values = searchForm.getValues();
+    setTableParams((prev) => ({
+      ...prev,
+      searchParams: {
+        user_name: values.user_name || "",
+        status: values.status,
+      },
+      pagination: {
+        ...prev.pagination,
+        current: 1,
+      },
+    }));
+  };
+
+  return (
+    <div className="flex flex-col gap-4">
+      <Card>
+        <CardContent>
+          <Form {...searchForm}>
+            <div className="flex items-center gap-4">
+              <FormField
+                control={searchForm.control}
+                name="user_name"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>UserName</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={searchForm.control}
+                name="status"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3">
+                          <Badge variant="default">All</Badge>
+                        </SelectItem>
+                        <SelectItem value="1">
+                          <Badge variant="success">Enable</Badge>
+                        </SelectItem>
+                        <SelectItem value="0">
+                          <Badge variant="error">Disable</Badge>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              <div className="flex ml-auto">
+                <Button variant="outline" onClick={() => onReset()}>
+                  Reset
+                </Button>
+                <Button className="ml-4" onClick={() => onSearch()}>
+                  Search
+                </Button>
+              </div>
+            </div>
+          </Form>
+        </CardContent>
+      </Card>
+      <Card title="User List">
+        <CardHeader>
+          <div className="flex items-center justify-between">
+            <Button onClick={() => onCreate()}>New</Button>
+          </div>
+        </CardHeader>
+
+        <CardContent>
+          <Table<UserInfo>
+            rowKey={(record) => record.id}
+            scroll={{ x: "max-content" }}
+            columns={columns}
+            pagination={{
+              current: tableParams.pagination?.current || 1,
+              pageSize: tableParams.pagination?.pageSize || 10,
+              total: tableParams?.pagination?.total || 0,
+              showTotal: (total) => `共 ${total} 条`,
+              showSizeChanger: true,
+              pageSizeOptions: ["10", "20", "50", "100"],
+            }}
+            dataSource={data?.list}
+            loading={loading}
+            onChange={handleTableChange}
+          />
+        </CardContent>
+        <PermissionModal {...userModalProps} />
+      </Card>
+    </div>
   );
 };
 

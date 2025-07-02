@@ -22,6 +22,7 @@ interface TableParams {
   sortField?: SorterResult<any>["field"];
   sortOrder?: SorterResult<any>["order"];
   filters?: Parameters<GetProp<TableProps, "onChange">>[1];
+  parentId?: number;
 }
 
 const toURLSearchParams = <T extends AnyObject>(record: T) => {
@@ -44,21 +45,21 @@ const getRandomUserParams = (params: TableParams) => {
   if (filters) {
     for (const [key, value] of Object.entries(filters)) {
       if (value !== undefined && value !== null) {
-        result[key + "_match"] = value;
+        result[`${key}_match`] = value;
       }
     }
   }
 
   // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
   if (sortField) {
-    result.orderby = sortField;
-    result.order = sortOrder === "ascend" ? "asc" : "desc";
+    result.sortby = sortField;
+    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
   }
 
   // 处理其他参数
   for (const [key, value] of Object.entries(restParams)) {
     if (value !== undefined && value !== null) {
-      result[key] = value;
+      result[`${key}_match`] = value;
     }
   }
 
@@ -87,6 +88,7 @@ const App: React.FC = () => {
       pageSize: 10,
       total: 0,
     },
+    parentId: 0,
   });
 
   const [userModalProps, setUserModalProps] = useState<RoleModalProps>({
@@ -169,13 +171,17 @@ const App: React.FC = () => {
     }
   };
 
-  const onCreate = () => {
+  const onCreate = (formValue: Role | undefined) => {
+    const setValue = defaultValue;
+    if (formValue !== undefined) {
+      setValue.parent_id = formValue.parent_id;
+    }
     setUserModalProps((prev) => ({
       ...prev,
       show: true,
-      ...defaultValue,
+      ...setValue,
       title: "New",
-      formValue: { ...defaultValue },
+      formValue: { ...setValue },
     }));
   };
 
@@ -190,9 +196,9 @@ const App: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await roleService.deleteUser(id); // 假设这是你的删除接口
+      await roleService.deleteUser(id);
       toast.success("删除成功");
-      getData(); // 刷新列表
+      getData();
     } catch (error) {
       console.error(error);
       toast.error("删除失败");
@@ -203,7 +209,6 @@ const App: React.FC = () => {
     {
       title: "ID",
       dataIndex: "id",
-      sorter: true,
       width: "5%",
     },
     {
@@ -244,14 +249,41 @@ const App: React.FC = () => {
       dataIndex: "updated_at",
     },
     {
-      title: "Action",
+      title: "操作",
       key: "operation",
       align: "center",
-      width: 100,
+      width: 300,
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
-          <Button variant="ghost" size="icon" onClick={() => onEdit(record)}>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(record)}
+            style={{ minWidth: "110px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+          >
+            <Icon icon="solar:settings-bold" size={18} />
+            <span className="text-xs">设置权限</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onCreate(record)}
+            style={{ minWidth: "80px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+          >
+            <Icon icon="solar:add-square-bold" size={18} />
+            <span className="text-xs">新增子角色</span>
+          </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(record)}
+            style={{ minWidth: "70px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+          >
             <Icon icon="solar:pen-bold-duotone" size={18} />
+            <span className="text-xs">修改</span>
           </Button>
           <Popconfirm
             title="Delete the task"
@@ -260,12 +292,17 @@ const App: React.FC = () => {
             okText="Yes"
             cancelText="No"
           >
-            <Button variant="ghost" size="icon">
+            <Button
+              variant="ghost"
+              size="icon"
+              className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
+            >
               <Icon
                 icon="mingcute:delete-2-fill"
                 size={18}
                 className="text-error!"
               />
+              <span className="text-xs">删除</span>
             </Button>
           </Popconfirm>
         </div>
@@ -274,10 +311,10 @@ const App: React.FC = () => {
   ];
 
   return (
-    <Card title="User List">
+    <Card title="Role List">
       <CardHeader>
-        <div className="flex flex-row items-start gap-4">
-          <Button onClick={() => onCreate()}>New</Button>
+        <div className="flex items-center justify-between">
+          <Button onClick={() => onCreate(undefined)}>New</Button>
         </div>
       </CardHeader>
 
