@@ -93,12 +93,15 @@ export interface Role {
   created_at: string;
   updated_at: string;
   default_router: string;
+  children?: Role[];
+  path: number[];
   // permission?: Permission[];
 }
 
 export interface RoleTree {
   value: string;
   title: string;
+  key: string;
   children: RoleTree[];
 }
 

@@ -10,8 +10,8 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { TreeSelect, TreeSelectProps } from "antd";
-import { type ReactNode, useCallback, useEffect, useState } from "react";
+import TreeSelectInput from "@/ui/tree-select-input";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Role, RoleTree } from "#/entity";
 import { BasicStatus } from "#/enum";
@@ -19,37 +19,47 @@ export type RoleModalProps = {
   formValue: Role;
   title: string;
   show: boolean;
+  isCreateSub: boolean;
   onOk: (values: Role) => void;
   onCancel: VoidFunction;
 };
 export default function UserModal({
   title,
   show,
+  isCreateSub,
   formValue,
   onOk,
   onCancel,
 }: RoleModalProps) {
+  const [treeData, setTreeData] = useState<RoleTree[]>([]);
+  const [selectedKey, setSelectedKey] = useState<number>(0);
   const form = useForm<Role>({
     defaultValues: formValue,
   });
-  const [treeData, setTreeData] = useState<RoleTree[]>([]);
-
   const onSubmit = (values: Role) => {
     onOk(values);
   };
 
   const onLoadRoleTree = useCallback(async () => {
     const response = await roleService.getRoleTree();
-    setTreeData(response);
+    setTreeData([response]);
   }, []);
 
   useEffect(() => {
     form.reset(formValue);
     onLoadRoleTree();
+    if (formValue.parent_id) {
+      setSelectedKey(formValue.parent_id);
+    }
   }, [formValue, form, onLoadRoleTree]);
 
+  const handleClose = () => {
+    setSelectedKey(0); // 清除选中状态
+    onCancel(); // 关闭弹框
+  };
+
   return (
-    <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
+    <Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
@@ -73,25 +83,17 @@ export default function UserModal({
               control={form.control}
               name="parent_id"
               render={({ field }) => (
-                <FormItem style={{ zIndex: 999 }}>
+                <FormItem>
                   <FormLabel>Parent</FormLabel>
-                  <TreeSelect
-                    treeDefaultExpandAll={true}
-                    variant="filled"
-                    allowClear
+                  <TreeSelectInput
                     treeData={treeData}
-                    value={field.value}
-                    onSelect={(value, node) => {
-                      console.log("onSelect");
-
+                    disabled={isCreateSub}
+                    value={String(selectedKey)}
+                    onChange={(value: string, label: string) => {
+                      setSelectedKey(Number(value));
                       field.onChange(value);
                     }}
-                    onChange={(value) => {
-                      field.onChange(value);
-                    }}
-                    onOpenChange={(v) => {
-                      console.log(v);
-                    }}
+                    placeholder="请选择父级角色"
                   />
                 </FormItem>
               )}
@@ -162,7 +164,7 @@ export default function UserModal({
             />
 
             <DialogFooter>
-              <Button variant="outline" type="button" onClick={onCancel}>
+              <Button variant="outline" type="button" onClick={handleClose}>
                 Cancel
               </Button>
               <Button type="submit" variant="default">

@@ -61,7 +61,7 @@ const getRandomUserParams = (params: TableParams) => {
   if (filters) {
     for (const [key, value] of Object.entries(filters)) {
       if (value !== undefined && value !== null) {
-        result[key + "_match"] = value;
+        result[`${key}_match`] = value;
       }
     }
   }
@@ -82,10 +82,10 @@ const getRandomUserParams = (params: TableParams) => {
   // 头部搜索参数
   if (searchParams) {
     if (searchParams.user_name) {
-      result["userName_like"] = searchParams.user_name;
+      result.userName_like = searchParams.user_name;
     }
     if (searchParams.status !== "3") {
-      result["status_match"] = searchParams.status;
+      result.status_match = searchParams.status;
     }
   }
 
@@ -303,7 +303,8 @@ const App: React.FC = () => {
             variant="ghost"
             size="icon"
             onClick={() => onEdit(record)}
-            className="flex flex-col items-center justify-center gap-1 px-2 py-1"
+            style={{ minWidth: "70px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
           >
             <Icon icon="solar:pen-bold-duotone" size={18} />
             <span className="text-xs">修改</span>
@@ -318,7 +319,7 @@ const App: React.FC = () => {
             <Button
               variant="ghost"
               size="icon"
-              className="flex flex-col items-center justify-center gap-1 px-2 py-1 text-error"
+              className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
             >
               <Icon
                 icon="mingcute:delete-2-fill"

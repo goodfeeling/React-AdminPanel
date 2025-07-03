@@ -15,6 +15,7 @@ export enum RoleApi {
   SearchRole = "/role/search",
   RoleTree = "/role/tree",
 }
+const getRoles = () => apiClient.get<Role[]>({ url: `${RoleApi.Role}` });
 const updateUser = (id: number, userInfo: UpdateRole) =>
   apiClient.put<Role>({ url: `${RoleApi.Role}/${id}`, data: userInfo });
 
@@ -30,7 +31,7 @@ const deleteUser = (id: number) =>
   apiClient.delete<string>({ url: `${RoleApi.Role}/${id}` });
 
 const getRoleTree = () =>
-  apiClient.get<RoleTree[]>({ url: `${RoleApi.RoleTree}` });
+  apiClient.get<RoleTree>({ url: `${RoleApi.RoleTree}` });
 
 export default {
   updateUser,
@@ -38,4 +39,5 @@ export default {
   createUser,
   deleteUser,
   getRoleTree,
+  getRoles,
 };

@@ -1,70 +1,17 @@
+import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, TableProps } from "antd";
-import { Card, Popconfirm, Table } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
-import type { SorterResult } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
-import type { PageList, Role } from "#/entity";
-type ColumnsType<T extends object = object> = TableProps<T>["columns"];
-type TablePaginationConfig = Exclude<
-  GetProp<TableProps, "pagination">,
-  boolean
->;
-import roleService from "@/api/services/roleService";
-import { CardContent, CardHeader } from "@/ui/card";
+import { Card, CardContent, CardHeader } from "@/ui/card";
+import type { TableProps } from "antd";
+import { Popconfirm, Table } from "antd";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import PermissionModal, { type RoleModalProps } from "./role-modal";
+import type { Role } from "#/entity";
+import RoleModal, { type RoleModalProps } from "./role-modal";
+import SettingModal, { SettingModalProps } from "./setting-modal";
 
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: SorterResult<any>["field"];
-  sortOrder?: SorterResult<any>["order"];
-  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
-  parentId?: number;
-}
-
-const toURLSearchParams = <T extends AnyObject>(record: T) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(record)) {
-    params.append(key, value);
-  }
-  return params;
-};
-
-const getRandomUserParams = (params: TableParams) => {
-  const { pagination, filters, sortField, sortOrder, ...restParams } = params;
-  const result: Record<string, any> = {};
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#pagination
-  result.pageSize = pagination?.pageSize;
-  result.page = pagination?.current;
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#filtering
-  if (filters) {
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null) {
-        result[`${key}_match`] = value;
-      }
-    }
-  }
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
-  if (sortField) {
-    result.sortby = sortField;
-    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
-  }
-
-  // 处理其他参数
-  for (const [key, value] of Object.entries(restParams)) {
-    if (value !== undefined && value !== null) {
-      result[`${key}_match`] = value;
-    }
-  }
-
-  return result;
-};
+type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 
 const defaultValue: Role = {
   id: 0,
@@ -77,24 +24,24 @@ const defaultValue: Role = {
   created_at: "",
   updated_at: "",
   default_router: "",
+  children: [],
+  path: [],
 };
 
 const App: React.FC = () => {
-  const [data, setData] = useState<PageList<Role>>();
+  const [data, setData] = useState<Role[]>();
   const [loading, setLoading] = useState(false);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    },
-    parentId: 0,
-  });
+  const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
 
-  const [userModalProps, setUserModalProps] = useState<RoleModalProps>({
+  // const [settingModalPros,setSettingModalProps] = useState<SettingModalProps>({
+
+  // })
+
+  const [roleModalProps, setUserModalProps] = useState<RoleModalProps>({
     formValue: { ...defaultValue },
     title: "New",
     show: false,
+    isCreateSub: false,
     onOk: async (values: Role) => {
       if (values.id === 0) {
         await roleService.createUser(values);
@@ -125,60 +72,26 @@ const App: React.FC = () => {
     },
   });
 
-  const getData = async () => {
-    const params = toURLSearchParams(getRandomUserParams(tableParams));
-    const response = await roleService.searchPageList(params.toString());
+  const getData = useCallback(async () => {
+    const response = await roleService.getRoles();
     setData(response);
-    setTableParams((prev) => ({
-      ...prev,
-      pagination: {
-        ...prev.pagination,
-        current: response.page,
-        total: response.total,
-        pageSize: response.page_size,
-      },
-    }));
     setLoading(false);
-  };
+  }, []);
 
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
     setLoading(true);
     getData();
-  }, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-    tableParams?.sortOrder,
-    tableParams?.sortField,
-    JSON.stringify(tableParams.filters),
-  ]);
+  }, [getData]);
 
-  const handleTableChange: TableProps<Role>["onChange"] = (
-    pagination,
-    filters,
-    sorter
-  ) => {
-    setTableParams({
-      pagination,
-      filters,
-      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-      sortField: Array.isArray(sorter) ? undefined : sorter.field,
-    });
-
-    // `dataSource` is useless since `pageSize` changed
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData(undefined);
-    }
-  };
-
-  const onCreate = (formValue: Role | undefined) => {
+  const onCreate = (formValue: Role | undefined, isCreateSub = false) => {
     const setValue = defaultValue;
     if (formValue !== undefined) {
-      setValue.parent_id = formValue.parent_id;
+      setValue.parent_id = formValue.id;
     }
     setUserModalProps((prev) => ({
       ...prev,
       show: true,
+      isCreateSub,
       ...setValue,
       title: "New",
       formValue: { ...setValue },
@@ -205,11 +118,38 @@ const App: React.FC = () => {
     }
   };
 
+  const handleExpand = (expanded: boolean, record: Role) => {
+    const keys = expanded
+      ? [...expandedKeys, record.id]
+      : expandedKeys.filter((key) => key !== record.id);
+    setExpandedKeys(keys);
+  };
   const columns: ColumnsType<Role> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      width: "5%",
+      title: "角色ID",
+      dataIndex: "expand",
+      render: (_, record) => {
+        const level = record.path.length - 1;
+        console.log(level);
+
+        return record.children?.length ? (
+          <Button
+            onClick={(e) =>
+              handleExpand(!expandedKeys.includes(record.id), record)
+            }
+            variant="ghost"
+            size="icon"
+            className={record.parent_id !== 0 ? `ml-${level * 10}` : ""}
+          >
+            {expandedKeys.includes(record.id) ? "▼" : "▶"}
+            <span>{record.id}</span>
+          </Button>
+        ) : (
+          <span className={`ml-${level * 10}`}>{record.id}</span>
+        );
+      },
+
+      width: 90,
     },
     {
       title: "名称",
@@ -258,7 +198,7 @@ const App: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onEdit(record)}
+            onClick={() => onCreate(record)}
             style={{ minWidth: "110px" }}
             className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
           >
@@ -268,7 +208,7 @@ const App: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onCreate(record)}
+            onClick={() => onCreate(record, true)}
             style={{ minWidth: "80px" }}
             className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
           >
@@ -319,24 +259,21 @@ const App: React.FC = () => {
       </CardHeader>
 
       <CardContent>
-        <Table<Role>
+        <Table
           rowKey={(record) => record.id}
           scroll={{ x: "max-content" }}
           columns={columns}
-          pagination={{
-            current: tableParams.pagination?.current || 1,
-            pageSize: tableParams.pagination?.pageSize || 10,
-            total: tableParams?.pagination?.total || 0,
-            showTotal: (total) => `共 ${total} 条`,
-            showSizeChanger: true,
-            pageSizeOptions: ["10", "20", "50", "100"],
-          }}
-          dataSource={data?.list}
+          dataSource={data}
           loading={loading}
-          onChange={handleTableChange}
+          expandable={{
+            showExpandColumn: false,
+            expandedRowKeys: expandedKeys,
+            onExpand: (expanded, record) => handleExpand(expanded, record),
+          }}
         />
       </CardContent>
-      <PermissionModal {...userModalProps} />
+      <RoleModal {...roleModalProps} />
+      <SettingModal />
     </Card>
   );
 };
