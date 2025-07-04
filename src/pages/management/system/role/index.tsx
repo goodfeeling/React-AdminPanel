@@ -9,7 +9,7 @@ import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Role } from "#/entity";
 import RoleModal, { type RoleModalProps } from "./role-modal";
-import SettingModal, { SettingModalProps } from "./setting-modal";
+import SettingModal, { type SettingModalProps } from "./setting-modal";
 
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 
@@ -33,9 +33,14 @@ const App: React.FC = () => {
   const [loading, setLoading] = useState(false);
   const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
 
-  // const [settingModalPros,setSettingModalProps] = useState<SettingModalProps>({
-
-  // })
+  const [settingModalPros, setSettingModalProps] = useState<SettingModalProps>({
+    id: 0,
+    title: "New",
+    show: false,
+    onCancel: () => {
+      setSettingModalProps((prev) => ({ ...prev, show: false }));
+    },
+  });
 
   const [roleModalProps, setUserModalProps] = useState<RoleModalProps>({
     formValue: { ...defaultValue },
@@ -107,6 +112,15 @@ const App: React.FC = () => {
     }));
   };
 
+  const onSetting = (value: Role) => {
+    setSettingModalProps((prev) => ({
+      ...prev,
+      show: true,
+      title: "角色设置",
+      id: value.id,
+    }));
+  };
+
   const handleDelete = async (id: number) => {
     try {
       await roleService.deleteUser(id);
@@ -129,9 +143,7 @@ const App: React.FC = () => {
       title: "角色ID",
       dataIndex: "expand",
       render: (_, record) => {
-        const level = record.path.length - 1;
-        console.log(level);
-
+        const level = record.path.length;
         return record.children?.length ? (
           <Button
             onClick={(e) =>
@@ -139,13 +151,15 @@ const App: React.FC = () => {
             }
             variant="ghost"
             size="icon"
-            className={record.parent_id !== 0 ? `ml-${level * 10}` : ""}
+            style={{
+              marginLeft: record.parent_id !== 0 ? `${level * 20}px` : "",
+            }}
           >
             {expandedKeys.includes(record.id) ? "▼" : "▶"}
             <span>{record.id}</span>
           </Button>
         ) : (
-          <span className={`ml-${level * 10}`}>{record.id}</span>
+          <span style={{ marginLeft: `${level * 20}px` }}>{record.id}</span>
         );
       },
 
@@ -198,7 +212,7 @@ const App: React.FC = () => {
           <Button
             variant="ghost"
             size="icon"
-            onClick={() => onCreate(record)}
+            onClick={() => onSetting(record)}
             style={{ minWidth: "110px" }}
             className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
           >
@@ -273,7 +287,7 @@ const App: React.FC = () => {
         />
       </CardContent>
       <RoleModal {...roleModalProps} />
-      <SettingModal />
+      <SettingModal {...settingModalPros} />
     </Card>
   );
 };

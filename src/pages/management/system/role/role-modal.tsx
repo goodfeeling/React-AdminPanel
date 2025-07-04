@@ -89,8 +89,7 @@ export default function UserModal({
                     treeData={treeData}
                     disabled={isCreateSub}
                     value={String(selectedKey)}
-                    onChange={(value: string, label: string) => {
-                      setSelectedKey(Number(value));
+                    onChange={(value: string) => {
                       field.onChange(value);
                     }}
                     placeholder="请选择父级角色"

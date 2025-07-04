@@ -103,6 +103,7 @@ export interface RoleTree {
   title: string;
   key: string;
   children: RoleTree[];
+  path: number[];
 }
 
 export interface Upload {

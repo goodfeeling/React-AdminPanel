@@ -7,14 +7,14 @@ export interface TreeNode {
   title: string;
   key: string;
   children?: TreeNode[];
-  path?: number[];
+  path: number[];
 }
 
 interface TreeSelectInputProps {
   treeData: TreeNode[];
   value?: string;
   disabled?: boolean;
-  onChange?: (value: string, label: string) => void;
+  onChange?: (value: string) => void;
   placeholder?: string;
 }
 
@@ -28,12 +28,18 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
   const [selectedKey, setSelectedKey] = useState<string>(value || "");
   const [selectedLabel, setSelectedLabel] = useState<string>("");
   const [isTreeVisible, setIsTreeVisible] = useState<boolean>(false);
+  const [selectedPath, setSelectedPath] = useState<number[]>([]);
 
   // 用 ref 获取外层容器用于判断是否点击外部
   const containerRef = useRef<HTMLDivElement>(null);
 
-  const filterTreeNode = (node: any, selectedKey: React.Key): boolean => {
-    return node.path?.includes(selectedKey);
+  const filterTreeNode = (node: any): boolean => {
+    if (selectedPath === null) {
+      return false;
+    }
+    return node.value === "0"
+      ? true
+      : selectedPath.includes(Number(node.value));
   };
 
   // 查找默认选中的节点 label
@@ -57,6 +63,7 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
       if (matchedNode) {
         setSelectedLabel(matchedNode.title);
         setSelectedKey(matchedNode.value);
+        setSelectedPath(matchedNode.path);
       }
     }
   }, [value, treeData]);
@@ -65,10 +72,12 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
     const key = keys[0];
     if (key) {
       const label = info.node.title;
+      const path = info.node.path;
       setSelectedKey(key as string);
       setSelectedLabel(label);
+      setSelectedPath(path);
       if (onChange) {
-        onChange(key as string, label);
+        onChange(key as string);
       }
     }
     setIsTreeVisible(false);
@@ -132,9 +141,7 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
           <Tree
             treeData={treeData}
             selectedKeys={[selectedKey]}
-            filterTreeNode={(node) => {
-              return filterTreeNode(node, selectedKey);
-            }}
+            filterTreeNode={filterTreeNode}
             onSelect={handleSelect}
           />
         </div>
