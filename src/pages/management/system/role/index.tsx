@@ -108,6 +108,7 @@ const App: React.FC = () => {
       ...prev,
       show: true,
       title: "Edit",
+      isCreateSub: false,
       formValue,
     }));
   };

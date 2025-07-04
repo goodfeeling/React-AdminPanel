@@ -33,6 +33,7 @@ export default function UserModal({
 }: RoleModalProps) {
   const [treeData, setTreeData] = useState<RoleTree[]>([]);
   const [selectedKey, setSelectedKey] = useState<number>(0);
+
   const form = useForm<Role>({
     defaultValues: formValue,
   });
@@ -55,6 +56,7 @@ export default function UserModal({
 
   const handleClose = () => {
     setSelectedKey(0); // 清除选中状态
+    // setDisabledStatus(false);
     onCancel(); // 关闭弹框
   };
 

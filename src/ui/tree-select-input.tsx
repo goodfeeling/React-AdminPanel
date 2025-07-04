@@ -99,6 +99,7 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
+  console.log("tree,", disabled);
 
   return (
     <div

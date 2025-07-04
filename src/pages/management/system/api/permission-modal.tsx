@@ -15,7 +15,6 @@ import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Permission } from "#/entity";
 import { BasicStatus, PermissionType } from "#/enum";
-import Tree from "@/ui/tree";
 
 // Constants
 const ENTRY_PATH = "/src/pages";
@@ -156,7 +155,6 @@ export default function PermissionModal({
                   <FormControl>
                     <div className="p-4">
                       <h1 className="mb-4 text-lg font-bold">Tree Component</h1>
-                      <Tree treeData={treeData} />
                     </div>
                   </FormControl>
                 </FormItem>
