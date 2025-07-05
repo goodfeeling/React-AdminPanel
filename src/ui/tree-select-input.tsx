@@ -1,7 +1,8 @@
 import type React from "react";
 import { useEffect, useRef, useState } from "react";
 import { Tree } from "antd";
-
+import { useSettings } from "@/store/settingStore";
+import { paletteColors } from "@/theme/tokens/color";
 export interface TreeNode {
   value: string;
   title: string;
@@ -25,6 +26,7 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
   onChange,
   placeholder = "请选择",
 }) => {
+  const { themeMode } = useSettings();
   const [selectedKey, setSelectedKey] = useState<string>(value || "");
   const [selectedLabel, setSelectedLabel] = useState<string>("");
   const [isTreeVisible, setIsTreeVisible] = useState<boolean>(false);
@@ -99,7 +101,6 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
       document.removeEventListener("mousedown", handleClickOutside);
     };
   }, []);
-  console.log("tree,", disabled);
 
   return (
     <div
@@ -115,6 +116,11 @@ const TreeSelectInput: React.FC<TreeSelectInputProps> = ({
         placeholder={placeholder}
         style={{
           width: "100%",
+          backgroundColor: disabled
+            ? themeMode === "light"
+              ? paletteColors.gray["300"]
+              : paletteColors.gray["800"]
+            : "color-mix(in oklab, var(--input) var(--opacity-30), transparent)",
           padding: "8px 12px",
           border: "1px solid rgba(145 158 171 / 20%)",
           borderRadius: 4,

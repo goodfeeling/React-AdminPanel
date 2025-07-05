@@ -269,7 +269,7 @@ const App: React.FC = () => {
     <Card title="Role List">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <Button onClick={() => onCreate(undefined)}>New</Button>
+          <Button onClick={() => onCreate(undefined, true)}>New</Button>
         </div>
       </CardHeader>
 

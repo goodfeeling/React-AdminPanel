@@ -33,11 +33,12 @@ export default function UserModal({
 }: RoleModalProps) {
   const [treeData, setTreeData] = useState<RoleTree[]>([]);
   const [selectedKey, setSelectedKey] = useState<number>(0);
-
   const form = useForm<Role>({
     defaultValues: formValue,
   });
-  const onSubmit = (values: Role) => {
+  const onSubmit = () => {
+    const values = form.getValues();
+    values.order = Number(values.order);
     onOk(values);
   };
 
@@ -67,26 +68,25 @@ export default function UserModal({
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
-            <FormField
-              control={form.control}
-              name="name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Name</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="parent_id"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Parent</FormLabel>
+          <FormField
+            control={form.control}
+            name="name"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Name</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="parent_id"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Parent</FormLabel>
+                <FormControl>
                   <TreeSelectInput
                     treeData={treeData}
                     disabled={isCreateSub}
@@ -96,83 +96,82 @@ export default function UserModal({
                     }}
                     placeholder="请选择父级角色"
                   />
-                </FormItem>
-              )}
-            />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="label"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>label</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="label"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>label</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
+          <FormField
+            control={form.control}
+            name="description"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>description</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="order"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>order</FormLabel>
+                <FormControl>
+                  <Input {...field} />
+                </FormControl>
+              </FormItem>
+            )}
+          />
+          <FormField
+            control={form.control}
+            name="status"
+            render={({ field }) => (
+              <FormItem>
+                <FormLabel>Status</FormLabel>
+                <FormControl>
+                  <ToggleGroup
+                    type="single"
+                    variant="outline"
+                    value={field.value ? "1" : "0"}
+                    onValueChange={(value) => {
+                      field.onChange(value === "1");
+                    }}
+                  >
+                    <ToggleGroupItem value={String(BasicStatus.ENABLE)}>
+                      Enable
+                    </ToggleGroupItem>
+                    <ToggleGroupItem value={String(BasicStatus.DISABLE)}>
+                      Disable
+                    </ToggleGroupItem>
+                  </ToggleGroup>
+                </FormControl>
+              </FormItem>
+            )}
+          />
 
-            <FormField
-              control={form.control}
-              name="description"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>description</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="order"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>order</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      value={field.value ? "1" : "0"}
-                      onValueChange={(value) => {
-                        field.onChange(value === "1");
-                      }}
-                    >
-                      <ToggleGroupItem value={String(BasicStatus.ENABLE)}>
-                        Enable
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value={String(BasicStatus.DISABLE)}>
-                        Disable
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <DialogFooter>
-              <Button variant="outline" type="button" onClick={handleClose}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="default">
-                Confirm
-              </Button>
-            </DialogFooter>
-          </form>
+          <DialogFooter>
+            <Button variant="outline" type="button" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default" onClick={onSubmit}>
+              Confirm
+            </Button>
+          </DialogFooter>
         </Form>
       </DialogContent>
     </Dialog>

@@ -42,7 +42,7 @@ export interface UserInfo {
   status?: boolean;
   created_at: string;
   updated_at: string;
-  role?: Role;
+  role?: Role[];
   permissions?: Permission[];
 }
 

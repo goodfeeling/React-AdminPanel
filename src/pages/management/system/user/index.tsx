@@ -309,6 +309,16 @@ const App: React.FC = () => {
             <Icon icon="solar:pen-bold-duotone" size={18} />
             <span className="text-xs">修改</span>
           </Button>
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onEdit(record)}
+            style={{ minWidth: "90px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+          >
+            <Icon icon="solar:pen-bold-duotone" size={18} />
+            <span className="text-xs">重置密码</span>
+          </Button>
           <Popconfirm
             title="Delete the task"
             description="Are you sure to delete this task?"

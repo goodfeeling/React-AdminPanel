@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import { Dialog, DialogContent, DialogHeader } from "@/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { Tree } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
@@ -96,7 +96,9 @@ export default function SettingModal({
   return (
     <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent>
-        <DialogHeader>{title}</DialogHeader>
+        <DialogHeader>
+          <DialogTitle>{title}</DialogTitle>
+        </DialogHeader>
         <Tabs defaultValue="1" className="w-full">
           <TabsList>
             <TabsTrigger value="1">
