@@ -24,7 +24,7 @@ import {
 } from "@/ui/select";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import PermissionModal, { type UserModalProps } from "./dictionary-modal";
+import PermissionModal, { type UserModalProps } from "./menu-modal";
 
 interface TableParams {
   pagination?: TablePaginationConfig;

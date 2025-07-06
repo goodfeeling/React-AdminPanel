@@ -45,6 +45,7 @@ const DictionaryPage = lazy(
   () => import("@/pages/management/system/dictionary")
 );
 const LogPage = lazy(() => import("@/pages/management/system/log"));
+const MenuPage = lazy(() => import("@/pages/management/system/menu"));
 // others
 const ExternalLink = lazy(
   () => import("@/pages/sys/others/iframe/external-link")
@@ -131,6 +132,7 @@ export const dashboardRoutes: RouteObject[] = [
               { path: "api", element: <ApiPage /> },
               { path: "dictionary", element: <DictionaryPage /> },
               { path: "log", element: <LogPage /> },
+              { path: "menu", element: <MenuPage /> },
             ],
           },
         ],
