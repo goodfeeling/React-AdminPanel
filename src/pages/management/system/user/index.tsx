@@ -1,18 +1,7 @@
+import userService from "@/api/services/userService";
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
-import type { SorterResult } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
-import type { PageList, UserInfo } from "#/entity";
-type ColumnsType<T extends object = object> = TableProps<T>["columns"];
-type TablePaginationConfig = Exclude<
-  GetProp<TableProps, "pagination">,
-  boolean
->;
-import userService from "@/api/services/userService";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import {
@@ -22,75 +11,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/select";
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
+import type { TableProps } from "antd";
+import { Card, Input, Popconfirm, Table } from "antd";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
+import type { ColumnsType, PageList, TableParams, UserInfo } from "#/entity";
 import PermissionModal, { type UserModalProps } from "./user-modal";
-
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: SorterResult<any>["field"];
-  sortOrder?: SorterResult<any>["order"];
-  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
-  searchParams?: SearchFormFieldType;
-}
-
-const toURLSearchParams = <T extends AnyObject>(record: T) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(record)) {
-    params.append(key, value);
-  }
-  return params;
-};
-
-const getRandomUserParams = (params: TableParams) => {
-  const {
-    pagination,
-    filters,
-    sortField,
-    sortOrder,
-    searchParams,
-    ...restParams
-  } = params;
-  const result: Record<string, any> = {};
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#pagination
-  result.pageSize = pagination?.pageSize;
-  result.page = pagination?.current;
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#filtering
-  if (filters) {
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null) {
-        result[`${key}_match`] = value;
-      }
-    }
-  }
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
-  if (sortField) {
-    result.sortby = sortField;
-    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
-  }
-
-  // 处理其他参数
-  for (const [key, value] of Object.entries(restParams)) {
-    if (value !== undefined && value !== null) {
-      result[key] = value;
-    }
-  }
-
-  // 头部搜索参数
-  if (searchParams) {
-    if (searchParams.user_name) {
-      result.userName_like = searchParams.user_name;
-    }
-    if (searchParams.status !== "3") {
-      result.status_match = searchParams.status;
-    }
-  }
-
-  return result;
-};
 
 const defaultUserValue: UserInfo = {
   id: 0,
@@ -157,7 +85,19 @@ const App: React.FC = () => {
   });
 
   const getData = async () => {
-    const params = toURLSearchParams(getRandomUserParams(tableParams));
+    const params = toURLSearchParams(
+      getRandomUserParams(tableParams, (result, searchParams) => {
+        if (searchParams) {
+          if (searchParams.user_name) {
+            result.userName_like = searchParams.user_name;
+          }
+          if (searchParams.status !== "3") {
+            result.status_match = searchParams.status;
+          }
+        }
+      })
+    );
+
     const response = await userService.searchPageList(params.toString());
     setData(response);
     setTableParams((prev) => ({
@@ -201,25 +141,6 @@ const App: React.FC = () => {
     if (pagination.pageSize !== tableParams.pagination?.pageSize) {
       setData(undefined);
     }
-  };
-
-  const onCreate = () => {
-    setUserModalProps((prev) => ({
-      ...prev,
-      show: true,
-      ...defaultUserValue,
-      title: "New",
-      formValue: { ...defaultUserValue },
-    }));
-  };
-
-  const onEdit = (formValue: UserInfo) => {
-    setUserModalProps((prev) => ({
-      ...prev,
-      show: true,
-      title: "Edit",
-      formValue,
-    }));
   };
 
   const handleDelete = async (id: number) => {
@@ -371,6 +292,25 @@ const App: React.FC = () => {
         ...prev.pagination,
         current: 1,
       },
+    }));
+  };
+
+  const onCreate = () => {
+    setUserModalProps((prev) => ({
+      ...prev,
+      show: true,
+      ...defaultUserValue,
+      title: "New",
+      formValue: { ...defaultUserValue },
+    }));
+  };
+
+  const onEdit = (formValue: UserInfo) => {
+    setUserModalProps((prev) => ({
+      ...prev,
+      show: true,
+      title: "Edit",
+      formValue,
     }));
   };
 

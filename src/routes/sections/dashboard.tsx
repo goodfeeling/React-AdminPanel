@@ -44,7 +44,7 @@ const ApiPage = lazy(() => import("@/pages/management/system/api"));
 const DictionaryPage = lazy(
   () => import("@/pages/management/system/dictionary")
 );
-const LogPage = lazy(() => import("@/pages/management/system/log"));
+const OperationPage = lazy(() => import("@/pages/management/system/operation"));
 const MenuPage = lazy(() => import("@/pages/management/system/menu"));
 // others
 const ExternalLink = lazy(
@@ -131,7 +131,7 @@ export const dashboardRoutes: RouteObject[] = [
               { path: "user", element: <UserPage /> },
               { path: "api", element: <ApiPage /> },
               { path: "dictionary", element: <DictionaryPage /> },
-              { path: "log", element: <LogPage /> },
+              { path: "operation", element: <OperationPage /> },
               { path: "menu", element: <MenuPage /> },
             ],
           },

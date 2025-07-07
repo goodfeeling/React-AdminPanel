@@ -1,5 +1,19 @@
+import type { GetProp, TableProps } from "antd";
+import type { SorterResult } from "antd/es/table/interface";
 import type { BasicStatus, PermissionType, SortDirection } from "./enum";
 
+export type ColumnsType<T extends object = object> = TableProps<T>["columns"];
+export type TablePaginationConfig = Exclude<
+  GetProp<TableProps, "pagination">,
+  boolean
+>;
+export interface TableParams {
+  pagination?: TablePaginationConfig;
+  sortField?: SorterResult<any>["field"];
+  sortOrder?: SorterResult<any>["order"];
+  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
+  searchParams?: { [key: string]: any };
+}
 export interface PageList<T> {
   list: T[];
   total: number;
@@ -112,4 +126,29 @@ export interface Upload {
   file_path: string;
   file_md5: string;
   file_url: string;
+}
+
+export interface Operation {
+  id: number;
+  name: string;
+  path: string;
+  ip: string;
+  method: string;
+  latency: number;
+  agent: string;
+  error_message: string;
+  body: string;
+  status: number;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface Api {
+  id: number;
+  path: string;
+  api_group: string;
+  method: string;
+  description: string;
+  created_at: string;
+  updated_at: string;
 }

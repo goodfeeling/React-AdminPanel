@@ -103,9 +103,9 @@
 				"permission": "权限管理",
 				"role": "角色管理",
 				"user": "用户管理",
-				"api":"接口管理",
-				"dictionary":"字典管理",
-				"log":"操作日志"
+				"api": "接口管理",
+				"dictionary": "字典管理",
+				"operation": "操作日志"
 			},
 			"blog": "博客",
 			"components": "组件",

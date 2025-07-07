@@ -90,8 +90,8 @@ export const navData: NavProps["data"] = [
             path: "/management/system/dictionary",
           },
           {
-            title: "sys.menu.system.log",
-            path: "/management/system/log",
+            title: "sys.menu.system.operation",
+            path: "/management/system/operation",
           },
         ],
       },

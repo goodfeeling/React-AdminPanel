@@ -1,107 +1,28 @@
+import operationService from "@/api/services/operationService";
 import { Icon } from "@/components/icon";
-import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
-import type { SorterResult } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
-import type { PageList, UserInfo } from "#/entity";
-type ColumnsType<T extends object = object> = TableProps<T>["columns"];
-type TablePaginationConfig = Exclude<
-  GetProp<TableProps, "pagination">,
-  boolean
->;
-import userService from "@/api/services/userService";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
+import type { TableProps } from "antd";
+import { Card, Input, Popconfirm, Table } from "antd";
+import type { TableRowSelection } from "antd/es/table/interface";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-type TableRowSelection<T extends object = object> =
-  TableProps<T>["rowSelection"];
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: SorterResult<any>["field"];
-  sortOrder?: SorterResult<any>["order"];
-  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
-  searchParams?: SearchFormFieldType;
-}
-
-const toURLSearchParams = <T extends AnyObject>(record: T) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(record)) {
-    params.append(key, value);
-  }
-  return params;
-};
-
-const getRandomUserParams = (params: TableParams) => {
-  const {
-    pagination,
-    filters,
-    sortField,
-    sortOrder,
-    searchParams,
-    ...restParams
-  } = params;
-  const result: Record<string, any> = {};
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#pagination
-  result.pageSize = pagination?.pageSize;
-  result.page = pagination?.current;
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#filtering
-  if (filters) {
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null) {
-        result[`${key}_match`] = value;
-      }
-    }
-  }
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
-  if (sortField) {
-    result.sortby = sortField;
-    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
-  }
-
-  // 处理其他参数
-  for (const [key, value] of Object.entries(restParams)) {
-    if (value !== undefined && value !== null) {
-      result[key] = value;
-    }
-  }
-
-  // 头部搜索参数
-  if (searchParams) {
-    if (searchParams.user_name) {
-      result.userName_like = searchParams.user_name;
-    }
-    if (searchParams.status !== "3") {
-      result.status_match = searchParams.status;
-    }
-  }
-
-  return result;
-};
+import type { ColumnsType, Operation, PageList, TableParams } from "#/entity";
 
 type SearchFormFieldType = {
-  user_name: string;
-  status: string;
+  method: string;
+  path: string;
+  status: number;
 };
 
 const App: React.FC = () => {
   const searchForm = useForm<SearchFormFieldType>({
-    defaultValues: { user_name: "", status: "3" },
+    defaultValues: { path: "", method: "", status: 0 },
   });
-  const [data, setData] = useState<PageList<UserInfo>>();
+  const [data, setData] = useState<PageList<Operation>>();
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
@@ -109,11 +30,28 @@ const App: React.FC = () => {
       pageSize: 10,
       total: 0,
     },
+    sortField: "id",
+    sortOrder: "descend",
   });
+  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const getData = async () => {
-    const params = toURLSearchParams(getRandomUserParams(tableParams));
-    const response = await userService.searchPageList(params.toString());
+    const params = toURLSearchParams(
+      getRandomUserParams(tableParams, (result, searchParams) => {
+        if (searchParams) {
+          if (searchParams.method) {
+            result.method_like = searchParams.method;
+          }
+          if (searchParams.status) {
+            result.status_match = searchParams.status;
+          }
+          if (searchParams.path) {
+            result.path_like = searchParams.path;
+          }
+        }
+      })
+    );
+    const response = await operationService.searchPageList(params.toString());
     setData(response);
     setTableParams((prev) => ({
       ...prev,
@@ -135,12 +73,13 @@ const App: React.FC = () => {
     tableParams.pagination?.pageSize,
     tableParams?.sortOrder,
     tableParams?.sortField,
-    tableParams?.searchParams?.user_name,
+    tableParams?.searchParams?.method,
     tableParams?.searchParams?.status,
+    tableParams?.searchParams?.path,
     JSON.stringify(tableParams.filters),
   ]);
 
-  const handleTableChange: TableProps<UserInfo>["onChange"] = (
+  const handleTableChange: TableProps<Operation>["onChange"] = (
     pagination,
     filters,
     sorter
@@ -158,9 +97,9 @@ const App: React.FC = () => {
     }
   };
 
-  const handleDelete = async (id: number[]) => {
+  const handleDelete = async (id: number) => {
     try {
-      await userService.deleteUser(id);
+      await operationService.deleteBatch([id]);
       toast.success("删除成功");
       getData();
     } catch (error) {
@@ -168,68 +107,80 @@ const App: React.FC = () => {
       toast.error("删除失败");
     }
   };
+
   const handleDeleteSelection = async () => {
-    await handleDelete(selectedRowKeys);
+    try {
+      await operationService.deleteBatch(selectedRowKeys as number[]);
+      toast.success("删除成功");
+      getData();
+    } catch (error) {
+      console.error(error);
+      toast.error("删除失败");
+    }
   };
 
-  const columns: ColumnsType<UserInfo> = [
+  const columns: ColumnsType<Operation> = [
     {
       title: "ID",
       dataIndex: "id",
-      sorter: true,
-      width: "5%",
+      key: "id",
     },
     {
-      title: "用户",
-      dataIndex: "user_name",
-      width: 300,
-      render: (_, record) => {
-        return (
-          <div className="flex">
-            <img
-              alt=""
-              src={record.header_img}
-              className="h-10 w-10 rounded-full"
-            />
-            <div className="ml-2 flex flex-col">
-              <span className="text-sm">{record.user_name}</span>
-              <span className="text-xs text-text-secondary">
-                {record.email}
-              </span>
-            </div>
-          </div>
-        );
-      },
-    },
-
-    {
-      title: "昵称",
-      dataIndex: "nick_name",
+      title: "IP 地址",
+      dataIndex: "ip",
+      key: "ip",
     },
     {
-      title: "手机",
-      dataIndex: "phone",
+      title: "请求路径",
+      dataIndex: "path",
+      key: "path",
     },
     {
-      title: "状态",
+      title: "请求方法",
+      dataIndex: "method",
+      key: "method",
+    },
+    {
+      title: "状态码",
       dataIndex: "status",
-      align: "center",
-      width: 120,
-      render: (status) => {
-        return (
-          <Badge variant={status ? "success" : "error"}>
-            {status ? "Enable" : "Disabled"}
-          </Badge>
-        );
-      },
+      key: "status",
+    },
+    {
+      title: "延迟 (ms)",
+      dataIndex: "latency",
+      key: "latency",
+    },
+    {
+      title: "用户代理",
+      dataIndex: "agent",
+      key: "agent",
+    },
+    {
+      title: "错误信息",
+      dataIndex: "error_message",
+      key: "error_message",
+    },
+    {
+      title: "请求体",
+      dataIndex: "body",
+      key: "body",
+      ellipsis: true,
+    },
+    {
+      title: "响应内容",
+      dataIndex: "resp",
+      key: "resp",
+      ellipsis: true,
     },
     {
       title: "创建时间",
       dataIndex: "created_at",
+      key: "created_at",
     },
     {
       title: "更新时间",
       dataIndex: "updated_at",
+      key: "updated_at",
     },
     {
       title: "操作",
@@ -267,8 +218,9 @@ const App: React.FC = () => {
     setTableParams((prev) => ({
       ...prev,
       searchParams: {
-        user_name: "",
-        status: "3",
+        method: "",
+        path: "",
+        status: 0,
       },
       pagination: {
         ...prev.pagination,
@@ -283,7 +235,8 @@ const App: React.FC = () => {
     setTableParams((prev) => ({
       ...prev,
       searchParams: {
-        user_name: values.user_name || "",
+        method: values.method || "",
+        path: values.path || "",
         status: values.status,
       },
       pagination: {
@@ -292,13 +245,13 @@ const App: React.FC = () => {
       },
     }));
   };
-  const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
     console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
-  const rowSelection: TableRowSelection<UserInfo> = {
+
+  const rowSelection: TableRowSelection<Operation> = {
     selectedRowKeys,
     onChange: onSelectChange,
     selections: [
@@ -336,18 +289,32 @@ const App: React.FC = () => {
     ],
   };
 
+  const hasSelected = selectedRowKeys.length > 0;
+
   return (
     <div className="flex flex-col gap-4">
-      <Card>
+      <Card title="Log List">
         <CardContent>
           <Form {...searchForm}>
             <div className="flex items-center gap-4">
               <FormField
                 control={searchForm.control}
-                name="user_name"
+                name="method"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>UserName</FormLabel>
+                    <FormLabel>Method</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={searchForm.control}
+                name="path"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Path</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -360,27 +327,9 @@ const App: React.FC = () => {
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">
-                          <Badge variant="default">All</Badge>
-                        </SelectItem>
-                        <SelectItem value="1">
-                          <Badge variant="success">Enable</Badge>
-                        </SelectItem>
-                        <SelectItem value="0">
-                          <Badge variant="error">Disable</Badge>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
                   </FormItem>
                 )}
               />
@@ -396,14 +345,20 @@ const App: React.FC = () => {
           </Form>
         </CardContent>
       </Card>
-      <Card title="Log List">
+      <Card>
         <CardHeader>
           <div className="flex items-center justify-between">
-            <Button onClick={() => handleDeleteSelection()}>Delete</Button>
+            <Button
+              variant="destructive"
+              onClick={() => handleDeleteSelection()}
+              disabled={!hasSelected}
+            >
+              Delete
+            </Button>
           </div>
         </CardHeader>
         <CardContent>
-          <Table<UserInfo>
+          <Table<Operation>
             rowKey={(record) => record.id}
             rowSelection={rowSelection}
             scroll={{ x: "max-content" }}

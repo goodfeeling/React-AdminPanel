@@ -1,18 +1,12 @@
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, TableProps } from "antd";
+import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
-import type { SorterResult } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
-import type { PageList, UserInfo } from "#/entity";
-type ColumnsType<T extends object = object> = TableProps<T>["columns"];
-type TablePaginationConfig = Exclude<
-  GetProp<TableProps, "pagination">,
-  boolean
->;
-import userService from "@/api/services/userService";
+import type { Api, ColumnsType, PageList, TableParams } from "#/entity";
+
+import apiService from "@/api/services/apisService";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import {
@@ -22,98 +16,38 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/ui/select";
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import PermissionModal, { type UserModalProps } from "./api-modal";
+import ApiModal, { type ApiModalProps } from "./api-modal";
 
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: SorterResult<any>["field"];
-  sortOrder?: SorterResult<any>["order"];
-  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
-  searchParams?: SearchFormFieldType;
-}
-
-const toURLSearchParams = <T extends AnyObject>(record: T) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(record)) {
-    params.append(key, value);
-  }
-  return params;
-};
-
-const getRandomUserParams = (params: TableParams) => {
-  const {
-    pagination,
-    filters,
-    sortField,
-    sortOrder,
-    searchParams,
-    ...restParams
-  } = params;
-  const result: Record<string, any> = {};
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#pagination
-  result.pageSize = pagination?.pageSize;
-  result.page = pagination?.current;
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#filtering
-  if (filters) {
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null) {
-        result[`${key}_match`] = value;
-      }
-    }
-  }
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
-  if (sortField) {
-    result.sortby = sortField;
-    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
-  }
-
-  // 处理其他参数
-  for (const [key, value] of Object.entries(restParams)) {
-    if (value !== undefined && value !== null) {
-      result[key] = value;
-    }
-  }
-
-  // 头部搜索参数
-  if (searchParams) {
-    if (searchParams.user_name) {
-      result.userName_like = searchParams.user_name;
-    }
-    if (searchParams.status !== "3") {
-      result.status_match = searchParams.status;
-    }
-  }
-
-  return result;
-};
-
-const defaultUserValue: UserInfo = {
+const defaultApiValue: Api = {
   id: 0,
-  email: "",
-  user_name: "",
-  nick_name: "",
-  header_img: "",
-  phone: "",
-  status: false,
+  path: "",
+  api_group: "",
+  method: "",
+  description: "",
   created_at: "",
   updated_at: "",
 };
 
 type SearchFormFieldType = {
-  user_name: string;
-  status: string;
+  path?: string;
+  description?: string;
+  api_group?: string;
+  method?: string;
 };
 
 const App: React.FC = () => {
   const searchForm = useForm<SearchFormFieldType>({
-    defaultValues: { user_name: "", status: "3" },
+    defaultValues: {
+      path: "",
+      description: "",
+      api_group: "",
+      method: "",
+    },
   });
-  const [data, setData] = useState<PageList<UserInfo>>();
+  const [data, setData] = useState<PageList<Api>>();
   const [loading, setLoading] = useState(false);
   const [tableParams, setTableParams] = useState<TableParams>({
     pagination: {
@@ -122,43 +56,39 @@ const App: React.FC = () => {
       total: 0,
     },
   });
-  const [userModalProps, setUserModalProps] = useState<UserModalProps>({
-    formValue: { ...defaultUserValue },
+  const [apiModalProps, setApiModalProps] = useState<ApiModalProps>({
+    formValue: { ...defaultApiValue },
     title: "New",
     show: false,
-    onOk: async (values: UserInfo) => {
+    onOk: async (values: Api) => {
       if (values.id === 0) {
-        await userService.createUser(values);
+        await apiService.createApi(values);
       } else {
-        const {
-          user_name = "",
-          email = "",
-          phone = "",
-          header_img,
-          nick_name = "",
-          status = false,
-        } = values;
-        await userService.updateUser(values.id, {
-          user_name,
-          email,
-          phone,
-          header_img,
-          nick_name,
-          status,
-        });
+        await apiService.updateApi(values.id, values);
       }
       toast.success("success!");
-      setUserModalProps((prev) => ({ ...prev, show: false }));
+      setApiModalProps((prev) => ({ ...prev, show: false }));
       getData();
     },
     onCancel: () => {
-      setUserModalProps((prev) => ({ ...prev, show: false }));
+      setApiModalProps((prev) => ({ ...prev, show: false }));
     },
   });
 
   const getData = async () => {
-    const params = toURLSearchParams(getRandomUserParams(tableParams));
-    const response = await userService.searchPageList(params.toString());
+    const params = toURLSearchParams(
+      getRandomUserParams(tableParams, (result, searchParams) => {
+        if (searchParams) {
+          if (searchParams.user_name) {
+            result.userName_like = searchParams.user_name;
+          }
+          if (searchParams.status !== "3") {
+            result.status_match = searchParams.status;
+          }
+        }
+      })
+    );
+    const response = await apiService.searchPageList(params.toString());
     setData(response);
     setTableParams((prev) => ({
       ...prev,
@@ -185,7 +115,7 @@ const App: React.FC = () => {
     JSON.stringify(tableParams.filters),
   ]);
 
-  const handleTableChange: TableProps<UserInfo>["onChange"] = (
+  const handleTableChange: TableProps<Api>["onChange"] = (
     pagination,
     filters,
     sorter
@@ -204,17 +134,17 @@ const App: React.FC = () => {
   };
 
   const onCreate = () => {
-    setUserModalProps((prev) => ({
+    setApiModalProps((prev) => ({
       ...prev,
       show: true,
-      ...defaultUserValue,
+      ...defaultApiValue,
       title: "New",
-      formValue: { ...defaultUserValue },
+      formValue: { ...defaultApiValue },
     }));
   };
 
-  const onEdit = (formValue: UserInfo) => {
-    setUserModalProps((prev) => ({
+  const onEdit = (formValue: Api) => {
+    setApiModalProps((prev) => ({
       ...prev,
       show: true,
       title: "Edit",
@@ -224,7 +154,7 @@ const App: React.FC = () => {
 
   const handleDelete = async (id: number) => {
     try {
-      await userService.deleteUser(id);
+      await apiService.deleteApi(id);
       toast.success("删除成功");
       getData();
     } catch (error) {
@@ -233,64 +163,43 @@ const App: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<UserInfo> = [
+  const columns: ColumnsType<Api> = [
     {
       title: "ID",
       dataIndex: "id",
-      sorter: true,
-      width: "5%",
+      key: "id",
     },
     {
-      title: "用户",
-      dataIndex: "user_name",
-      width: 300,
-      render: (_, record) => {
-        return (
-          <div className="flex">
-            <img
-              alt=""
-              src={record.header_img}
-              className="h-10 w-10 rounded-full"
-            />
-            <div className="ml-2 flex flex-col">
-              <span className="text-sm">{record.user_name}</span>
-              <span className="text-xs text-text-secondary">
-                {record.email}
-              </span>
-            </div>
-          </div>
-        );
-      },
-    },
-
-    {
-      title: "昵称",
-      dataIndex: "nick_name",
+      title: "路径",
+      dataIndex: "path",
+      key: "path",
+      ellipsis: true,
     },
     {
-      title: "手机",
-      dataIndex: "phone",
+      title: "所属组",
+      dataIndex: "api_group",
+      key: "api_group",
     },
     {
-      title: "状态",
-      dataIndex: "status",
-      align: "center",
-      width: 120,
-      render: (status) => {
-        return (
-          <Badge variant={status ? "success" : "error"}>
-            {status ? "Enable" : "Disabled"}
-          </Badge>
-        );
-      },
+      title: "请求方法",
+      dataIndex: "method",
+      key: "method",
+    },
+    {
+      title: "描述",
+      dataIndex: "description",
+      key: "description",
+      ellipsis: true,
     },
     {
       title: "创建时间",
       dataIndex: "created_at",
+      key: "created_at",
     },
     {
       title: "更新时间",
       dataIndex: "updated_at",
+      key: "updated_at",
     },
     {
       title: "操作",
@@ -347,10 +256,6 @@ const App: React.FC = () => {
   const onReset = () => {
     setTableParams((prev) => ({
       ...prev,
-      searchParams: {
-        user_name: "",
-        status: "3",
-      },
       pagination: {
         ...prev.pagination,
         current: 1,
@@ -364,8 +269,7 @@ const App: React.FC = () => {
     setTableParams((prev) => ({
       ...prev,
       searchParams: {
-        user_name: values.user_name || "",
-        status: values.status,
+        ...values,
       },
       pagination: {
         ...prev.pagination,
@@ -382,10 +286,23 @@ const App: React.FC = () => {
             <div className="flex items-center gap-4">
               <FormField
                 control={searchForm.control}
-                name="user_name"
+                name="path"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>UserName</FormLabel>
+                    <FormLabel>Path</FormLabel>
+                    <FormControl>
+                      <Input {...field} />
+                    </FormControl>
+                  </FormItem>
+                )}
+              />
+
+              <FormField
+                control={searchForm.control}
+                name="description"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Path</FormLabel>
                     <FormControl>
                       <Input {...field} />
                     </FormControl>
@@ -394,7 +311,37 @@ const App: React.FC = () => {
               />
               <FormField
                 control={searchForm.control}
-                name="status"
+                name="method"
+                render={({ field }) => (
+                  <FormItem>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="3">
+                          <Badge variant="default">All</Badge>
+                        </SelectItem>
+                        <SelectItem value="1">
+                          <Badge variant="success">Enable</Badge>
+                        </SelectItem>
+                        <SelectItem value="0">
+                          <Badge variant="error">Disable</Badge>
+                        </SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </FormItem>
+                )}
+              />
+              <FormField
+                control={searchForm.control}
+                name="api_group"
                 render={({ field }) => (
                   <FormItem>
                     <FormLabel>Status</FormLabel>
@@ -436,13 +383,36 @@ const App: React.FC = () => {
       </Card>
       <Card title="User List">
         <CardHeader>
-          <div className="flex items-center justify-between">
-            <Button onClick={() => onCreate()}>New</Button>
+          <div className="flex items-start justify-start">
+            <Button onClick={() => onCreate()}>Create</Button>
+            <Button
+              onClick={() => onCreate()}
+              variant="destructive"
+              className="ml-2"
+            >
+              Delete
+            </Button>
+            <Button
+              onClick={() => onCreate()}
+              variant="default"
+              className="ml-2"
+            >
+              Synchronize
+            </Button>
+            <Button onClick={() => onCreate()} className="ml-2">
+              Download Template
+            </Button>
+            <Button onClick={() => onCreate()} className="ml-2">
+              import
+            </Button>
+            <Button onClick={() => onCreate()} className="ml-2">
+              export
+            </Button>
           </div>
         </CardHeader>
 
         <CardContent>
-          <Table<UserInfo>
+          <Table<Api>
             rowKey={(record) => record.id}
             scroll={{ x: "max-content" }}
             columns={columns}
@@ -459,7 +429,7 @@ const App: React.FC = () => {
             onChange={handleTableChange}
           />
         </CardContent>
-        <PermissionModal {...userModalProps} />
+        <ApiModal {...apiModalProps} />
       </Card>
     </div>
   );
