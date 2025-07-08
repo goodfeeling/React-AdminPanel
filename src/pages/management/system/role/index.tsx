@@ -269,7 +269,10 @@ const App: React.FC = () => {
     <Card title="Role List">
       <CardHeader>
         <div className="flex items-center justify-between">
-          <Button onClick={() => onCreate(undefined, true)}>New</Button>
+          <Button onClick={() => onCreate(undefined, true)}>
+            <Icon icon="solar:add-circle-outline" size={18} />
+            New
+          </Button>
         </div>
       </CardHeader>
 
@@ -280,6 +283,7 @@ const App: React.FC = () => {
           columns={columns}
           dataSource={data}
           loading={loading}
+          pagination={false}
           expandable={{
             showExpandColumn: false,
             expandedRowKeys: expandedKeys,

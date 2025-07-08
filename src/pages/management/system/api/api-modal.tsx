@@ -1,3 +1,4 @@
+import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import {
   Dialog,
@@ -8,14 +9,21 @@ import {
 } from "@/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { Api } from "#/entity";
-import { BasicStatus } from "#/enum";
+import type { Api, ApiGroup } from "#/entity";
+import { Methods } from "#/enum";
 
 export type ApiModalProps = {
   formValue: Api;
+  apiGroup: ApiGroup | undefined;
   title: string;
   show: boolean;
   onOk: (values: Api) => void;
@@ -26,6 +34,7 @@ export default function UserModal({
   title,
   show,
   formValue,
+  apiGroup,
   onOk,
   onCancel,
 }: ApiModalProps) {
@@ -51,10 +60,10 @@ export default function UserModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="user_name"
+              name="path"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>UserName</FormLabel>
+                  <FormLabel>Path</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -64,69 +73,75 @@ export default function UserModal({
 
             <FormField
               control={form.control}
-              name="email"
+              name="method"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
+                  <FormLabel>Method</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select Method" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {Object.entries(Methods).map(([key, value]) => {
+                        if (Number.isNaN(Number(key))) {
+                          return (
+                            <SelectItem value={key} key={key}>
+                              <Badge variant="default">{value}</Badge>
+                            </SelectItem>
+                          );
+                        }
+                        return null;
+                      })}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="api_group"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>ApiGroup</FormLabel>
+                  <Select
+                    onValueChange={(value) => {
+                      field.onChange(value);
+                    }}
+                    value={field.value}
+                  >
+                    <SelectTrigger>
+                      <SelectValue placeholder="Select ApiGroup" />
+                    </SelectTrigger>
+                    <SelectContent>
+                      {apiGroup?.groups.map((item) => {
+                        return (
+                          <SelectItem value={item} key={item}>
+                            <Badge variant="success">{item}</Badge>
+                          </SelectItem>
+                        );
+                      })}
+                    </SelectContent>
+                  </Select>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="description"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>Description</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                 </FormItem>
               )}
             />
-
-            <FormField
-              control={form.control}
-              name="nick_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>NickName</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-            <FormField
-              control={form.control}
-              name="status"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Status</FormLabel>
-                  <FormControl>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      value={field.value ? "1" : "0"}
-                      onValueChange={(value) => {
-                        field.onChange(value === "1");
-                      }}
-                    >
-                      <ToggleGroupItem value={String(BasicStatus.ENABLE)}>
-                        Enable
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value={String(BasicStatus.DISABLE)}>
-                        Disable
-                      </ToggleGroupItem>
-                    </ToggleGroup>
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
             <DialogFooter>
               <Button variant="outline" type="button" onClick={onCancel}>
                 Cancel

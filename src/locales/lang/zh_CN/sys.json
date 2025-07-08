@@ -99,13 +99,12 @@
 			},
 			"system": {
 				"index": "系统",
-				"organization": "组织",
-				"permission": "权限管理",
 				"role": "角色管理",
 				"user": "用户管理",
 				"api": "接口管理",
 				"dictionary": "字典管理",
-				"operation": "操作日志"
+				"operation": "操作日志",
+				"menu": "菜单管理"
 			},
 			"blog": "博客",
 			"components": "组件",

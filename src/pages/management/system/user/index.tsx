@@ -39,7 +39,7 @@ type SearchFormFieldType = {
 
 const App: React.FC = () => {
   const searchForm = useForm<SearchFormFieldType>({
-    defaultValues: { user_name: "", status: "3" },
+    defaultValues: { user_name: "", status: "" },
   });
   const [data, setData] = useState<PageList<UserInfo>>();
   const [loading, setLoading] = useState(false);
@@ -91,7 +91,7 @@ const App: React.FC = () => {
           if (searchParams.user_name) {
             result.userName_like = searchParams.user_name;
           }
-          if (searchParams.status !== "3") {
+          if (searchParams.status) {
             result.status_match = searchParams.status;
           }
         }
@@ -348,9 +348,6 @@ const App: React.FC = () => {
                         <SelectValue placeholder="Select Status" />
                       </SelectTrigger>
                       <SelectContent>
-                        <SelectItem value="3">
-                          <Badge variant="default">All</Badge>
-                        </SelectItem>
                         <SelectItem value="1">
                           <Badge variant="success">Enable</Badge>
                         </SelectItem>
@@ -364,9 +361,15 @@ const App: React.FC = () => {
               />
               <div className="flex ml-auto">
                 <Button variant="outline" onClick={() => onReset()}>
+                  <Icon icon="solar:restart-line-duotone" size={18} />
                   Reset
                 </Button>
-                <Button className="ml-4" onClick={() => onSearch()}>
+                <Button
+                  variant="default"
+                  className="ml-4"
+                  onClick={() => onSearch()}
+                >
+                  <Icon icon="solar:rounded-magnifer-linear" size={18} />
                   Search
                 </Button>
               </div>
@@ -377,7 +380,10 @@ const App: React.FC = () => {
       <Card title="User List">
         <CardHeader>
           <div className="flex items-center justify-between">
-            <Button onClick={() => onCreate()}>New</Button>
+            <Button onClick={() => onCreate()}>
+              <Icon icon="solar:add-circle-outline" size={18} />
+              New
+            </Button>
           </div>
         </CardHeader>
 

@@ -1,8 +1,17 @@
 import operationService from "@/api/services/operationService";
 import { Icon } from "@/components/icon";
+import { Methods } from "@/types/enum";
+import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/ui/select";
 import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
@@ -247,7 +256,6 @@ const App: React.FC = () => {
   };
 
   const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
-    console.log("selectedRowKeys changed: ", newSelectedRowKeys);
     setSelectedRowKeys(newSelectedRowKeys);
   };
 
@@ -302,10 +310,29 @@ const App: React.FC = () => {
                 name="method"
                 render={({ field }) => (
                   <FormItem>
-                    <FormLabel>Method</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
+                    <FormLabel>Status</FormLabel>
+                    <Select
+                      onValueChange={(value) => {
+                        field.onChange(value);
+                      }}
+                      value={field.value}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select Status" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        {Object.entries(Methods).map(([key, value]) => {
+                          if (Number.isNaN(Number(key))) {
+                            return (
+                              <SelectItem value={key} key={key}>
+                                <Badge variant="default">{value}</Badge>
+                              </SelectItem>
+                            );
+                          }
+                          return null;
+                        })}
+                      </SelectContent>
+                    </Select>
                   </FormItem>
                 )}
               />
@@ -335,9 +362,15 @@ const App: React.FC = () => {
               />
               <div className="flex ml-auto">
                 <Button variant="outline" onClick={() => onReset()}>
+                  <Icon icon="solar:restart-line-duotone" size={18} />
                   Reset
                 </Button>
-                <Button className="ml-4" onClick={() => onSearch()}>
+                <Button
+                  variant="default"
+                  className="ml-4"
+                  onClick={() => onSearch()}
+                >
+                  <Icon icon="solar:rounded-magnifer-linear" size={18} />
                   Search
                 </Button>
               </div>
@@ -353,6 +386,7 @@ const App: React.FC = () => {
               onClick={() => handleDeleteSelection()}
               disabled={!hasSelected}
             >
+              <Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
               Delete
             </Button>
           </div>

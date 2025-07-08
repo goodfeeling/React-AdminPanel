@@ -123,7 +123,8 @@
 				"user": "User",
 				"api": "Api",
 				"dictionary": "Dictionary",
-				"operation": "Operation"
+				"operation": "Operation",
+				"menu": "Menu"
 			},
 			"toast": "Toast",
 			"token_expired": "Token Expired",

@@ -1,26 +1,33 @@
 import apiClient from "../apiClient";
 
-import type { Api, PageList } from "#/entity";
+import type { Api, ApiGroup, PageList } from "#/entity";
 
-export enum ApiApi {
+export enum ApiClient {
   Api = "/api",
   SearchApi = "/api/search",
-  ApiTree = "/api/tree",
+  GroupsApi = "/api/groups",
+  DeleteBatch = "/api/batch",
 }
-const getApis = () => apiClient.get<Api[]>({ url: `${ApiApi.Api}` });
+const getApis = () => apiClient.get<Api[]>({ url: `${ApiClient.Api}` });
 const updateApi = (id: number, apiInfo: Api) =>
-  apiClient.put<Api>({ url: `${ApiApi.Api}/${id}`, data: apiInfo });
+  apiClient.put<Api>({ url: `${ApiClient.Api}/${id}`, data: apiInfo });
 
 const createApi = (apiInfo: Api) =>
-  apiClient.post<Api>({ url: `${ApiApi.Api}`, data: apiInfo });
+  apiClient.post<Api>({ url: `${ApiClient.Api}`, data: apiInfo });
 
 const searchPageList = (searchStr: string) =>
   apiClient.get<PageList<Api>>({
-    url: `${ApiApi.SearchApi}?${searchStr}`,
+    url: `${ApiClient.SearchApi}?${searchStr}`,
   });
 
 const deleteApi = (id: number) =>
-  apiClient.delete<string>({ url: `${ApiApi.Api}/${id}` });
+  apiClient.delete<string>({ url: `${ApiClient.Api}/${id}` });
+
+const deleteBatch = (ids: number[]) =>
+  apiClient.post<number>({ url: `${ApiClient.DeleteBatch}`, data: { ids } });
+
+const getApiGroups = () =>
+  apiClient.get<ApiGroup>({ url: `${ApiClient.GroupsApi}` });
 
 export default {
   updateApi,
@@ -28,4 +35,6 @@ export default {
   createApi,
   deleteApi,
   getApis,
+  getApiGroups,
+  deleteBatch,
 };

@@ -77,8 +77,8 @@ export const navData: NavProps["data"] = [
           },
 
           {
-            title: "sys.menu.system.permission",
-            path: "/management/system/permission",
+            title: "sys.menu.system.menu",
+            path: "/management/system/menu",
           },
 
           {

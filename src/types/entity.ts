@@ -152,3 +152,8 @@ export interface Api {
   created_at: string;
   updated_at: string;
 }
+
+export interface ApiGroup {
+  api_group: { [key: string]: any };
+  groups: string[];
+}

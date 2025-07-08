@@ -9,23 +9,32 @@ import Toast from "./components/toast";
 import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
+import { useEffect } from "react";
+import { useNavigate } from "react-router";
+import { setNavigateFunction } from "./api/apiClient";
 function App({ children }: { children: React.ReactNode }) {
-	return (
-		<HelmetProvider>
-			<QueryClientProvider client={new QueryClient()}>
-				<ThemeProvider adapters={[AntdAdapter]}>
-					<VercelAnalytics />
-					<Helmet>
-						<title>Slash Admin</title>
-						<link rel="icon" href={Logo} />
-					</Helmet>
-					<Toast />
-					<RouteLoadingProgress />
-					<MotionLazy>{children}</MotionLazy>
-				</ThemeProvider>
-			</QueryClientProvider>
-		</HelmetProvider>
-	);
+  const navigate = useNavigate();
+
+  useEffect(() => {
+    setNavigateFunction(navigate);
+  }, [navigate]);
+
+  return (
+    <HelmetProvider>
+      <QueryClientProvider client={new QueryClient()}>
+        <ThemeProvider adapters={[AntdAdapter]}>
+          <VercelAnalytics />
+          <Helmet>
+            <title>Slash Admin</title>
+            <link rel="icon" href={Logo} />
+          </Helmet>
+          <Toast />
+          <RouteLoadingProgress />
+          <MotionLazy>{children}</MotionLazy>
+        </ThemeProvider>
+      </QueryClientProvider>
+    </HelmetProvider>
+  );
 }
 
 export default App;
