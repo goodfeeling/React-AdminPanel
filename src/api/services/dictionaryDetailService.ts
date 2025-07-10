@@ -1,40 +1,50 @@
 import apiClient from "../apiClient";
 
-import type { Api, ApiGroup, PageList } from "#/entity";
+import type { DictionaryDetail, PageList } from "#/entity";
 
-export enum ApiClient {
-  Api = "/api",
-  SearchApi = "/api/search",
-  GroupsApi = "/api/groups",
+export enum DictionaryDetailClient {
+  DictionaryDetail = "/api",
+  SearchDictionaryDetail = "/api/search",
+  GroupsDictionaryDetail = "/api/groups",
   DeleteBatch = "/api/batch",
 }
-const getApis = () => apiClient.get<Api[]>({ url: `${ApiClient.Api}` });
-const updateApi = (id: number, apiInfo: Api) =>
-  apiClient.put<Api>({ url: `${ApiClient.Api}/${id}`, data: apiInfo });
-
-const createApi = (apiInfo: Api) =>
-  apiClient.post<Api>({ url: `${ApiClient.Api}`, data: apiInfo });
-
-const searchPageList = (searchStr: string) =>
-  apiClient.get<PageList<Api>>({
-    url: `${ApiClient.SearchApi}?${searchStr}`,
+const getDictionaryDetails = () =>
+  apiClient.get<DictionaryDetail[]>({
+    url: `${DictionaryDetailClient.DictionaryDetail}`,
+  });
+const updateDictionaryDetail = (id: number, apiInfo: DictionaryDetail) =>
+  apiClient.put<DictionaryDetail>({
+    url: `${DictionaryDetailClient.DictionaryDetail}/${id}`,
+    data: apiInfo,
   });
 
-const deleteApi = (id: number) =>
-  apiClient.delete<string>({ url: `${ApiClient.Api}/${id}` });
+const createDictionaryDetail = (apiInfo: DictionaryDetail) =>
+  apiClient.post<DictionaryDetail>({
+    url: `${DictionaryDetailClient.DictionaryDetail}`,
+    data: apiInfo,
+  });
+
+const searchPageList = (searchStr: string) =>
+  apiClient.get<PageList<DictionaryDetail>>({
+    url: `${DictionaryDetailClient.SearchDictionaryDetail}?${searchStr}`,
+  });
+
+const deleteDictionaryDetail = (id: number) =>
+  apiClient.delete<string>({
+    url: `${DictionaryDetailClient.DictionaryDetail}/${id}`,
+  });
 
 const deleteBatch = (ids: number[]) =>
-  apiClient.post<number>({ url: `${ApiClient.DeleteBatch}`, data: { ids } });
-
-const getApiGroups = () =>
-  apiClient.get<ApiGroup>({ url: `${ApiClient.GroupsApi}` });
+  apiClient.post<number>({
+    url: `${DictionaryDetailClient.DeleteBatch}`,
+    data: { ids },
+  });
 
 export default {
-  updateApi,
+  updateDictionaryDetail,
   searchPageList,
-  createApi,
-  deleteApi,
-  getApis,
-  getApiGroups,
+  createDictionaryDetail,
+  deleteDictionaryDetail,
+  getDictionaryDetails,
   deleteBatch,
 };

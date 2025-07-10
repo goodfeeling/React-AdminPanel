@@ -157,3 +157,25 @@ export interface ApiGroup {
   api_group: { [key: string]: any };
   groups: string[];
 }
+
+export interface Dictionary {
+  id: number;
+  name: string;
+  type: string;
+  status: number;
+  desc: string;
+  created_at: string;
+  updated_at: string;
+}
+
+export interface DictionaryDetail {
+  id: number;
+  label: string;
+  value: string;
+  extend: string;
+  status: number;
+  sort: number;
+  sys_dictionary_Id: Dictionary;
+  created_at: string;
+  updated_at: string;
+}

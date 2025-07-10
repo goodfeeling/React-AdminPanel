@@ -1,13 +1,50 @@
 import apiClient from "../apiClient";
 
-import type { Organization } from "#/entity";
+import type { Dictionary, PageList } from "#/entity";
 
-export enum OrgApi {
-  Org = "/org",
+export enum DictionaryClient {
+  Dictionary = "/dictionary",
+  SearchDictionary = "/dictionary/search",
+  GroupsDictionary = "/dictionary/groups",
+  DeleteBatch = "/dictionary/batch",
 }
+const getDictionaries = () =>
+  apiClient.get<Dictionary[]>({
+    url: `${DictionaryClient.Dictionary}`,
+  });
+const updateDictionary = (id: number, apiInfo: Dictionary) =>
+  apiClient.put<Dictionary>({
+    url: `${DictionaryClient.Dictionary}/${id}`,
+    data: apiInfo,
+  });
 
-const getOrgList = () => apiClient.get<Organization[]>({ url: OrgApi.Org });
+const createDictionary = (apiInfo: Dictionary) =>
+  apiClient.post<Dictionary>({
+    url: `${DictionaryClient.Dictionary}`,
+    data: apiInfo,
+  });
+
+const searchPageList = (searchStr: string) =>
+  apiClient.get<PageList<Dictionary>>({
+    url: `${DictionaryClient.SearchDictionary}?${searchStr}`,
+  });
+
+const deleteDictionary = (id: number) =>
+  apiClient.delete<string>({
+    url: `${DictionaryClient.Dictionary}/${id}`,
+  });
+
+const deleteBatch = (ids: number[]) =>
+  apiClient.post<number>({
+    url: `${DictionaryClient.DeleteBatch}`,
+    data: { ids },
+  });
 
 export default {
-  getOrgList,
+  updateDictionary,
+  searchPageList,
+  createDictionary,
+  deleteDictionary,
+  getDictionaries,
+  deleteBatch,
 };
