@@ -12,13 +12,13 @@ import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { Dictionary } from "#/entity";
+import type { DictionaryDetail } from "#/entity";
 
-export type DictionaryModalProps = {
-  formValue: Dictionary;
+export type DictionaryDetailModalProps = {
+  formValue: DictionaryDetail;
   title: string;
   show: boolean;
-  onOk: (values: Dictionary) => void;
+  onOk: (values: DictionaryDetail) => void;
   onCancel: VoidFunction;
 };
 
@@ -28,8 +28,8 @@ export default function UserModal({
   formValue,
   onOk,
   onCancel,
-}: DictionaryModalProps) {
-  const form = useForm<Dictionary>({
+}: DictionaryDetailModalProps) {
+  const form = useForm<DictionaryDetail>({
     defaultValues: formValue,
   });
 
@@ -37,10 +37,10 @@ export default function UserModal({
     form.reset(formValue);
   }, [formValue, form]);
 
-  const onSubmit = (values: Dictionary) => {
+  const onSubmit = (values: DictionaryDetail) => {
+    values.sort = Number(values.sort);
     onOk(values);
   };
-
   return (
     <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
       <DialogContent>
@@ -51,10 +51,10 @@ export default function UserModal({
           <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
             <FormField
               control={form.control}
-              name="name"
+              name="label"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>name</FormLabel>
+                  <FormLabel>label</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -63,16 +63,29 @@ export default function UserModal({
             />
             <FormField
               control={form.control}
-              name="type"
+              name="value"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>type</FormLabel>
+                  <FormLabel>value</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="extend"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>extend</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+
             <FormField
               control={form.control}
               name="status"
@@ -97,12 +110,12 @@ export default function UserModal({
             />
             <FormField
               control={form.control}
-              name="desc"
+              name="sort"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>desc</FormLabel>
+                  <FormLabel>sort</FormLabel>
                   <FormControl>
-                    <Input {...field} />
+                    <Input type="number" {...field} />
                   </FormControl>
                 </FormItem>
               )}

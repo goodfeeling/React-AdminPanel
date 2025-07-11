@@ -3,10 +3,10 @@ import apiClient from "../apiClient";
 import type { DictionaryDetail, PageList } from "#/entity";
 
 export enum DictionaryDetailClient {
-  DictionaryDetail = "/api",
-  SearchDictionaryDetail = "/api/search",
-  GroupsDictionaryDetail = "/api/groups",
-  DeleteBatch = "/api/batch",
+  DictionaryDetail = "/dictionary_detail",
+  SearchDictionaryDetail = "/dictionary_detail/search",
+  GroupsDictionaryDetail = "/dictionary_detail/groups",
+  DeleteBatch = "/dictionary_detail/batch",
 }
 const getDictionaryDetails = () =>
   apiClient.get<DictionaryDetail[]>({

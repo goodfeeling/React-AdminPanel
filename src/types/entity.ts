@@ -175,7 +175,7 @@ export interface DictionaryDetail {
   extend: string;
   status: number;
   sort: number;
-  sys_dictionary_Id: Dictionary;
+  sys_dictionary_Id: number | null;
   created_at: string;
   updated_at: string;
 }
