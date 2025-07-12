@@ -101,6 +101,9 @@ const DictionaryDetailList = ({
   }, [tableParams]);
 
   useEffect(() => {
+    if (!selectedDictId) {
+      return;
+    }
     setTableParams((prev) => ({
       ...prev,
       searchParams: {
@@ -115,6 +118,9 @@ const DictionaryDetailList = ({
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
   useEffect(() => {
+    if (!selectedDictId) {
+      return;
+    }
     setLoading(true);
     getData();
   }, [
