@@ -52,7 +52,7 @@ export default function UserModal({
 
   return (
     <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-lg">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>

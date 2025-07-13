@@ -1,151 +1,53 @@
+import menuService from "@/api/services/menuService";
 import { Icon } from "@/components/icon";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import type { GetProp, TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
-import type { AnyObject } from "antd/es/_util/type";
-import type { SorterResult } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
-import type { PageList, UserInfo } from "#/entity";
-type ColumnsType<T extends object = object> = TableProps<T>["columns"];
-type TablePaginationConfig = Exclude<
-  GetProp<TableProps, "pagination">,
-  boolean
->;
-import userService from "@/api/services/userService";
-import { CardContent, CardHeader } from "@/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/ui/select";
-import { useForm } from "react-hook-form";
+import { Card, CardContent, CardHeader } from "@/ui/card";
+import type { TableProps } from "antd";
+import { Popconfirm, Table } from "antd";
+import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
-import PermissionModal, { type UserModalProps } from "./menu-modal";
+import type { Menu } from "#/entity";
+import MenuModal, { type MenuModalProps } from "./menu-modal";
 
-interface TableParams {
-  pagination?: TablePaginationConfig;
-  sortField?: SorterResult<any>["field"];
-  sortOrder?: SorterResult<any>["order"];
-  filters?: Parameters<GetProp<TableProps, "onChange">>[1];
-  searchParams?: SearchFormFieldType;
-}
+type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 
-const toURLSearchParams = <T extends AnyObject>(record: T) => {
-  const params = new URLSearchParams();
-  for (const [key, value] of Object.entries(record)) {
-    params.append(key, value);
-  }
-  return params;
-};
-
-const getRandomUserParams = (params: TableParams) => {
-  const {
-    pagination,
-    filters,
-    sortField,
-    sortOrder,
-    searchParams,
-    ...restParams
-  } = params;
-  const result: Record<string, any> = {};
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#pagination
-  result.pageSize = pagination?.pageSize;
-  result.page = pagination?.current;
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#filtering
-  if (filters) {
-    for (const [key, value] of Object.entries(filters)) {
-      if (value !== undefined && value !== null) {
-        result[`${key}_match`] = value;
-      }
-    }
-  }
-
-  // https://github.com/mockapi-io/docs/wiki/Code-examples#sorting
-  if (sortField) {
-    result.sortby = sortField;
-    result.sortDirection = sortOrder === "ascend" ? "asc" : "desc";
-  }
-
-  // 处理其他参数
-  for (const [key, value] of Object.entries(restParams)) {
-    if (value !== undefined && value !== null) {
-      result[key] = value;
-    }
-  }
-
-  // 头部搜索参数
-  if (searchParams) {
-    if (searchParams.user_name) {
-      result.userName_like = searchParams.user_name;
-    }
-    if (searchParams.status !== "3") {
-      result.status_match = searchParams.status;
-    }
-  }
-
-  return result;
-};
-
-const defaultUserValue: UserInfo = {
+const defaultValue: Menu = {
   id: 0,
-  email: "",
-  user_name: "",
-  nick_name: "",
-  header_img: "",
-  phone: "",
-  status: false,
+  menu_level: 0,
+  parent_id: 0,
+  name: "",
+  path: "",
+  hidden: 0,
+  component: "",
+  sort: 0,
+  active_name: "",
+  keep_alive: 0,
+  default_menu: 0,
+  title: "",
+  icon: "",
+  close_tab: 0,
   created_at: "",
   updated_at: "",
-};
-
-type SearchFormFieldType = {
-  user_name: string;
-  status: string;
+  level: [],
+  children: [],
 };
 
 const App: React.FC = () => {
-  const searchForm = useForm<SearchFormFieldType>({
-    defaultValues: { user_name: "", status: "3" },
-  });
-  const [data, setData] = useState<PageList<UserInfo>>();
+  const [data, setData] = useState<Menu[]>();
   const [loading, setLoading] = useState(false);
-  const [tableParams, setTableParams] = useState<TableParams>({
-    pagination: {
-      current: 1,
-      pageSize: 10,
-      total: 0,
-    },
-  });
-  const [userModalProps, setUserModalProps] = useState<UserModalProps>({
-    formValue: { ...defaultUserValue },
+  const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
+
+  const [menuModalProps, setUserModalProps] = useState<MenuModalProps>({
+    formValue: { ...defaultValue },
     title: "New",
     show: false,
-    onOk: async (values: UserInfo) => {
+    isCreateSub: false,
+    onOk: async (values: Menu) => {
       if (values.id === 0) {
-        await userService.createUser(values);
+        await menuService.createMenu(values);
       } else {
-        const {
-          user_name = "",
-          email = "",
-          phone = "",
-          header_img,
-          nick_name = "",
-          status = false,
-        } = values;
-        await userService.updateUser(values.id, {
-          user_name,
-          email,
-          phone,
-          header_img,
-          nick_name,
-          status,
-        });
+        await menuService.updateMenu(values.id, values);
       }
       toast.success("success!");
       setUserModalProps((prev) => ({ ...prev, show: false }));
@@ -156,75 +58,45 @@ const App: React.FC = () => {
     },
   });
 
-  const getData = async () => {
-    const params = toURLSearchParams(getRandomUserParams(tableParams));
-    const response = await userService.searchPageList(params.toString());
+  const getData = useCallback(async () => {
+    const response = await menuService.getMenus();
     setData(response);
-    setTableParams((prev) => ({
-      ...prev,
-      pagination: {
-        ...prev.pagination,
-        current: response.page,
-        total: response.total,
-        pageSize: response.page_size,
-      },
-    }));
     setLoading(false);
-  };
-  // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+  }, []);
+
   useEffect(() => {
     setLoading(true);
     getData();
-  }, [
-    tableParams.pagination?.current,
-    tableParams.pagination?.pageSize,
-    tableParams?.sortOrder,
-    tableParams?.sortField,
-    tableParams?.searchParams?.user_name,
-    tableParams?.searchParams?.status,
-    JSON.stringify(tableParams.filters),
-  ]);
+  }, [getData]);
 
-  const handleTableChange: TableProps<UserInfo>["onChange"] = (
-    pagination,
-    filters,
-    sorter
-  ) => {
-    setTableParams({
-      pagination,
-      filters,
-      sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-      sortField: Array.isArray(sorter) ? undefined : sorter.field,
-    });
-
-    // `dataSource` is useless since `pageSize` changed
-    if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-      setData(undefined);
+  const onCreate = (formValue: Menu | undefined, isCreateSub = false) => {
+    const setValue = defaultValue;
+    if (formValue !== undefined) {
+      setValue.parent_id = formValue.id;
     }
-  };
-
-  const onCreate = () => {
     setUserModalProps((prev) => ({
       ...prev,
       show: true,
-      ...defaultUserValue,
+      isCreateSub,
+      ...setValue,
       title: "New",
-      formValue: { ...defaultUserValue },
+      formValue: { ...setValue },
     }));
   };
 
-  const onEdit = (formValue: UserInfo) => {
+  const onEdit = (formValue: Menu) => {
     setUserModalProps((prev) => ({
       ...prev,
       show: true,
       title: "Edit",
+      isCreateSub: false,
       formValue,
     }));
   };
 
   const handleDelete = async (id: number) => {
     try {
-      await userService.deleteUser(id);
+      await menuService.deleteMenu(id);
       toast.success("删除成功");
       getData();
     } catch (error) {
@@ -233,56 +105,70 @@ const App: React.FC = () => {
     }
   };
 
-  const columns: ColumnsType<UserInfo> = [
+  const handleExpand = (expanded: boolean, record: Menu) => {
+    const keys = expanded
+      ? [...expandedKeys, record.id]
+      : expandedKeys.filter((key) => key !== record.id);
+    setExpandedKeys(keys);
+  };
+  const columns: ColumnsType<Menu> = [
     {
-      title: "ID",
-      dataIndex: "id",
-      sorter: true,
-      width: "5%",
-    },
-    {
-      title: "用户",
-      dataIndex: "user_name",
-      width: 300,
+      title: "菜单ID",
+      dataIndex: "expand",
       render: (_, record) => {
-        return (
-          <div className="flex">
-            <img
-              alt=""
-              src={record.header_img}
-              className="h-10 w-10 rounded-full"
-            />
-            <div className="ml-2 flex flex-col">
-              <span className="text-sm">{record.user_name}</span>
-              <span className="text-xs text-text-secondary">
-                {record.email}
-              </span>
-            </div>
-          </div>
+        const level = record.level.length;
+        return record.children?.length ? (
+          <Button
+            onClick={(e) =>
+              handleExpand(!expandedKeys.includes(record.id), record)
+            }
+            variant="ghost"
+            size="icon"
+            style={{
+              marginLeft: record.parent_id !== 0 ? `${level * 20}px` : "",
+            }}
+          >
+            {expandedKeys.includes(record.id) ? "▼" : "▶"}
+            <span>{record.id}</span>
+          </Button>
+        ) : (
+          <span style={{ marginLeft: `${level * 20}px` }}>{record.id}</span>
         );
       },
-    },
 
-    {
-      title: "昵称",
-      dataIndex: "nick_name",
+      width: 90,
     },
     {
-      title: "手机",
-      dataIndex: "phone",
+      title: "展示名称",
+      dataIndex: "title",
     },
     {
-      title: "状态",
-      dataIndex: "status",
-      align: "center",
-      width: 120,
-      render: (status) => {
-        return (
-          <Badge variant={status ? "success" : "error"}>
-            {status ? "Enable" : "Disabled"}
-          </Badge>
-        );
-      },
+      title: "图标",
+      dataIndex: "icon",
+    },
+    {
+      title: "路由Name",
+      dataIndex: "name",
+    },
+    {
+      title: "路由Path",
+      dataIndex: "path",
+    },
+    {
+      title: "是否显示隐藏",
+      dataIndex: "hidden",
+    },
+    {
+      title: "父节点",
+      dataIndex: "parent_id",
+    },
+    {
+      title: "排序",
+      dataIndex: "sort",
+    },
+    {
+      title: "文件路径",
+      dataIndex: "component",
     },
     {
       title: "创建时间",
@@ -296,9 +182,20 @@ const App: React.FC = () => {
       title: "操作",
       key: "operation",
       align: "center",
-      width: 100,
+      width: 300,
+      fixed: "right",
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => onCreate(record, true)}
+            style={{ minWidth: "80px" }}
+            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+          >
+            <Icon icon="solar:add-square-bold" size={18} />
+            <span className="text-xs">新增子路由</span>
+          </Button>
           <Button
             variant="ghost"
             size="icon"
@@ -308,16 +205,6 @@ const App: React.FC = () => {
           >
             <Icon icon="solar:pen-bold-duotone" size={18} />
             <span className="text-xs">修改</span>
-          </Button>
-          <Button
-            variant="ghost"
-            size="icon"
-            onClick={() => onEdit(record)}
-            style={{ minWidth: "90px" }}
-            className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-          >
-            <Icon icon="solar:pen-bold-duotone" size={18} />
-            <span className="text-xs">重置密码</span>
           </Button>
           <Popconfirm
             title="Delete the task"
@@ -344,124 +231,34 @@ const App: React.FC = () => {
     },
   ];
 
-  const onReset = () => {
-    setTableParams((prev) => ({
-      ...prev,
-      searchParams: {
-        user_name: "",
-        status: "3",
-      },
-      pagination: {
-        ...prev.pagination,
-        current: 1,
-      },
-    }));
-    searchForm.reset();
-  };
-
-  const onSearch = () => {
-    const values = searchForm.getValues();
-    setTableParams((prev) => ({
-      ...prev,
-      searchParams: {
-        user_name: values.user_name || "",
-        status: values.status,
-      },
-      pagination: {
-        ...prev.pagination,
-        current: 1,
-      },
-    }));
-  };
-
   return (
-    <div className="flex flex-col gap-4">
-      <Card>
-        <CardContent>
-          <Form {...searchForm}>
-            <div className="flex items-center gap-4">
-              <FormField
-                control={searchForm.control}
-                name="user_name"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>UserName</FormLabel>
-                    <FormControl>
-                      <Input {...field} />
-                    </FormControl>
-                  </FormItem>
-                )}
-              />
-              <FormField
-                control={searchForm.control}
-                name="status"
-                render={({ field }) => (
-                  <FormItem>
-                    <FormLabel>Status</FormLabel>
-                    <Select
-                      onValueChange={(value) => {
-                        field.onChange(value);
-                      }}
-                      value={field.value}
-                    >
-                      <SelectTrigger>
-                        <SelectValue placeholder="Select Status" />
-                      </SelectTrigger>
-                      <SelectContent>
-                        <SelectItem value="3">
-                          <Badge variant="default">All</Badge>
-                        </SelectItem>
-                        <SelectItem value="1">
-                          <Badge variant="success">Enable</Badge>
-                        </SelectItem>
-                        <SelectItem value="0">
-                          <Badge variant="error">Disable</Badge>
-                        </SelectItem>
-                      </SelectContent>
-                    </Select>
-                  </FormItem>
-                )}
-              />
-              <div className="flex ml-auto">
-                <Button variant="outline" onClick={() => onReset()}>
-                  Reset
-                </Button>
-                <Button className="ml-4" onClick={() => onSearch()}>
-                  Search
-                </Button>
-              </div>
-            </div>
-          </Form>
-        </CardContent>
-      </Card>
-      <Card title="User List">
-        <CardHeader>
-          <div className="flex items-center justify-between">
-            <Button onClick={() => onCreate()}>New</Button>
-          </div>
-        </CardHeader>
+    <Card title="Menu List">
+      <CardHeader>
+        <div className="flex items-center justify-between">
+          <Button onClick={() => onCreate(undefined, true)}>
+            <Icon icon="solar:add-circle-outline" size={18} />
+            New
+          </Button>
+        </div>
+      </CardHeader>
 
-        <CardContent>
-          <Table<UserInfo>
-            rowKey={(record) => record.id}
-            scroll={{ x: "max-content" }}
-            columns={columns}
-            pagination={{
-              current: tableParams.pagination?.current || 1,
-              pageSize: tableParams.pagination?.pageSize || 10,
-              total: tableParams?.pagination?.total || 0,
-              showTotal: (total) => `共 ${total} 条`,
-              showSizeChanger: true,
-              pageSizeOptions: ["10", "20", "50", "100"],
-            }}
-            dataSource={data?.list}
-            loading={loading}
-            onChange={handleTableChange}
-          />
-        </CardContent>
-        <PermissionModal {...userModalProps} />
-      </Card>
-    </div>
+      <CardContent>
+        <Table
+          rowKey={(record) => record.id}
+          scroll={{ x: "max-content" }}
+          columns={columns}
+          dataSource={data}
+          loading={loading}
+          pagination={false}
+          expandable={{
+            showExpandColumn: false,
+            expandedRowKeys: expandedKeys,
+            onExpand: (expanded, record) => handleExpand(expanded, record),
+          }}
+        />
+      </CardContent>
+      <MenuModal {...menuModalProps} />
+    </Card>
   );
 };
 

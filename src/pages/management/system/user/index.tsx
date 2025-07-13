@@ -218,6 +218,7 @@ const App: React.FC = () => {
       key: "operation",
       align: "center",
       width: 100,
+      fixed: "right",
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
           <Button

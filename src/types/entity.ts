@@ -57,7 +57,6 @@ export interface UserInfo {
   created_at: string;
   updated_at: string;
   role?: Role[];
-  permissions?: Permission[];
 }
 
 export interface UpdateUser {
@@ -76,24 +75,6 @@ export interface Organization {
   desc?: string;
   order?: number;
   children?: Organization[];
-}
-
-export interface Permission {
-  id: string;
-  parentId: string;
-  name: string;
-  label: string;
-  type: PermissionType;
-  route: string;
-  status?: BasicStatus;
-  order?: number;
-  icon?: string;
-  component?: string;
-  hide?: boolean;
-  hideTab?: boolean;
-  frameSrc?: URL;
-  newFeature?: boolean;
-  children?: Permission[];
 }
 
 export interface Role {
@@ -178,4 +159,33 @@ export interface DictionaryDetail {
   sys_dictionary_Id: number | null;
   created_at: string;
   updated_at: string;
+}
+
+export interface Menu {
+  id: number;
+  menu_level: number;
+  parent_id: number;
+  name: string;
+  path: string;
+  hidden: number;
+  component: string;
+  sort: number;
+  active_name: string;
+  keep_alive: number;
+  default_menu: number;
+  title: string;
+  icon: string;
+  close_tab: number;
+  created_at: string;
+  updated_at: string;
+  level: number[];
+  children?: Menu[];
+}
+
+export interface MenuTree {
+  value: string;
+  title: string;
+  key: string;
+  children: MenuTree[];
+  path: number[];
 }

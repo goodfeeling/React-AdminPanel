@@ -195,6 +195,7 @@ const App: React.FC = () => {
       title: "操作",
       key: "operation",
       align: "center",
+      fixed: "right",
       width: 100,
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
@@ -301,7 +302,7 @@ const App: React.FC = () => {
 
   return (
     <div className="flex flex-col gap-4">
-      <Card title="Log List">
+      <Card>
         <CardContent>
           <Form {...searchForm}>
             <div className="flex items-center gap-4">
@@ -378,7 +379,7 @@ const App: React.FC = () => {
           </Form>
         </CardContent>
       </Card>
-      <Card>
+      <Card title="Log List">
         <CardHeader>
           <div className="flex items-center justify-between">
             <Button

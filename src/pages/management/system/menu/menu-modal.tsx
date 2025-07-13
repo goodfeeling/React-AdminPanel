@@ -1,5 +1,4 @@
-import { UploadApi } from "@/api/services/uploadService";
-import { UploadAvatar } from "@/components/upload";
+import menuService from "@/api/services/menuService";
 import { Button } from "@/ui/button";
 import {
   Dialog,
@@ -11,65 +10,139 @@ import {
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { useEffect } from "react";
+import TreeSelectInput from "@/ui/tree-select-input";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { UserInfo } from "#/entity";
+import type { Menu, MenuTree } from "#/entity";
 import { BasicStatus } from "#/enum";
-
-export type UserModalProps = {
-  formValue: UserInfo;
+export type MenuModalProps = {
+  formValue: Menu;
   title: string;
   show: boolean;
-  onOk: (values: UserInfo) => void;
+  isCreateSub: boolean;
+  onOk: (values: Menu) => void;
   onCancel: VoidFunction;
 };
-
 export default function UserModal({
   title,
   show,
+  isCreateSub,
   formValue,
   onOk,
   onCancel,
-}: UserModalProps) {
-  const form = useForm<UserInfo>({
+}: MenuModalProps) {
+  const [treeData, setTreeData] = useState<MenuTree[]>([]);
+  const [selectedKey, setSelectedKey] = useState<number>(0);
+  const form = useForm<Menu>({
     defaultValues: formValue,
   });
-
-  useEffect(() => {
-    form.reset(formValue);
-  }, [formValue, form]);
-
-  const onSubmit = (values: UserInfo) => {
-    console.log("onSubmit");
-
+  const onSubmit = () => {
+    const values = form.getValues();
     onOk(values);
   };
 
-  const onHeaderImgChange = (fileUrl: string) => {
-    form.setValue("header_img", fileUrl);
+  const onLoadMenuTree = useCallback(async () => {
+    const response = await menuService.getMenuTree();
+    setTreeData([response]);
+  }, []);
+
+  useEffect(() => {
+    form.reset(formValue);
+    onLoadMenuTree();
+    if (formValue.parent_id) {
+      setSelectedKey(formValue.parent_id);
+    }
+  }, [formValue, form, onLoadMenuTree]);
+
+  const handleClose = () => {
+    setSelectedKey(0); // 清除选中状态
+    // setDisabledStatus(false);
+    onCancel(); // 关闭弹框
   };
 
   return (
-    <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent>
+    <Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
+      <DialogContent className="sm:max-w-5xl">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <Form {...form}>
-          <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+          <div className="grid grid-cols-2 gap-4">
             <FormField
               control={form.control}
-              name="header_img"
+              name="component"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Avatar</FormLabel>
+                  <FormLabel>文件路径</FormLabel>
                   <FormControl>
-                    <UploadAvatar
-                      defaultAvatar={field.value}
-                      onHeaderImgChange={onHeaderImgChange}
-                      action={`${import.meta.env.VITE_APP_BASE_API}${
-                        UploadApi.Single
-                      }`}
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="title"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>展示名称</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="name"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>路由Name</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="path"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>路由Path</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="hidden"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>是否隐藏</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="parent_id"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>父节点ID</FormLabel>
+                  <FormControl>
+                    <TreeSelectInput
+                      treeData={treeData}
+                      disabled={isCreateSub}
+                      value={String(selectedKey)}
+                      onChange={(value: string) => {
+                        field.onChange(value);
+                      }}
+                      placeholder="请选择父级角色"
                     />
                   </FormControl>
                 </FormItem>
@@ -77,10 +150,22 @@ export default function UserModal({
             />
             <FormField
               control={form.control}
-              name="user_name"
+              name="icon"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>UserName</FormLabel>
+                  <FormLabel>图标</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="sort"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>排序标记</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -90,36 +175,10 @@ export default function UserModal({
 
             <FormField
               control={form.control}
-              name="email"
+              name="active_name"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Email</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="nick_name"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>NickName</FormLabel>
-                  <FormControl>
-                    <Input {...field} />
-                  </FormControl>
-                </FormItem>
-              )}
-            />
-
-            <FormField
-              control={form.control}
-              name="phone"
-              render={({ field }) => (
-                <FormItem>
-                  <FormLabel>Phone</FormLabel>
+                  <FormLabel>高亮</FormLabel>
                   <FormControl>
                     <Input {...field} />
                   </FormControl>
@@ -128,40 +187,50 @@ export default function UserModal({
             />
             <FormField
               control={form.control}
-              name="status"
+              name="keep_alive"
               render={({ field }) => (
                 <FormItem>
-                  <FormLabel>Status</FormLabel>
+                  <FormLabel>KeepAlive</FormLabel>
                   <FormControl>
-                    <ToggleGroup
-                      type="single"
-                      variant="outline"
-                      value={field.value ? "1" : "0"}
-                      onValueChange={(value) => {
-                        field.onChange(value === "1");
-                      }}
-                    >
-                      <ToggleGroupItem value={String(BasicStatus.ENABLE)}>
-                        Enable
-                      </ToggleGroupItem>
-                      <ToggleGroupItem value={String(BasicStatus.DISABLE)}>
-                        Disable
-                      </ToggleGroupItem>
-                    </ToggleGroup>
+                    <Input {...field} />
                   </FormControl>
                 </FormItem>
               )}
             />
+            <FormField
+              control={form.control}
+              name="close_tab"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>CloseTab</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+            <FormField
+              control={form.control}
+              name="default_menu"
+              render={({ field }) => (
+                <FormItem>
+                  <FormLabel>是否为基础页面</FormLabel>
+                  <FormControl>
+                    <Input {...field} />
+                  </FormControl>
+                </FormItem>
+              )}
+            />
+          </div>
 
-            <DialogFooter>
-              <Button variant="outline" type="button" onClick={onCancel}>
-                Cancel
-              </Button>
-              <Button type="submit" variant="default">
-                Confirm
-              </Button>
-            </DialogFooter>
-          </form>
+          <DialogFooter>
+            <Button variant="outline" type="button" onClick={handleClose}>
+              Cancel
+            </Button>
+            <Button type="submit" variant="default" onClick={onSubmit}>
+              Confirm
+            </Button>
+          </DialogFooter>
         </Form>
       </DialogContent>
     </Dialog>

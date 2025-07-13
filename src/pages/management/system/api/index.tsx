@@ -248,6 +248,7 @@ const App: React.FC = () => {
       title: "操作",
       key: "operation",
       align: "center",
+      fixed: "right",
       width: 100,
       render: (_, record) => (
         <div className="flex w-full justify-center text-gray-500">
