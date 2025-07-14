@@ -139,6 +139,12 @@ export interface ApiGroup {
   groups: string[];
 }
 
+export interface ApiGroupItem {
+  title: string;
+  key: string;
+  children: ApiGroupItem[];
+}
+
 export interface Dictionary {
   id: number;
   name: string;
@@ -188,4 +194,9 @@ export interface MenuTree {
   key: string;
   children: MenuTree[];
   path: number[];
+}
+
+export interface roleSetting {
+  role_menus: number[];
+  role_apis: string[];
 }

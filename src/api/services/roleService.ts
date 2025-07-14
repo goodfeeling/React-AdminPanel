@@ -1,6 +1,6 @@
 import apiClient from "../apiClient";
 
-import type { PageList, Role, RoleTree } from "#/entity";
+import type { PageList, Role, RoleTree, roleSetting } from "#/entity";
 
 export interface UpdateRole {
   parent_id: number;
@@ -33,6 +33,21 @@ const deleteUser = (id: number) =>
 const getRoleTree = () =>
   apiClient.get<RoleTree>({ url: `${RoleApi.RoleTree}` });
 
+const getRoleSetting = (id: number) =>
+  apiClient.get<roleSetting>({ url: `${RoleApi.Role}/${id}/setting` });
+
+const updateRoleMenus = (id: number, menuIds: number[]) =>
+  apiClient.post<boolean>({
+    url: `${RoleApi.Role}/${id}/menu`,
+    data: { menuIds },
+  });
+
+const updateRoleApis = (id: number, apiPaths: string[]) =>
+  apiClient.post<boolean>({
+    url: `${RoleApi.Role}/${id}/api`,
+    data: { apiPaths },
+  });
+
 export default {
   updateUser,
   searchPageList,
@@ -40,4 +55,7 @@ export default {
   deleteUser,
   getRoleTree,
   getRoles,
+  getRoleSetting,
+  updateRoleMenus,
+  updateRoleApis,
 };

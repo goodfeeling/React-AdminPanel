@@ -422,6 +422,7 @@ const DictionaryList = ({
       },
     }));
     if (response.list.length > 0 && onSelect) {
+      setSelectedId(response.list[0].id);
       onSelect(response.list[0].id);
     }
     setLoading(false);
@@ -535,8 +536,6 @@ const DictionaryList = ({
 
   const handleRowClick = (record: Dictionary) => {
     setSelectedId(record.id);
-    console.log(record.id);
-
     if (onSelect) {
       onSelect(record.id); // 传递选中的 id
     }

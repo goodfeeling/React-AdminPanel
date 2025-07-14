@@ -1,12 +1,13 @@
 import apiClient from "../apiClient";
 
-import type { Api, ApiGroup, PageList } from "#/entity";
+import type { Api, ApiGroup, ApiGroupItem, PageList } from "#/entity";
 
 export enum ApiClient {
   Api = "/api",
   SearchApi = "/api/search",
   GroupsApi = "/api/groups",
   DeleteBatch = "/api/batch",
+  ApiGroupList = "/api/group-list",
 }
 const getApis = () => apiClient.get<Api[]>({ url: `${ApiClient.Api}` });
 const updateApi = (id: number, apiInfo: Api) =>
@@ -29,6 +30,9 @@ const deleteBatch = (ids: number[]) =>
 const getApiGroups = () =>
   apiClient.get<ApiGroup>({ url: `${ApiClient.GroupsApi}` });
 
+const getApiGroupList = () =>
+  apiClient.get<ApiGroupItem[]>({ url: `${ApiClient.ApiGroupList}` });
+
 export default {
   updateApi,
   searchPageList,
@@ -37,4 +41,5 @@ export default {
   getApis,
   getApiGroups,
   deleteBatch,
+  getApiGroupList,
 };

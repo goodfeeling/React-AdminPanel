@@ -147,3 +147,12 @@ input:-webkit-autofill:active {
 	transition: color 99999s ease-out, background-color 99999s ease-out;
     -webkit-text-fill-color: #ffffff;
 }
+
+.scrollbar-hide::-webkit-scrollbar {
+  display: none;
+}
+
+.scrollbar-hide {
+  -ms-overflow-style: none; /* IE and Edge */
+  scrollbar-width: none; /* Firefox */
+}

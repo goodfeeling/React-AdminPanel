@@ -1,6 +1,5 @@
 import menuService from "@/api/services/menuService";
 import { Icon } from "@/components/icon";
-import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
 import type { TableProps } from "antd";

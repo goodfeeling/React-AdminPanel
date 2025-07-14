@@ -1,54 +1,15 @@
+import apiService from "@/api/services/apisService";
+import menuService from "@/api/services/menuService";
+import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
+import type { ApiGroupItem, MenuTree } from "@/types/entity";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
-import { Tree } from "antd";
+import { Input, Tree } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 
-const treeData: TreeDataNode[] = [
-  {
-    title: "0-0",
-    key: "0-0",
-    children: [
-      {
-        title: "0-0-0",
-        key: "0-0-0",
-        children: [
-          { title: "0-0-0-0", key: "0-0-0-0" },
-          { title: "0-0-0-1", key: "0-0-0-1" },
-          { title: "0-0-0-2", key: "0-0-0-2" },
-        ],
-      },
-      {
-        title: "0-0-1",
-        key: "0-0-1",
-        children: [
-          { title: "0-0-1-0", key: "0-0-1-0" },
-          { title: "0-0-1-1", key: "0-0-1-1" },
-          { title: "0-0-1-2", key: "0-0-1-2" },
-        ],
-      },
-      {
-        title: "0-0-2",
-        key: "0-0-2",
-      },
-    ],
-  },
-  {
-    title: "0-1",
-    key: "0-1",
-    children: [
-      { title: "0-1-0-0", key: "0-1-0-0" },
-      { title: "0-1-0-1", key: "0-1-0-1" },
-      { title: "0-1-0-2", key: "0-1-0-2" },
-    ],
-  },
-  {
-    title: "0-2",
-    key: "0-2",
-  },
-];
-
+const { Search } = Input;
 export type SettingValue = {
   id: string;
 };
@@ -59,6 +20,165 @@ export type SettingModalProps = {
   show: boolean;
   onCancel: VoidFunction;
 };
+const getAllKeys = (data: TreeDataNode[]): React.Key[] => {
+  return data.reduce((acc, node) => {
+    acc.push(node.key);
+    if (node.children) {
+      acc.push(...getAllKeys(node.children));
+    }
+    return acc;
+  }, [] as React.Key[]);
+};
+
+const MenuSetting = ({ id }: { id: number }) => {
+  const [searchValue, setSearchValue] = useState("");
+  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+  const [treeData, setTreeData] = useState<MenuTree[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("onChange", e);
+    setSearchValue(e.target.value);
+  };
+  const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
+    setExpandedKeys(expandedKeysValue);
+    setAutoExpandParent(false);
+  };
+
+  // 加载菜单树
+  const onLoadMenuTree = useCallback(async () => {
+    const response = await menuService.getMenuTree();
+    setTreeData(response.children);
+    setExpandedKeys(getAllKeys(response.children));
+  }, []);
+
+  // 加载权限菜单绑定数据
+  const loadMenuIds = useCallback(async () => {
+    const response = await roleService.getRoleSetting(id);
+    setCheckedKeys(response.role_menus.map((v) => String(v)));
+  }, [id]);
+
+  useEffect(() => {
+    onLoadMenuTree();
+    loadMenuIds();
+  }, [onLoadMenuTree, loadMenuIds]);
+
+  // 更新菜单id
+  const updateRoleMenuIds = useCallback(
+    async (checkedKeysValue: number[]) => {
+      await roleService.updateRoleMenus(id, checkedKeysValue);
+    },
+    [id]
+  );
+
+  const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
+    console.log("onCheck", checkedKeysValue);
+    setCheckedKeys(checkedKeysValue as React.Key[]);
+    updateRoleMenuIds(checkedKeysValue as number[]);
+  };
+
+  return (
+    <div>
+      <Search
+        style={{ marginBottom: 8 }}
+        placeholder="Search"
+        onChange={onChange}
+      />
+      <Tree
+        checkable
+        onExpand={onExpand}
+        selectable={false}
+        expandedKeys={expandedKeys}
+        autoExpandParent={autoExpandParent}
+        onCheck={onCheck}
+        checkedKeys={checkedKeys}
+        treeData={treeData}
+        multiple={true}
+      />
+    </div>
+  );
+};
+
+const ApiSetting = ({ id }: { id: number }) => {
+  const [searchValue, setSearchValue] = useState("");
+  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+  const [treeData, setTreeData] = useState<ApiGroupItem[]>([]);
+  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
+  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
+  const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    console.log("onChange", e);
+    setSearchValue(e.target.value);
+  };
+  const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
+    setExpandedKeys(expandedKeysValue);
+    setAutoExpandParent(false);
+  };
+
+  // 加载菜单树
+  const onLoadMenuTree = useCallback(async () => {
+    const response = await apiService.getApiGroupList();
+
+    setTreeData(response);
+    setExpandedKeys(getAllKeys(response));
+  }, []);
+
+  // 加载权限菜单绑定数据
+  const loadMenuIds = useCallback(async () => {
+    const response = await roleService.getRoleSetting(id);
+    setCheckedKeys(response.role_apis);
+  }, [id]);
+
+  useEffect(() => {
+    onLoadMenuTree();
+    loadMenuIds();
+  }, [onLoadMenuTree, loadMenuIds]);
+
+  // 更新菜单id
+  const updateRoleMenuIds = useCallback(
+    async (checkedKeysValue: string[]) => {
+      await roleService.updateRoleApis(id, checkedKeysValue);
+    },
+    [id]
+  );
+
+  const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
+    console.log("onCheck", checkedKeysValue);
+    setCheckedKeys(checkedKeysValue as React.Key[]);
+    updateRoleMenuIds(checkedKeysValue as string[]);
+  };
+
+  return (
+    <div>
+      <Search
+        style={{ marginBottom: 8 }}
+        placeholder="Search"
+        onChange={onChange}
+      />
+      <Tree
+        checkable
+        onExpand={onExpand}
+        selectable={false}
+        expandedKeys={expandedKeys}
+        autoExpandParent={autoExpandParent}
+        onCheck={onCheck}
+        checkedKeys={checkedKeys}
+        treeData={treeData}
+        multiple={true}
+        titleRender={(node) => {
+          return (
+            <span className="custom-tree-node flex justify-between items-center w-full">
+              <span>{node.title}</span>
+              <span className="text-sm text-primary-foreground">
+                {node.children === null ? node.key : ""}
+              </span>
+            </span>
+          );
+        }}
+      />
+    </div>
+  );
+};
+
 export default function SettingModal({
   id,
   title,
@@ -67,72 +187,39 @@ export default function SettingModal({
 }: SettingModalProps) {
   console.log(title, show);
 
-  const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([
-    "0-0-0",
-    "0-0-1",
-  ]);
-  const [checkedKeys, setCheckedKeys] = useState<React.Key[]>(["0-0-0"]);
-  const [selectedKeys, setSelectedKeys] = useState<React.Key[]>([]);
-  const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
-
-  const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
-    console.log("onExpand", expandedKeysValue);
-    // if not set autoExpandParent to false, if children expanded, parent can not collapse.
-    // or, you can remove all expanded children keys.
-    setExpandedKeys(expandedKeysValue);
-    setAutoExpandParent(false);
-  };
-
-  const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
-    console.log("onCheck", checkedKeysValue);
-    setCheckedKeys(checkedKeysValue as React.Key[]);
-  };
-
-  const onSelect: TreeProps["onSelect"] = (selectedKeysValue, info) => {
-    console.log("onSelect", info);
-    setSelectedKeys(selectedKeysValue);
-  };
-
   return (
     <Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
-      <DialogContent>
+      <DialogContent className="sm:max-w-3xl scrollbar-hide">
         <DialogHeader>
           <DialogTitle>{title}</DialogTitle>
         </DialogHeader>
         <Tabs defaultValue="1" className="w-full">
-          <TabsList>
-            <TabsTrigger value="1">
-              <div className="flex items-center">
-                <Icon icon="solar:user-id-bold" size={24} className="mr-2" />
-                <span>角色菜单</span>
-              </div>
-            </TabsTrigger>
-            <TabsTrigger value="2">
-              <div className="flex items-center">
-                <Icon
-                  icon="solar:bell-bing-bold-duotone"
-                  size={24}
-                  className="mr-2"
-                />
-                <span>角色api</span>
-              </div>
-            </TabsTrigger>
-          </TabsList>
-          <TabsContent value="1">
-            {" "}
-            <Tree
-              checkable
-              onExpand={onExpand}
-              expandedKeys={expandedKeys}
-              autoExpandParent={autoExpandParent}
-              onCheck={onCheck}
-              checkedKeys={checkedKeys}
-              onSelect={onSelect}
-              selectedKeys={selectedKeys}
-              treeData={treeData}
-            />
+          <div className="sticky top-0 z-10 bg-background">
+            <TabsList>
+              <TabsTrigger value="1">
+                <div className="flex items-center">
+                  <Icon icon="solar:user-id-bold" size={24} className="mr-2" />
+                  <span>角色菜单</span>
+                </div>
+              </TabsTrigger>
+              <TabsTrigger value="2">
+                <div className="flex items-center">
+                  <Icon
+                    icon="solar:bell-bing-bold-duotone"
+                    size={24}
+                    className="mr-2"
+                  />
+                  <span>角色api</span>
+                </div>
+              </TabsTrigger>
+            </TabsList>
+          </div>
+          <TabsContent value="1" className="max-h-[500px] overflow-y-auto">
+            <MenuSetting id={id} />
           </TabsContent>
-          <TabsContent value="2">2</TabsContent>
+          <TabsContent value="2" className="max-h-[500px] overflow-y-auto">
+            <ApiSetting id={id} />
+          </TabsContent>
         </Tabs>
       </DialogContent>
     </Dialog>
