@@ -36,7 +36,6 @@ interface BreadcrumbItemData {
 export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 	const { t } = useLocale();
 	const matches = useMatches();
-
 	const findPathInNavData = useCallback((path: string, items: NavItem[]): NavItem[] => {
 		for (const item of items) {
 			if (item.path === path) {

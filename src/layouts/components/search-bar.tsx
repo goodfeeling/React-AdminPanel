@@ -15,7 +15,8 @@ import {
 import { Text } from "@/ui/typography";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBoolean } from "react-use";
-import { navData } from "../dashboard/nav/nav-config";
+import type { navData } from "../dashboard/nav/nav-config";
+import { useMenuStore } from "@/store/useMenuStore";
 
 interface SearchItem {
 	key: string;
@@ -50,6 +51,11 @@ const SearchBar = () => {
 	const { replace } = useRouter();
 	const [open, setOpen] = useBoolean(false);
 	const [searchQuery, setSearchQuery] = useState("");
+	const { menuData, fetchMenu } = useMenuStore();
+
+	useEffect(() => {
+		fetchMenu(); // 页面加载时获取菜单数据
+	}, [fetchMenu]);
 
 	// Flatten navigation data into searchable items
 	const flattenedItems = useMemo(() => {
@@ -72,9 +78,9 @@ const SearchBar = () => {
 			}
 		};
 
-		flattenItems(navData);
+		flattenItems(menuData);
 		return items;
-	}, []);
+	}, [menuData]);
 
 	const searchResult = useMemo(() => {
 		const query = searchQuery.toLowerCase();

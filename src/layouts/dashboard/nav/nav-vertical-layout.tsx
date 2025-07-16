@@ -29,7 +29,7 @@ export function NavVerticalLayout({ data, className }: Props) {
 			>
 				<div className="flex items-center gap-2">
 					<Logo />
-					{themeLayout !== ThemeLayout.Mini && <span className="text-xl font-bold text-primary">Slash Admin</span>}
+					{themeLayout !== ThemeLayout.Mini && <span className="text-xl font-bold text-primary">My Admin</span>}
 				</div>
 			</div>
 

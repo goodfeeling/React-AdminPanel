@@ -6,7 +6,7 @@ import { Upload } from "antd";
 import type { UploadChangeParam, UploadFile, UploadProps } from "antd/es/upload";
 import { useState } from "react";
 import { StyledUploadAvatar } from "./styles";
-import { beforeAvatarUpload, getBlobUrl } from "./utils";
+import { beforeAvatarUpload } from "./utils";
 
 interface Props extends UploadProps {
 	defaultAvatar?: string;

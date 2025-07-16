@@ -1,16 +1,27 @@
 import Logo from "@/components/logo";
 import { down, useMediaQuery } from "@/hooks";
 import { useSettings } from "@/store/settingStore";
+import { useMenuStore } from "@/store/useMenuStore";
+import type { MenuTreeUserGroup } from "@/types/entity";
 import { cn } from "@/utils";
-import type { FC } from "react";
+import { type FC, useEffect } from "react";
 import { ThemeLayout } from "#/enum";
 import Header from "./header";
 import Main from "./main";
-import { NavHorizontalLayout, NavMobileLayout, NavToggleButton, NavVerticalLayout, navData } from "./nav";
+import { NavHorizontalLayout, NavMobileLayout, NavToggleButton, NavVerticalLayout } from "./nav";
+
+interface LayoutProps {
+	navData: MenuTreeUserGroup[];
+}
 // Dashboard Layout
 const DashboardLayout: FC = () => {
 	const isMobile = useMediaQuery(down("md"));
 	const { themeLayout } = useSettings();
+	const { menuData, fetchMenu } = useMenuStore();
+
+	useEffect(() => {
+		fetchMenu(); // 页面加载时获取菜单数据
+	}, [fetchMenu]);
 
 	return (
 		<div
@@ -19,21 +30,19 @@ const DashboardLayout: FC = () => {
 				"flex-col": isMobile || themeLayout === ThemeLayout.Horizontal,
 			})}
 		>
-			{isMobile ? <MobileLayout /> : <PcLayout />}
+			{isMobile ? <MobileLayout navData={menuData} /> : <PcLayout navData={menuData} />}
 		</div>
 	);
 };
 export default DashboardLayout;
 
 // Pc Layout
-function PcLayout() {
+function PcLayout({ navData }: LayoutProps) {
 	const { themeLayout } = useSettings();
-
-	if (themeLayout === ThemeLayout.Horizontal) return <PcHorizontalLayout />;
-	return <PcVerticalLayout />;
+	if (themeLayout === ThemeLayout.Horizontal) return <PcHorizontalLayout navData={navData} />;
+	return <PcVerticalLayout navData={navData} />;
 }
-
-function PcHorizontalLayout() {
+function PcHorizontalLayout({ navData }: LayoutProps) {
 	return (
 		<div
 			data-slot="slash-layout-content"
@@ -46,7 +55,7 @@ function PcHorizontalLayout() {
 	);
 }
 
-function PcVerticalLayout() {
+function PcVerticalLayout({ navData }: LayoutProps) {
 	const settings = useSettings();
 	const { themeLayout } = settings;
 
@@ -68,7 +77,7 @@ function PcVerticalLayout() {
 }
 
 // Mobile Layout
-function MobileLayout() {
+function MobileLayout({ navData }: LayoutProps) {
 	return (
 		<>
 			<Header leftSlot={<NavMobileLayout data={navData} />} />
