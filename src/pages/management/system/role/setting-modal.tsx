@@ -2,7 +2,7 @@ import apiService from "@/api/services/apisService";
 import menuService from "@/api/services/menuService";
 import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
-import type { ApiGroupItem, MenuTree } from "@/types/entity";
+import type { ApiGroupItem, Menu, MenuTree } from "@/types/entity";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { Input, Tree } from "antd";
@@ -50,10 +50,32 @@ const MenuSetting = ({ id }: { id: number }) => {
 
 	// 加载菜单树
 	const onLoadMenuTree = useCallback(async () => {
-		const response = await menuService.getMenuTree();
-		setTreeData(response.children);
-		setExpandedKeys(getAllKeys(response.children));
+		const response = await menuService.getMenus(0);
+		const treeData = [
+			{
+				value: "0",
+				title: "根节点",
+				key: "0",
+				path: [0],
+				children: buildTree(response),
+			},
+		];
+		setTreeData(treeData);
+		setExpandedKeys(getAllKeys(treeData));
 	}, []);
+
+	// 构建树形结构
+	const buildTree = (tree: Menu[]): MenuTree[] => {
+		return tree.map((item: Menu): MenuTree => {
+			return {
+				value: item.id.toString(),
+				title: item.title,
+				key: item.id.toString(),
+				path: item.level,
+				children: item.children ? buildTree(item.children) : [],
+			};
+		});
+	};
 
 	// 加载权限菜单绑定数据
 	const loadMenuIds = useCallback(async () => {

@@ -8,6 +8,7 @@ import userService, { type SignInReq } from "@/api/services/userService";
 import { toast } from "sonner";
 import type { UserInfo, UserToken } from "#/entity";
 import { StorageEnum } from "#/enum";
+import { useMenuActions } from "./useMenuStore";
 
 const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 
@@ -57,6 +58,7 @@ export const useUserActions = () => useUserStore((state) => state.actions);
 export const useSignIn = () => {
 	const navigatge = useNavigate();
 	const { setUserToken, setUserInfo } = useUserActions();
+	const menuActions = useMenuActions();
 
 	const signInMutation = useMutation({
 		mutationFn: userService.signin,
@@ -74,6 +76,8 @@ export const useSignIn = () => {
 				expirationRefreshDateTime,
 			});
 			setUserInfo(userInfo);
+			// get user menu
+			await menuActions.fetchMenu();
 			navigatge(HOMEPAGE, { replace: true });
 			toast.success("Sign in success!", {
 				closeButton: true,

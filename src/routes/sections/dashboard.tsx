@@ -62,6 +62,7 @@ export const dashboardRoutes: RouteObject[] = [
 		),
 		children: [
 			{ index: true, element: <Navigate to={HOMEPAGE} replace /> },
+
 			{
 				path: "dashboard",
 				children: [

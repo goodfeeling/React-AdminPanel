@@ -1,11 +1,10 @@
 import apiClient from "../apiClient";
 
-import type { Menu, MenuTree, MenuTreeUserGroup, PageList } from "#/entity";
+import type { Menu, MenuTreeUserGroup, PageList } from "#/entity";
 
 export enum MenuApi {
 	Menu = "/menu",
 	SearchMenu = "/menu/search",
-	MenuTree = "/menu/tree",
 	UserMenu = "/menu/user",
 }
 const getMenus = (groupId: number) => apiClient.get<Menu[]>({ url: `${MenuApi.Menu}?group_id=${groupId}` });
@@ -21,8 +20,6 @@ const searchPageList = (searchStr: string) =>
 
 const deleteMenu = (id: number) => apiClient.delete<string>({ url: `${MenuApi.Menu}/${id}` });
 
-const getMenuTree = () => apiClient.get<MenuTree>({ url: `${MenuApi.MenuTree}` });
-
 const getUserMenu = () => apiClient.get<MenuTreeUserGroup[]>({ url: `${MenuApi.UserMenu}` });
 
 export default {
@@ -30,7 +27,6 @@ export default {
 	searchPageList,
 	createMenu,
 	deleteMenu,
-	getMenuTree,
 	getMenus,
 	getUserMenu,
 };

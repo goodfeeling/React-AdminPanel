@@ -1,10 +1,10 @@
 import Logo from "@/components/logo";
 import { down, useMediaQuery } from "@/hooks";
 import { useSettings } from "@/store/settingStore";
-import { useMenuStore } from "@/store/useMenuStore";
+import { useMenu } from "@/store/useMenuStore";
 import type { MenuTreeUserGroup } from "@/types/entity";
 import { cn } from "@/utils";
-import { type FC, useEffect } from "react";
+import type { FC } from "react";
 import { ThemeLayout } from "#/enum";
 import Header from "./header";
 import Main from "./main";
@@ -17,12 +17,7 @@ interface LayoutProps {
 const DashboardLayout: FC = () => {
 	const isMobile = useMediaQuery(down("md"));
 	const { themeLayout } = useSettings();
-	const { menuData, fetchMenu } = useMenuStore();
-
-	useEffect(() => {
-		fetchMenu(); // 页面加载时获取菜单数据
-	}, [fetchMenu]);
-
+	const menuData = useMenu();
 	return (
 		<div
 			data-slot="slash-layout-root"

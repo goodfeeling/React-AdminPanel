@@ -41,6 +41,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		formValue: { ...defaultValue },
 		title: "New",
 		show: false,
+		treeRawData: [],
 		isCreateSub: false,
 		onOk: async (values: Menu) => {
 			if (values.id === 0) {
@@ -61,6 +62,10 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		const response = await menuService.getMenus(selectedId);
 		setData(response);
 		setLoading(false);
+		setUserModalProps((prev) => ({
+			...prev,
+			treeRawData: response,
+		}));
 	}, []);
 
 	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
@@ -264,6 +269,7 @@ const MenuGroupList = ({
 	const defaultValue: MenuGroup = {
 		id: 0,
 		name: "",
+		path: "",
 		created_at: "",
 		updated_at: "",
 	};

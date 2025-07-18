@@ -46,6 +46,7 @@ const App: React.FC = () => {
 		formValue: { ...defaultValue },
 		title: "New",
 		show: false,
+		treeRawData: [],
 		isCreateSub: false,
 		onOk: async (values: Role) => {
 			if (values.id === 0) {
@@ -74,6 +75,10 @@ const App: React.FC = () => {
 		const response = await roleService.getRoles();
 		setData(response);
 		setLoading(false);
+		setUserModalProps((prev) => ({
+			...prev,
+			treeRawData: response,
+		}));
 	}, []);
 
 	useEffect(() => {

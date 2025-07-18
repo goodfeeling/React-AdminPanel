@@ -52,7 +52,8 @@ export interface UserInfo {
 	status?: boolean;
 	created_at: string;
 	updated_at: string;
-	role?: Role[];
+	current_role_id?: number;
+	roles?: Role[];
 }
 
 export interface UpdateUser {
@@ -86,7 +87,6 @@ export interface Role {
 	default_router: string;
 	children?: Role[];
 	path: number[];
-	// permission?: Permission[];
 }
 
 export interface RoleTree {
@@ -200,11 +200,13 @@ export interface roleSetting {
 export interface MenuGroup {
 	id: number;
 	name: string;
+	path: string;
 	created_at: string;
 	updated_at: string;
 }
 
 export interface MenuTreeUserGroup {
 	name: string;
+	path: string;
 	items: Menu[];
 }

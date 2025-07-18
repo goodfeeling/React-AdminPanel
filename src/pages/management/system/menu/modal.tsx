@@ -1,4 +1,3 @@
-import menuService from "@/api/services/menuService";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
@@ -6,12 +5,13 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import TreeSelectInput from "@/ui/tree-select-input";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Menu, MenuTree } from "#/entity";
 
 export type MenuModalProps = {
 	formValue: Menu;
+	treeRawData: Menu[];
 	title: string;
 	show: boolean;
 	isCreateSub: boolean;
@@ -19,9 +19,17 @@ export type MenuModalProps = {
 	onCancel: VoidFunction;
 };
 
-export default function UserModal({ title, show, isCreateSub, formValue, onOk, onCancel }: MenuModalProps) {
-	const [treeData, setTreeData] = useState<MenuTree[]>([]);
+export default function UserModal({
+	title,
+	show,
+	isCreateSub,
+	formValue,
+	onOk,
+	onCancel,
+	treeRawData,
+}: MenuModalProps) {
 	const [selectedKey, setSelectedKey] = useState<number>(0);
+	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
@@ -30,22 +38,37 @@ export default function UserModal({ title, show, isCreateSub, formValue, onOk, o
 		onOk(values);
 	};
 
-	const onLoadMenuTree = useCallback(async () => {
-		const response = await menuService.getMenuTree();
-		setTreeData([response]);
-	}, []);
-
 	useEffect(() => {
 		form.reset(formValue);
-		onLoadMenuTree();
 		if (formValue.parent_id) {
 			setSelectedKey(formValue.parent_id);
 		}
-	}, [formValue, form, onLoadMenuTree]);
+		setTreeData([
+			{
+				value: "0",
+				title: "根节点",
+				key: "0",
+				path: [0],
+				children: buildTree(treeRawData),
+			},
+		]);
+	}, [formValue, form, treeRawData]);
+
+	// 构建树形结构
+	const buildTree = (tree: Menu[]): MenuTree[] => {
+		return tree.map((item: Menu): MenuTree => {
+			return {
+				value: item.id.toString(),
+				title: item.title,
+				key: item.id.toString(),
+				path: item.level,
+				children: item.children ? buildTree(item.children) : [],
+			};
+		});
+	};
 
 	const handleClose = () => {
 		setSelectedKey(0); // 清除选中状态
-		// setDisabledStatus(false);
 		onCancel(); // 关闭弹框
 	};
 

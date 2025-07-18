@@ -47,6 +47,18 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 								</FormItem>
 							)}
 						/>
+						<FormField
+							control={form.control}
+							name="path"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Path</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
 						<DialogFooter>
 							<Button variant="outline" type="button" onClick={onCancel}>
 								Cancel

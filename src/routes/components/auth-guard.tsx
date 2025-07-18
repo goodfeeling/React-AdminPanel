@@ -15,9 +15,10 @@ export default function AuthGuard({ children }: Props) {
 		}
 	}, [router, accessToken]);
 
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		check();
-	}, [check]);
+	}, [check, accessToken]);
 
 	return <>{children}</>;
 }

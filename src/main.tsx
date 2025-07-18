@@ -1,29 +1,152 @@
+// main.tsx
 import "./global.css";
 import "./theme/theme.css";
 import "./locales/i18n";
 
+import React, { Suspense, useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
-import { Outlet, RouterProvider, createHashRouter } from "react-router";
+import { Navigate, Outlet, RouterProvider, createHashRouter } from "react-router";
 import App from "./App";
 import { registerLocalIcons } from "./components/icon";
+import { LineLoading } from "./components/loading";
+import DashboardLayout from "./layouts/dashboard";
 import PageError from "./pages/sys/error/PageError";
-import { routesSection } from "./routes/sections";
+import AuthGuard from "./routes/components/auth-guard";
+import useAppMenu from "./routes/hooks/use-menu"; // ✅ 引入你的 useMenu Hook
+import { authRoutes } from "./routes/sections/auth";
+import { buildRoutes, convertMenuTreeUserGroupToMenus } from "./routes/sections/buildRoutes";
+import { dashboardRoutes } from "./routes/sections/dashboard";
+import { mainRoutes } from "./routes/sections/main";
+import type { Menu } from "./types/entity";
 
-await registerLocalIcons();
-const router = createHashRouter([
-  {
-    Component: () => (
-      <App>
-        <Outlet />
-      </App>
-    ),
-    errorElement: <ErrorBoundary fallbackRender={PageError} />,
-    children: routesSection,
-  },
-]);
+// 创建路由函数
+function createAppRouter(menuData: Menu[]) {
+	const routesSection = buildRoutes(menuData);
+	console.log("routesSection", {
+		Component: () => (
+			<App>
+				<Outlet />
+			</App>
+		),
+		errorElement: <ErrorBoundary fallbackRender={PageError} />,
+		children: [
+			{
+				path: "/",
+				element: (
+					<AuthGuard>
+						<Suspense fallback={<LineLoading />}>
+							<DashboardLayout />
+						</Suspense>
+					</AuthGuard>
+				),
+				children: [
+					{
+						index: true,
+						element: <Navigate to="/dashboard/workbench" replace />,
+					},
+					...routesSection,
+				],
+			},
+			...authRoutes,
+			...mainRoutes,
+		],
+	});
 
-const root = ReactDOM.createRoot(
-  document.getElementById("root") as HTMLElement
-);
-root.render(<RouterProvider router={router} />);
+	return createHashRouter([
+		{
+			Component: () => (
+				<App>
+					<Outlet />
+				</App>
+			),
+			errorElement: <ErrorBoundary fallbackRender={PageError} />,
+			children: [
+				{
+					path: "/",
+					element: (
+						<AuthGuard>
+							<Suspense fallback={<LineLoading />}>
+								<DashboardLayout />
+							</Suspense>
+						</AuthGuard>
+					),
+					children: [
+						{
+							index: true,
+							element: <Navigate to="/dashboard/workbench" replace />,
+						},
+						...routesSection,
+					],
+				},
+				...authRoutes,
+				...mainRoutes,
+			],
+		},
+	]);
+}
+
+function createBaseRouter() {
+	return createHashRouter([
+		{
+			Component: () => (
+				<App>
+					<Outlet />
+				</App>
+			),
+			errorElement: <ErrorBoundary fallbackRender={PageError} />,
+			children: [...authRoutes, ...mainRoutes],
+		},
+	]);
+}
+// 顶层组件，用于处理异步数据加载
+function AppWrapper() {
+	const { menuData, loading, error } = useAppMenu();
+	console.log({
+		Component: () => (
+			<App>
+				<Outlet />
+			</App>
+		),
+		errorElement: <ErrorBoundary fallbackRender={PageError} />,
+		children: [...dashboardRoutes, ...authRoutes, ...mainRoutes],
+	});
+
+	const [router, setRouter] = useState<any>(createBaseRouter());
+
+	useEffect(() => {
+		if (menuData) {
+			const newRouter = createAppRouter(convertMenuTreeUserGroupToMenus(menuData));
+			console.log(newRouter);
+
+			setRouter(newRouter);
+		}
+	}, [menuData]);
+
+	if (loading) {
+		return <LineLoading />;
+	}
+
+	if (error) {
+		// return <PageError />;
+	}
+
+	if (!router) {
+		return null;
+	}
+
+	return <RouterProvider router={router} />;
+}
+
+// 入口函数
+async function initApp() {
+	await registerLocalIcons();
+
+	ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
+		<React.StrictMode>
+			<AppWrapper />
+		</React.StrictMode>,
+	);
+}
+
+initApp();
