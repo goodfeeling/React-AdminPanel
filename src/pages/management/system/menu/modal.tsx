@@ -4,7 +4,8 @@ import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import TreeSelectInput from "@/ui/tree-select-input";
+import TreeSelectInput, { type TreeNode } from "@/ui/tree-select-input";
+import { buildFileTree } from "@/utils/tree";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import type { Menu, MenuTree } from "#/entity";
@@ -30,6 +31,7 @@ export default function UserModal({
 }: MenuModalProps) {
 	const [selectedKey, setSelectedKey] = useState<number>(0);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
+	const [dirTree, setDirTree] = useState<TreeNode[]>([]);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
@@ -52,6 +54,14 @@ export default function UserModal({
 				children: buildTree(treeRawData),
 			},
 		]);
+
+		// file dir tree
+		const modules = import.meta.glob("/src/pages/**/*.tsx");
+		const filePaths = Object.keys(modules).map(
+			(path) => path.replace("/src", ""), // 去掉 `/src/pages` 前缀
+		);
+		const tree = buildFileTree(filePaths);
+		setDirTree(tree ? [tree] : []);
 	}, [formValue, form, treeRawData]);
 
 	// 构建树形结构
@@ -87,7 +97,14 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>文件路径</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<TreeSelectInput
+											treeData={dirTree}
+											value={String(selectedKey)}
+											onChange={(value: string) => {
+												field.onChange(value);
+											}}
+											placeholder="请选择父级角色"
+										/>
 									</FormControl>
 								</FormItem>
 							)}
@@ -196,7 +213,14 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>排序标记</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<Input
+											{...field}
+											type="number" // 设置输入框为数字类型
+											onChange={(e) => {
+												// 将输入值转换为数字后更新表单字段
+												field.onChange(Number(e.target.value));
+											}}
+										/>
 									</FormControl>
 								</FormItem>
 							)}

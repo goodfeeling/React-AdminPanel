@@ -29,6 +29,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		title: "",
 		icon: "",
 		close_tab: 0,
+		menu_group_id: selectedId ? selectedId : 0,
 		created_at: "",
 		updated_at: "",
 		level: [],
@@ -51,13 +52,16 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			}
 			toast.success("success!");
 			setUserModalProps((prev) => ({ ...prev, show: false }));
-			getData(0);
+			if (selectedId) {
+				getData(selectedId);
+			}
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
 
+	// get menu list
 	const getData = useCallback(async (selectedId: number) => {
 		const response = await menuService.getMenus(selectedId);
 		setData(response);
@@ -77,11 +81,13 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		getData(selectedId);
 	}, [selectedId]);
 
+	// create menu
 	const onCreate = (formValue: Menu | undefined, isCreateSub = false) => {
 		const setValue = defaultValue;
 		if (formValue !== undefined) {
 			setValue.parent_id = formValue.id;
 		}
+
 		setUserModalProps((prev) => ({
 			...prev,
 			show: true,
@@ -106,7 +112,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		try {
 			await menuService.deleteMenu(id);
 			toast.success("删除成功");
-			getData(0);
+			if (selectedId) {
+				getData(selectedId);
+			}
 		} catch (error) {
 			console.error(error);
 			toast.error("删除失败");

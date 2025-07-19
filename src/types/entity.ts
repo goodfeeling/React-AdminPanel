@@ -178,6 +178,7 @@ export interface Menu {
 	title: string;
 	icon: string;
 	close_tab: number;
+	menu_group_id: number;
 	created_at: string;
 	updated_at: string;
 	level: number[];

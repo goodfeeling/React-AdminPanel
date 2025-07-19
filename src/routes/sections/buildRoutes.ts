@@ -58,6 +58,7 @@ export function convertMenuTreeUserGroupToMenus(data: MenuTreeUserGroup[]): Menu
 			default_menu: 0,
 			icon: "", // 你可以从 group.name 推图标
 			close_tab: 0,
+			menu_group_id: 0,
 			created_at: new Date().toISOString(),
 			updated_at: new Date().toISOString(),
 			level: [1],

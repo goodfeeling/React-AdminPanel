@@ -18,7 +18,6 @@ function useAppMenu(): UseAppMenuResult {
 		fetchMenu().catch((err) => {
 			setError(err instanceof Error ? err : new Error("Unknown error"));
 		});
-		console.log("发送了请求");
 	}, [fetchMenu]);
 
 	return {
