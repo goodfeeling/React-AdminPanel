@@ -10,18 +10,29 @@ import {
 	DropdownMenuTrigger,
 } from "@/ui/dropdown-menu";
 import { useMutation } from "@tanstack/react-query";
+import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
+import SwitchModal, { type SwitchRoleModalProps } from "./switch-role";
 
 /**
  * Account Dropdown
  */
 export default function AccountDropdown() {
 	const { replace } = useRouter();
+	const { t } = useTranslation();
+
 	const { user_name, email, header_img } = useUserInfo();
 	const { clearUserInfoAndToken } = useUserActions();
 	// const { backToLogin } = useLoginStateContext();
-	const { t } = useTranslation();
+
+	const [switchDataModal, setSwitchDataModal] = useState<SwitchRoleModalProps>({
+		title: "Switch Role",
+		show: false,
+		onCancel: () => {
+			setSwitchDataModal((prev) => ({ ...prev, show: false }));
+		},
+	});
 
 	const logoutMutation = useMutation({
 		mutationFn: userService.logout,
@@ -31,13 +42,21 @@ export default function AccountDropdown() {
 		},
 		onError: (error) => {
 			console.error("Logout failed:", error);
-			clearUserInfoAndToken(); // 即使失败也清理状态
+			clearUserInfoAndToken();
 			replace("/auth/login");
 		},
 	});
 
 	const handleLogout = () => {
 		logoutMutation.mutate();
+	};
+
+	const handleSwitch = () => {
+		setSwitchDataModal((prev) => ({
+			...prev,
+			show: true,
+			title: "New",
+		}));
 	};
 
 	return (
@@ -60,11 +79,13 @@ export default function AccountDropdown() {
 				<DropdownMenuItem asChild>
 					<NavLink to="/management/user/account">{t("sys.menu.user.account")}</NavLink>
 				</DropdownMenuItem>
+				<DropdownMenuItem onClick={handleSwitch}>{t("sys.menu.user.switch_role")}</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem className="font-bold text-warning" onClick={handleLogout}>
 					{t("sys.login.logout")}
 				</DropdownMenuItem>
 			</DropdownMenuContent>
+			<SwitchModal {...switchDataModal} />
 		</DropdownMenu>
 	);
 }

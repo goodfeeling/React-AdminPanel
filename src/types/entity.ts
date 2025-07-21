@@ -65,15 +65,6 @@ export interface UpdateUser {
 	status?: boolean;
 }
 
-export interface Organization {
-	id: string;
-	name: string;
-	status: "enable" | "disable";
-	desc?: string;
-	order?: number;
-	children?: Organization[];
-}
-
 export interface Role {
 	id: number;
 	parent_id: number;
@@ -210,4 +201,19 @@ export interface MenuTreeUserGroup {
 	name: string;
 	path: string;
 	items: Menu[];
+}
+
+export interface MenuBtn {
+	id?: number;
+	name: string;
+	desc: string;
+	sys_base_menu_id: number;
+}
+
+export interface MenuParameter {
+	id?: number;
+	type: string;
+	key: string;
+	value: string;
+	sys_base_menu_id: number;
 }

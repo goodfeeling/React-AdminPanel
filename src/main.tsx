@@ -21,8 +21,6 @@ import type { Menu } from "./types/entity";
 
 // 创建路由函数
 function createAppRouter(menuData: Menu[]) {
-	console.log(menuData, "=====");
-
 	const routesSection = buildRoutes(menuData);
 
 	return createHashRouter([
@@ -61,6 +59,7 @@ function createAppRouter(menuData: Menu[]) {
 // 顶层组件，用于处理异步数据加载
 function AppWrapper() {
 	const { menuData, loading, error } = useAppMenu();
+
 	const [router, setRouter] = useState<any>(null);
 	useEffect(() => {
 		if (Array.isArray(menuData) && menuData.length > 0) {

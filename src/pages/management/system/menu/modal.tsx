@@ -84,8 +84,8 @@ export default function UserModal({
 
 	return (
 		<Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
-			<DialogContent className="sm:max-w-5xl">
-				<DialogHeader>
+			<DialogContent className="sm:max-w-5xl  max-h-[80vh] overflow-y-auto  scrollbar-hide">
+				<DialogHeader className="shrink-0">
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
 				<Form {...form}>
@@ -326,16 +326,15 @@ export default function UserModal({
 							)}
 						/>
 					</div>
-
-					<DialogFooter>
-						<Button variant="outline" type="button" onClick={handleClose}>
-							Cancel
-						</Button>
-						<Button type="submit" variant="default" onClick={onSubmit}>
-							Confirm
-						</Button>
-					</DialogFooter>
 				</Form>
+				<DialogFooter className="shrink-0">
+					<Button variant="outline" type="button" onClick={handleClose}>
+						Cancel
+					</Button>
+					<Button type="submit" variant="default" onClick={onSubmit}>
+						Confirm
+					</Button>
+				</DialogFooter>
 			</DialogContent>
 		</Dialog>
 	);

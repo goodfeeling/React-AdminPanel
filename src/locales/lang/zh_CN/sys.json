@@ -95,7 +95,8 @@
 			"user": {
 				"index": "用户",
 				"profile": "个人资料",
-				"account": "账户"
+				"account": "账户设置",
+				"switch_role": "切换角色"
 			},
 			"system": {
 				"index": "系统",

@@ -3,6 +3,7 @@ import menuService from "@/api/services/menuService";
 import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
 import type { ApiGroupItem, Menu, MenuTree } from "@/types/entity";
+import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
 import { Input, Tree } from "antd";
@@ -115,6 +116,15 @@ const MenuSetting = ({ id }: { id: number }) => {
 				checkedKeys={checkedKeys}
 				treeData={treeData}
 				multiple={true}
+				titleRender={(node) => {
+					return (
+						<span className="flex justify-between items-center w-full">
+							<span>{node.title}</span>
+							<Button variant="link">设为首页</Button>
+							<Button variant="link">配置权限按钮</Button>
+						</span>
+					);
+				}}
 			/>
 		</div>
 	);

@@ -113,5 +113,4 @@ const CheckBoxIcon = ({
 			return null;
 	}
 };
-
 export default MultiSelectCheckbox;

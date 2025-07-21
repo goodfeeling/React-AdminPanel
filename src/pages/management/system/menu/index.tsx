@@ -12,6 +12,7 @@ import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import { toast } from "sonner";
 import MenuGroupModal, { type MenuGroupModalProps } from "./group-modal";
 import MenuModal, { type MenuModalProps } from "./modal";
+import SettingModal, { type SettingModalProps } from "./setting-modal";
 
 const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	const defaultValue: Menu = {
@@ -61,6 +62,15 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		},
 	});
 
+	const [settingModalProps, setSettingModalProps] = useState<SettingModalProps>({
+		formValue: { id: 0 },
+		title: "New",
+		show: false,
+		onCancel: () => {
+			setSettingModalProps((prev) => ({ ...prev, show: false }));
+		},
+	});
+
 	// get menu list
 	const getData = useCallback(async (selectedId: number) => {
 		const response = await menuService.getMenus(selectedId);
@@ -105,6 +115,15 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			title: "Edit",
 			isCreateSub: false,
 			formValue,
+		}));
+	};
+
+	const onSetting = (formValue: Menu) => {
+		setSettingModalProps((prev) => ({
+			...prev,
+			show: true,
+			title: "Setting",
+			formValue: { id: formValue.id },
 		}));
 	};
 
@@ -193,29 +212,22 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			title: "操作",
 			key: "operation",
 			align: "center",
-			width: 300,
+			width: 350,
 			fixed: "right",
 			render: (_, record) => (
-				<div className="flex w-full justify-center text-gray-500">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => onCreate(record, true)}
-						style={{ minWidth: "80px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
+				<div className="flex w-full justify-between gap-4 text-gray-500">
+					<Button variant="link" size="icon" onClick={() => onCreate(record, true)} style={{ marginLeft: "10px" }}>
 						<Icon icon="solar:add-square-bold" size={18} />
-						<span className="text-xs">新增子路由</span>
+						<span>新增子路由</span>
 					</Button>
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
+
+					<Button variant="link" size="icon" onClick={() => onEdit(record)}>
 						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">修改</span>
+						<span>修改</span>
+					</Button>
+					<Button variant="link" size="icon" onClick={() => onSetting(record)}>
+						<Icon icon="solar:pen-new-square-outline" size={18} />
+						<span>按钮与参数</span>
 					</Button>
 					<Popconfirm
 						title="Delete the task"
@@ -224,13 +236,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
+						<Button variant="linkwarning" size="icon">
 							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
-							<span className="text-xs">删除</span>
+							<span>删除</span>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -264,6 +272,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 					}}
 				/>
 				<MenuModal {...menuModalProps} />
+				<SettingModal {...settingModalProps} />
 			</CardContent>
 		</>
 	);

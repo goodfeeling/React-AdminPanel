@@ -1,7 +1,7 @@
 // routes/buildRoutes.ts
 import type { Menu, MenuTreeUserGroup } from "@/types/entity";
 import React from "react";
-import type { RouteObject } from "react-router";
+import { Navigate, type RouteObject } from "react-router";
 import { lazyLoad } from "./lazyWrapper";
 const modules = import.meta.glob("/src/pages/**/*.tsx");
 export function buildRoutes(menuData: Menu[]): RouteObject[] {
@@ -18,16 +18,16 @@ export function buildRoutes(menuData: Menu[]): RouteObject[] {
 			const children = buildRoutes(item.children);
 
 			// 添加默认跳转（跳到第一个子菜单的 path）
-			// const firstChildPath = item.children[0]?.path;
-			// if (firstChildPath) {
-			//   children.unshift({
-			//     index: true,
-			//     element: React.createElement(Navigate, {
-			//       to: firstChildPath,
-			//       replace: true,
-			//     }),
-			//   });
-			// }
+			const firstChildPath = item.children[0]?.path;
+			if (firstChildPath) {
+				children.unshift({
+					index: true,
+					element: React.createElement(Navigate, {
+						to: firstChildPath,
+						replace: true,
+					}),
+				});
+			}
 
 			route.children = children;
 		} else {
