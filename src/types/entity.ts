@@ -16,7 +16,7 @@ export interface PageList<T> {
 	page: number;
 	page_size: number;
 	total_page: number;
-	filters: DataFilters;
+	filters?: DataFilters;
 }
 
 type StringMapOfStringArray = { [key: string]: string[] };
@@ -174,12 +174,15 @@ export interface Menu {
 	updated_at: string;
 	level: number[];
 	children?: Menu[];
+	menu_btns?: MenuBtn[];
+	menu_parameters?: MenuParameter[];
 }
 
 export interface MenuTree {
 	value: string;
 	title: string;
 	key: string;
+	origin?: Menu;
 	children: MenuTree[];
 	path: number[];
 }
@@ -193,6 +196,7 @@ export interface MenuGroup {
 	id: number;
 	name: string;
 	path: string;
+	status: boolean;
 	created_at: string;
 	updated_at: string;
 }

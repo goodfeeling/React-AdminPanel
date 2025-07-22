@@ -1,47 +1,45 @@
-import { Button } from "@/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
+import type { Role, RoleTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import TreeSelectInput from "@/ui/tree-select-input";
+import { Button, Modal, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Role, RoleTree } from "#/entity";
 import { BasicStatus } from "#/enum";
+
 export type RoleModalProps = {
 	formValue: Role;
 	treeRawData: Role[];
 	title: string;
 	show: boolean;
-	isCreateSub: boolean;
-	onOk: (values: Role) => void;
+	onOk: (values: Role) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
-export default function UserModal({
-	title,
-	show,
-	isCreateSub,
-	formValue,
-	treeRawData,
-	onOk,
-	onCancel,
-}: RoleModalProps) {
+export function buildTree(tree: Role[]): RoleTree[] {
+	return tree.map((item: Role): RoleTree => {
+		return {
+			value: item.id.toString(),
+			title: item.name,
+			key: item.id.toString(),
+			path: item.path,
+			children: item.children ? buildTree(item.children) : [],
+		};
+	});
+}
+const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: RoleModalProps) => {
+	const [loading, setLoading] = useState(false);
+	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
-	const [selectedKey, setSelectedKey] = useState<number>(0);
 	const form = useForm<Role>({
 		defaultValues: formValue,
 	});
-	const onSubmit = () => {
-		const values = form.getValues();
-		values.order = Number(values.order);
-		onOk(values);
-	};
+
+	useEffect(() => {
+		setOpen(show);
+	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
-		if (formValue.parent_id) {
-			setSelectedKey(formValue.parent_id);
-		}
 		setTreeData([
 			{
 				value: "0",
@@ -51,32 +49,38 @@ export default function UserModal({
 				children: buildTree(treeRawData),
 			},
 		]);
-	}, [formValue, form, treeRawData]);
+	}, [formValue, treeRawData, form]);
 
-	// 构建树形结构
-	const buildTree = (tree: Role[]): RoleTree[] => {
-		return tree.map((item: Role): RoleTree => {
-			return {
-				value: item.id.toString(),
-				title: item.name,
-				key: item.id.toString(),
-				path: item.path,
-				children: item.children ? buildTree(item.children) : [],
-			};
-		});
+	const handleOk = async () => {
+		const values = form.getValues();
+		setLoading(true);
+		const res = await onOk(values);
+		if (res) {
+			setLoading(false);
+		}
 	};
 
-	const handleClose = () => {
-		setSelectedKey(0); // 清除选中状态
-		onCancel(); // 关闭弹框
+	const handleCancel = () => {
+		setOpen(false);
+		onCancel();
 	};
 
 	return (
-		<Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
-			<DialogContent className="sm:max-w-lg">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
+		<>
+			<Modal
+				open={open}
+				title={title}
+				onOk={handleOk}
+				onCancel={handleCancel}
+				footer={[
+					<Button key="back" onClick={handleCancel}>
+						Return
+					</Button>,
+					<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
+						Submit
+					</Button>,
+				]}
+			>
 				<Form {...form}>
 					<FormField
 						control={form.control}
@@ -97,14 +101,20 @@ export default function UserModal({
 							<FormItem>
 								<FormLabel>Parent</FormLabel>
 								<FormControl>
-									<TreeSelectInput
-										treeData={treeData}
-										disabled={isCreateSub}
-										value={String(selectedKey)}
-										onChange={(value: string) => {
+									<TreeSelect
+										showSearch
+										style={{ width: "100%" }}
+										value={field.value}
+										styles={{
+											popup: { root: { maxHeight: 400, overflow: "auto" } },
+										}}
+										placeholder="Please select"
+										allowClear
+										treeDefaultExpandAll
+										onChange={(value) => {
 											field.onChange(value);
 										}}
-										placeholder="请选择父级角色"
+										treeData={treeData}
 									/>
 								</FormControl>
 							</FormItem>
@@ -169,17 +179,10 @@ export default function UserModal({
 							</FormItem>
 						)}
 					/>
-
-					<DialogFooter>
-						<Button variant="outline" type="button" onClick={handleClose}>
-							Cancel
-						</Button>
-						<Button type="submit" variant="default" onClick={onSubmit}>
-							Confirm
-						</Button>
-					</DialogFooter>
 				</Form>
-			</DialogContent>
-		</Dialog>
+			</Modal>
+		</>
 	);
-}
+};
+
+export default UserNewModal;

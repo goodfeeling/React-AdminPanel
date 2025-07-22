@@ -62,6 +62,14 @@ const searchPageList = (searchStr: string) =>
 
 const deleteUser = (id: number) => apiClient.delete<string>({ url: `${UserApi.User}/${id}` });
 
+const bindRole = (userId: number, roleIds: string[]) =>
+	apiClient.post<boolean>({
+		url: `${UserApi.User}/${userId}/role`,
+		data: {
+			roleIds,
+		},
+	});
+
 export default {
 	signin,
 	signup,
@@ -72,4 +80,5 @@ export default {
 	searchPageList,
 	createUser,
 	deleteUser,
+	bindRole,
 };

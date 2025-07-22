@@ -1,50 +1,48 @@
-import { Badge } from "@/ui/badge";
-import { Button } from "@/ui/button";
-import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
+import type { Menu, MenuTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import TreeSelectInput, { type TreeNode } from "@/ui/tree-select-input";
+
+import type { TreeNode } from "@/ui/tree-select-input";
 import { buildFileTree } from "@/utils/tree";
+import { Button, Modal, Switch, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Menu, MenuTree } from "#/entity";
-
 export type MenuModalProps = {
 	formValue: Menu;
 	treeRawData: Menu[];
 	title: string;
 	show: boolean;
-	isCreateSub: boolean;
-	onOk: (values: Menu) => void;
+	onOk: (values: Menu) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
-
-export default function UserModal({
-	title,
-	show,
-	isCreateSub,
-	formValue,
-	onOk,
-	onCancel,
-	treeRawData,
-}: MenuModalProps) {
-	const [selectedKey, setSelectedKey] = useState<number>(0);
+// 构建树形结构
+export const buildTree = (tree: Menu[]): MenuTree[] => {
+	return tree.map((item: Menu): MenuTree => {
+		return {
+			value: item.id.toString(),
+			title: item.title,
+			key: item.id.toString(),
+			path: item.level,
+			origin: item,
+			children: item.children ? buildTree(item.children) : [],
+		};
+	});
+};
+const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: MenuModalProps) => {
+	const [loading, setLoading] = useState(false);
+	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const [dirTree, setDirTree] = useState<TreeNode[]>([]);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
-	const onSubmit = () => {
-		const values = form.getValues();
-		onOk(values);
-	};
+
+	useEffect(() => {
+		setOpen(show);
+	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
-		if (formValue.parent_id) {
-			setSelectedKey(formValue.parent_id);
-		}
 		setTreeData([
 			{
 				value: "0",
@@ -62,32 +60,39 @@ export default function UserModal({
 		);
 		const tree = buildFileTree(filePaths);
 		setDirTree(tree ? [tree] : []);
-	}, [formValue, form, treeRawData]);
+	}, [formValue, treeRawData, form]);
 
-	// 构建树形结构
-	const buildTree = (tree: Menu[]): MenuTree[] => {
-		return tree.map((item: Menu): MenuTree => {
-			return {
-				value: item.id.toString(),
-				title: item.title,
-				key: item.id.toString(),
-				path: item.level,
-				children: item.children ? buildTree(item.children) : [],
-			};
-		});
+	const handleOk = async () => {
+		const values = form.getValues();
+		setLoading(true);
+		const res = await onOk(values);
+		if (res) {
+			setLoading(false);
+		}
 	};
 
-	const handleClose = () => {
-		setSelectedKey(0); // 清除选中状态
-		onCancel(); // 关闭弹框
+	const handleCancel = () => {
+		setOpen(false);
+		onCancel();
 	};
 
 	return (
-		<Dialog open={show} onOpenChange={(open) => !open && handleClose()}>
-			<DialogContent className="sm:max-w-5xl  max-h-[80vh] overflow-y-auto  scrollbar-hide">
-				<DialogHeader className="shrink-0">
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
+		<>
+			<Modal
+				width={800}
+				open={open}
+				title={title}
+				onOk={handleOk}
+				onCancel={handleCancel}
+				footer={[
+					<Button key="back" onClick={handleCancel}>
+						Return
+					</Button>,
+					<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
+						Submit
+					</Button>,
+				]}
+			>
 				<Form {...form}>
 					<div className="grid grid-cols-2 gap-4">
 						<FormField
@@ -97,13 +102,20 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>文件路径</FormLabel>
 									<FormControl>
-										<TreeSelectInput
-											treeData={dirTree}
-											value={String(selectedKey)}
-											onChange={(value: string) => {
+										<TreeSelect
+											showSearch
+											style={{ width: "100%" }}
+											value={field.value}
+											styles={{
+												popup: { root: { maxHeight: 400, overflow: "auto" } },
+											}}
+											placeholder="Please select"
+											allowClear
+											treeDefaultExpandAll
+											onChange={(value) => {
 												field.onChange(value);
 											}}
-											placeholder="请选择父级角色"
+											treeData={dirTree}
 										/>
 									</FormControl>
 								</FormItem>
@@ -152,24 +164,9 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>是否隐藏</FormLabel>
 									<FormControl>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={String(field.value)}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1">
-													<Badge variant="success">是</Badge>
-												</SelectItem>
-												<SelectItem value="0">
-													<Badge variant="error">否</Badge>
-												</SelectItem>
-											</SelectContent>
-										</Select>
+										<div className="w-fit">
+											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+										</div>
 									</FormControl>
 								</FormItem>
 							)}
@@ -181,14 +178,20 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>父节点ID</FormLabel>
 									<FormControl>
-										<TreeSelectInput
-											treeData={treeData}
-											disabled={isCreateSub}
-											value={String(selectedKey)}
-											onChange={(value: string) => {
+										<TreeSelect
+											showSearch
+											style={{ width: "100%" }}
+											value={field.value}
+											styles={{
+												popup: { root: { maxHeight: 400, overflow: "auto" } },
+											}}
+											placeholder="Please select"
+											allowClear
+											treeDefaultExpandAll
+											onChange={(value) => {
 												field.onChange(value);
 											}}
-											placeholder="请选择父级角色"
+											treeData={treeData}
 										/>
 									</FormControl>
 								</FormItem>
@@ -245,24 +248,9 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>KeepAlive</FormLabel>
 									<FormControl>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={String(field.value)}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select " />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1">
-													<Badge variant="success">是</Badge>
-												</SelectItem>
-												<SelectItem value="0">
-													<Badge variant="error">否</Badge>
-												</SelectItem>
-											</SelectContent>
-										</Select>
+										<div className="w-fit">
+											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+										</div>
 									</FormControl>
 								</FormItem>
 							)}
@@ -274,24 +262,9 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>CloseTab</FormLabel>
 									<FormControl>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={String(field.value)}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select " />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1">
-													<Badge variant="success">是</Badge>
-												</SelectItem>
-												<SelectItem value="0">
-													<Badge variant="error">否</Badge>
-												</SelectItem>
-											</SelectContent>
-										</Select>
+										<div className="w-fit">
+											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+										</div>
 									</FormControl>
 								</FormItem>
 							)}
@@ -303,39 +276,18 @@ export default function UserModal({
 								<FormItem>
 									<FormLabel>是否为基础页面</FormLabel>
 									<FormControl>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={String(field.value)}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select " />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1">
-													<Badge variant="success">是</Badge>
-												</SelectItem>
-												<SelectItem value="0">
-													<Badge variant="error">否</Badge>
-												</SelectItem>
-											</SelectContent>
-										</Select>
+										<div className="w-fit">
+											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+										</div>
 									</FormControl>
 								</FormItem>
 							)}
 						/>
 					</div>
 				</Form>
-				<DialogFooter className="shrink-0">
-					<Button variant="outline" type="button" onClick={handleClose}>
-						Cancel
-					</Button>
-					<Button type="submit" variant="default" onClick={onSubmit}>
-						Confirm
-					</Button>
-				</DialogFooter>
-			</DialogContent>
-		</Dialog>
+			</Modal>
+		</>
 	);
-}
+};
+
+export default MenuNewModal;

@@ -2,13 +2,14 @@ import apiService from "@/api/services/apisService";
 import menuService from "@/api/services/menuService";
 import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
-import type { ApiGroupItem, Menu, MenuTree } from "@/types/entity";
+import type { ApiGroupItem, MenuTreeUserGroup } from "@/types/entity";
 import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
-import { Input, Tree } from "antd";
+import { Collapse, Input, Tree } from "antd";
 import type { TreeDataNode, TreeProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
+import { buildTree } from "../menu/menu-modal";
 
 const { Search } = Input;
 export type SettingValue = {
@@ -32,51 +33,22 @@ const getAllKeys = (data: TreeDataNode[]): React.Key[] => {
 };
 
 const MenuSetting = ({ id }: { id: number }) => {
-	const [searchValue, setSearchValue] = useState("");
+	// const [searchValue, setSearchValue] = useState("");
 	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
-	const [treeData, setTreeData] = useState<MenuTree[]>([]);
-	const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
-	const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
-
-	console.log(searchValue);
+	const [groupData, setGroupData] = useState<MenuTreeUserGroup[]>([]);
+	const [activeGroupKeys, setActiveGroupKeys] = useState<string[]>([]);
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		console.log("onChange", e);
-		setSearchValue(e.target.value);
-	};
-	const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
-		setExpandedKeys(expandedKeysValue);
-		setAutoExpandParent(false);
+		// setSearchValue(e.target.value);
 	};
 
 	// 加载菜单树
 	const onLoadMenuTree = useCallback(async () => {
-		const response = await menuService.getMenus(0);
-		const treeData = [
-			{
-				value: "0",
-				title: "根节点",
-				key: "0",
-				path: [0],
-				children: buildTree(response),
-			},
-		];
-		setTreeData(treeData);
-		setExpandedKeys(getAllKeys(treeData));
+		const response = await menuService.getUserMenu(true);
+		setGroupData(response);
+		setActiveGroupKeys(response.map((item) => item.path));
 	}, []);
-
-	// 构建树形结构
-	const buildTree = (tree: Menu[]): MenuTree[] => {
-		return tree.map((item: Menu): MenuTree => {
-			return {
-				value: item.id.toString(),
-				title: item.title,
-				key: item.id.toString(),
-				path: item.level,
-				children: item.children ? buildTree(item.children) : [],
-			};
-		});
-	};
 
 	// 加载权限菜单绑定数据
 	const loadMenuIds = useCallback(async () => {
@@ -106,24 +78,40 @@ const MenuSetting = ({ id }: { id: number }) => {
 	return (
 		<div>
 			<Search style={{ marginBottom: 8 }} placeholder="Search" onChange={onChange} />
-			<Tree
-				checkable
-				onExpand={onExpand}
-				selectable={false}
-				expandedKeys={expandedKeys}
-				autoExpandParent={autoExpandParent}
-				onCheck={onCheck}
-				checkedKeys={checkedKeys}
-				treeData={treeData}
-				multiple={true}
-				titleRender={(node) => {
-					return (
-						<span className="flex justify-between items-center w-full">
-							<span>{node.title}</span>
-							<Button variant="link">设为首页</Button>
-							<Button variant="link">配置权限按钮</Button>
-						</span>
-					);
+			<Collapse
+				items={groupData.map((item: MenuTreeUserGroup) => {
+					const treeData = buildTree(item.items);
+					return {
+						key: item.path,
+						label: item.name,
+						children: (
+							<Tree
+								checkable
+								selectable={false}
+								expandedKeys={getAllKeys(treeData)}
+								onCheck={onCheck}
+								checkedKeys={checkedKeys}
+								treeData={treeData}
+								multiple={true}
+								titleRender={(node) => {
+									const hasBtn = node.origin?.menu_btns && node.origin.menu_btns.length > 0;
+									return (
+										<span className="flex justify-between items-center w-full">
+											<span>{node.title}</span>
+											<Button variant="link">设为首页</Button>
+											<Button variant="link" hidden={!hasBtn}>
+												配置权限按钮
+											</Button>
+										</span>
+									);
+								}}
+							/>
+						),
+					};
+				})}
+				defaultActiveKey={activeGroupKeys}
+				onChange={(key: string | string[]) => {
+					console.log(key);
 				}}
 			/>
 		</div>

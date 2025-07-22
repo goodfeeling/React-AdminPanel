@@ -11,7 +11,7 @@ import { CardContent, CardHeader } from "@/ui/card";
 import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import { toast } from "sonner";
 import MenuGroupModal, { type MenuGroupModalProps } from "./group-modal";
-import MenuModal, { type MenuModalProps } from "./modal";
+import MenuModal, { type MenuModalProps } from "./menu-modal";
 import SettingModal, { type SettingModalProps } from "./setting-modal";
 
 const MenuList = ({ selectedId }: { selectedId: number | null }) => {
@@ -44,8 +44,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		title: "New",
 		show: false,
 		treeRawData: [],
-		isCreateSub: false,
-		onOk: async (values: Menu) => {
+		onOk: async (values: Menu): Promise<boolean> => {
 			if (values.id === 0) {
 				await menuService.createMenu(values);
 			} else {
@@ -56,6 +55,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			if (selectedId) {
 				getData(selectedId);
 			}
+			return true;
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));
@@ -92,7 +92,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	}, [selectedId]);
 
 	// create menu
-	const onCreate = (formValue: Menu | undefined, isCreateSub = false) => {
+	const onCreate = (formValue: Menu | undefined) => {
 		const setValue = defaultValue;
 		if (formValue !== undefined) {
 			setValue.parent_id = formValue.id;
@@ -101,7 +101,6 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		setUserModalProps((prev) => ({
 			...prev,
 			show: true,
-			isCreateSub,
 			...setValue,
 			title: "New",
 			formValue: { ...setValue },
@@ -113,7 +112,6 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			...prev,
 			show: true,
 			title: "Edit",
-			isCreateSub: false,
 			formValue,
 		}));
 	};
@@ -216,7 +214,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			fixed: "right",
 			render: (_, record) => (
 				<div className="flex w-full justify-between gap-4 text-gray-500">
-					<Button variant="link" size="icon" onClick={() => onCreate(record, true)} style={{ marginLeft: "10px" }}>
+					<Button variant="link" size="icon" onClick={() => onCreate(record)} style={{ marginLeft: "10px" }}>
 						<Icon icon="solar:add-square-bold" size={18} />
 						<span>新增子路由</span>
 					</Button>
@@ -250,7 +248,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		<>
 			<CardHeader className="p-0">
 				<div className="flex items-start justify-start">
-					<Button onClick={() => onCreate(undefined, true)}>
+					<Button onClick={() => onCreate(undefined)}>
 						<Icon icon="solar:add-circle-outline" size={18} />
 						New
 					</Button>
@@ -287,6 +285,7 @@ const MenuGroupList = ({
 		id: 0,
 		name: "",
 		path: "",
+		status: false,
 		created_at: "",
 		updated_at: "",
 	};

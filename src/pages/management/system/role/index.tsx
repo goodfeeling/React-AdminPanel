@@ -8,7 +8,7 @@ import { Popconfirm, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Role } from "#/entity";
-import RoleModal, { type RoleModalProps } from "./role-modal";
+import RoleModal, { type RoleModalProps } from "./modal";
 import SettingModal, { type SettingModalProps } from "./setting-modal";
 
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
@@ -47,8 +47,7 @@ const App: React.FC = () => {
 		title: "New",
 		show: false,
 		treeRawData: [],
-		isCreateSub: false,
-		onOk: async (values: Role) => {
+		onOk: async (values: Role): Promise<boolean> => {
 			if (values.id === 0) {
 				await roleService.createUser(values);
 			} else {
@@ -65,6 +64,7 @@ const App: React.FC = () => {
 			toast.success("success!");
 			setUserModalProps((prev) => ({ ...prev, show: false }));
 			getData();
+			return true;
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));

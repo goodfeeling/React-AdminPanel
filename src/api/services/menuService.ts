@@ -20,7 +20,10 @@ const searchPageList = (searchStr: string) =>
 
 const deleteMenu = (id: number) => apiClient.delete<string>({ url: `${MenuApi.Menu}/${id}` });
 
-const getUserMenu = () => apiClient.get<MenuTreeUserGroup[]>({ url: `${MenuApi.UserMenu}` });
+const getUserMenu = (isAll = false) =>
+	apiClient.get<MenuTreeUserGroup[]>({
+		url: `${MenuApi.UserMenu}?all=${isAll}`,
+	});
 
 export default {
 	updateMenu,

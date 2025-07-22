@@ -1,8 +1,9 @@
+import { BasicStatus } from "@/types/enum";
 import { Button } from "@/ui/button";
 import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from "@/ui/dialog";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
-
+import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
 import type { MenuGroup } from "#/entity";
@@ -55,6 +56,28 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 									<FormLabel>Path</FormLabel>
 									<FormControl>
 										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="status"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Status</FormLabel>
+									<FormControl>
+										<ToggleGroup
+											type="single"
+											variant="outline"
+											value={field.value ? "1" : "0"}
+											onValueChange={(value) => {
+												field.onChange(value === "1");
+											}}
+										>
+											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
+											<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
+										</ToggleGroup>
 									</FormControl>
 								</FormItem>
 							)}
