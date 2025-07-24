@@ -49,7 +49,7 @@ export const NavRootItem = (item: NavItemProps) => {
 	);
 
 	return (
-		<NavItemRenderer item={item} className={itemClassName}>
+		<NavItemRenderer hidden={Boolean(item.hidden)} item={item} className={itemClassName}>
 			{content}
 		</NavItemRenderer>
 	);

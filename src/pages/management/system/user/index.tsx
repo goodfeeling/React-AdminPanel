@@ -36,7 +36,7 @@ type SearchFormFieldType = {
 };
 
 const App: React.FC = () => {
-	const { fetch, updateOrCreate, remove } = useUserManageActions();
+	const { fetch, updateOrCreate, remove, resetPassword } = useUserManageActions();
 	const userData = useUserManage();
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: { user_name: "", status: "" },
@@ -129,6 +129,10 @@ const App: React.FC = () => {
 		remove(id);
 		toast.success("删除成功");
 		getData();
+	};
+
+	const onResetPassword = (id: number) => {
+		resetPassword(id);
 	};
 
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
@@ -239,11 +243,11 @@ const App: React.FC = () => {
 					<Button
 						variant="ghost"
 						size="icon"
-						onClick={() => onEdit(record)}
+						onClick={() => onResetPassword(record.id)}
 						style={{ minWidth: "90px" }}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
+						<Icon icon="solar:restart-line-duotone" size={18} />
 						<span className="text-xs">重置密码</span>
 					</Button>
 					<Popconfirm

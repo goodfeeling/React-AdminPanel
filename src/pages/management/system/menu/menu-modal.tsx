@@ -1,5 +1,6 @@
 import type { Menu, MenuTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { IconPicker } from "@/ui/icon-picker";
 import { Input } from "@/ui/input";
 
 import type { TreeNode } from "@/ui/tree-select-input";
@@ -56,10 +57,11 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 		// file dir tree
 		const modules = import.meta.glob("/src/pages/**/*.tsx");
 		const filePaths = Object.keys(modules).map(
-			(path) => path.replace("/src", ""), // 去掉 `/src/pages` 前缀
+			(path) => path.replace("/src", "").replace(".tsx", ""), // 去掉 `/src/pages` 前缀
 		);
 		const tree = buildFileTree(filePaths);
-		setDirTree(tree ? [tree] : []);
+		setDirTree(tree ? (tree.children ? tree.children : []) : []);
+		console.log(tree);
 	}, [formValue, treeRawData, form]);
 
 	const handleOk = async () => {
@@ -113,6 +115,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											allowClear
 											treeDefaultExpandAll
 											onChange={(value) => {
+												console.log(value); // components/animate/index.tsx
 												field.onChange(value);
 											}}
 											treeData={dirTree}
@@ -165,7 +168,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 									<FormLabel>是否隐藏</FormLabel>
 									<FormControl>
 										<div className="w-fit">
-											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+											<Switch checked={field.value} onChange={(value) => field.onChange(value)} />
 										</div>
 									</FormControl>
 								</FormItem>
@@ -204,7 +207,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 								<FormItem>
 									<FormLabel>图标</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<IconPicker value={field.value} onChange={field.onChange} />
 									</FormControl>
 								</FormItem>
 							)}
@@ -249,7 +252,10 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 									<FormLabel>KeepAlive</FormLabel>
 									<FormControl>
 										<div className="w-fit">
-											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+											<Switch
+												checked={field.value === 1}
+												onChange={(value) => field.onChange(value === true ? 1 : 0)}
+											/>
 										</div>
 									</FormControl>
 								</FormItem>
@@ -263,7 +269,10 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 									<FormLabel>CloseTab</FormLabel>
 									<FormControl>
 										<div className="w-fit">
-											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+											<Switch
+												checked={field.value === 1}
+												onChange={(value) => field.onChange(value === true ? 1 : 0)}
+											/>
 										</div>
 									</FormControl>
 								</FormItem>
@@ -277,7 +286,10 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 									<FormLabel>是否为基础页面</FormLabel>
 									<FormControl>
 										<div className="w-fit">
-											<Switch defaultChecked onChange={(value) => field.onChange(value)} />
+											<Switch
+												checked={field.value === 1}
+												onChange={(value) => field.onChange(value === true ? 1 : 0)}
+											/>
 										</div>
 									</FormControl>
 								</FormItem>

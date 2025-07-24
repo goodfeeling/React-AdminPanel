@@ -22,6 +22,7 @@ export function buildFileTree(paths: string[]): TreeNode | null {
 		key: "",
 		path: [],
 		children: [],
+		isLast: false,
 	};
 
 	let i = 1;
@@ -30,20 +31,33 @@ export function buildFileTree(paths: string[]): TreeNode | null {
 		let currentNode = root;
 
 		let pathArr: number[] = [];
-
-		for (const segment of segments) {
+		let pathStr = "";
+		for (const [index, segment] of segments.entries()) {
+			const isLast = index === segments.length - 1;
 			if (!segment) continue;
 			pathArr = [...pathArr, i];
-
+			if (segment !== "pages") {
+				if (pathStr === "") {
+					pathStr = `${segment}`;
+				} else {
+					pathStr = `${pathStr}/${segment}`;
+				}
+			}
 			let existingChild = currentNode.children?.find((child) => child.title === segment);
 			if (!existingChild) {
+				let title = segment;
+				if (isLast) {
+					title = pathStr;
+				}
 				existingChild = {
-					title: segment,
-					value: String(i),
-					key: String(i),
+					title: title,
+					value: pathStr,
+					key: pathStr,
 					path: pathArr,
 					children: [],
+					isLast: isLast,
 				};
+
 				if (!currentNode.children) currentNode.children = [];
 				currentNode.children.push(existingChild);
 			}

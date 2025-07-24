@@ -4,7 +4,7 @@ import { Text } from "@/ui/typography";
 import { fBytes } from "@/utils/format-number";
 import { Upload } from "antd";
 import type { UploadChangeParam, UploadFile, UploadProps } from "antd/es/upload";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { StyledUploadAvatar } from "./styles";
 import { beforeAvatarUpload } from "./utils";
 
@@ -16,6 +16,9 @@ interface Props extends UploadProps {
 export function UploadAvatar({ helperText, onHeaderImgChange, defaultAvatar = "", ...other }: Props) {
 	const [imageUrl, setImageUrl] = useState<string>(defaultAvatar);
 
+	useEffect(() => {
+		setImageUrl(defaultAvatar);
+	}, [defaultAvatar]);
 	const [isHover, setIsHover] = useState(false);
 	const handelHover = (hover: boolean) => {
 		setIsHover(hover);

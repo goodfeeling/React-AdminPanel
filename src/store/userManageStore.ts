@@ -10,6 +10,7 @@ interface UserManageState {
 		fetch: (searchStr: string) => Promise<void>;
 		updateOrCreate: (data: UserInfo) => Promise<UserInfo | null>;
 		remove: (id: number) => Promise<void>;
+		resetPassword: (id: number) => Promise<void>;
 	};
 }
 
@@ -61,6 +62,13 @@ const useUserManageStore = create<UserManageState>()((set) => ({
 		remove: async (id: number) => {
 			try {
 				await userService.deleteUser(id);
+			} catch (err) {
+				console.error(err);
+			}
+		},
+		resetPassword: async (id: number) => {
+			try {
+				await userService.resetPassword(id);
 			} catch (err) {
 				console.error(err);
 			}

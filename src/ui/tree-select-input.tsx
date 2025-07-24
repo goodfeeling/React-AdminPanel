@@ -9,6 +9,7 @@ export interface TreeNode {
   key: string;
   children?: TreeNode[];
   path: number[];
+  isLast?: boolean;
 }
 
 interface TreeSelectInputProps {

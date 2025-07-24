@@ -1,7 +1,6 @@
 import { TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import type { Role } from "#/entity";
-const { SHOW_PARENT } = TreeSelect;
 
 interface RoleSelectProps {
 	roles: Role[];
@@ -33,7 +32,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordId, onCh
 			value={selectedRoleIds}
 			onChange={handleSelectChange}
 			treeCheckable={true}
-			showCheckedStrategy={SHOW_PARENT}
+			showCheckedStrategy={TreeSelect.SHOW_ALL}
 			placeholder="请选择角色"
 			style={{ width: "100%" }}
 		/>

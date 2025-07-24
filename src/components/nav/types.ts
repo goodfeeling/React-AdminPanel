@@ -2,6 +2,7 @@ export type NavItemStateProps = {
 	open?: boolean;
 	active?: boolean;
 	disabled?: boolean;
+	hidden?: boolean;
 };
 
 export type NavItemDataProps = {
@@ -13,6 +14,7 @@ export type NavItemDataProps = {
 	allowedRoles?: string | string[];
 	children?: NavItemDataProps[];
 	disabled?: boolean;
+	hidden?: boolean;
 };
 
 export type NavItemOptionsProps = {

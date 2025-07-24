@@ -109,12 +109,8 @@ axiosInstance.interceptors.response.use(
 
 			try {
 				const response = await userService.refreshToken(userToken?.refreshToken);
-				console.log(response);
-				const { userinfo: userInfo, security } = response.data;
-				console.log(security);
+				const { security } = response.data;
 				const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } = security;
-				// 更新用户信息
-				actions.setUserInfo(userInfo);
 				actions.setUserToken({
 					accessToken: jwtAccessToken,
 					refreshToken: jwtRefreshToken,
@@ -125,7 +121,6 @@ axiosInstance.interceptors.response.use(
 				return axiosInstance(originalRequest);
 			} catch (err) {
 				console.log(err);
-
 				processQueue(err);
 				clearUserTokenToLoginPage();
 				return Promise.reject(new Error("Token refresh failed"));

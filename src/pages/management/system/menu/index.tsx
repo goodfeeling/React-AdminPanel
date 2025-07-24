@@ -21,7 +21,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		parent_id: 0,
 		name: "",
 		path: "",
-		hidden: 0,
+		hidden: false,
 		component: "",
 		sort: 0,
 		active_name: "",
@@ -45,17 +45,25 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		show: false,
 		treeRawData: [],
 		onOk: async (values: Menu): Promise<boolean> => {
-			if (values.id === 0) {
-				await menuService.createMenu(values);
-			} else {
-				await menuService.updateMenu(values.id, values);
+			try {
+				if (values.id === 0) {
+					await menuService.createMenu(values);
+				} else {
+					await menuService.updateMenu(values.id, values);
+				}
+				toast.success("success!");
+				setUserModalProps((prev) => ({ ...prev, show: false }));
+				if (selectedId) {
+					getData(selectedId);
+				}
+			} catch (e) {
+				if (selectedId) {
+					getData(selectedId);
+				}
+			} finally {
+				// biome-ignore lint/correctness/noUnsafeFinally: <explanation>
+				return true;
 			}
-			toast.success("success!");
-			setUserModalProps((prev) => ({ ...prev, show: false }));
-			if (selectedId) {
-				getData(selectedId);
-			}
-			return true;
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));

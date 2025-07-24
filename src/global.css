@@ -156,3 +156,11 @@ input:-webkit-autofill:active {
   -ms-overflow-style: none; /* IE and Edge */
   scrollbar-width: none; /* Firefox */
 }
+/* 禁用 Tree 组件的悬停效果 */
+.no-hover-tree .ant-tree-treenode:hover::before {
+  background-color: transparent !important;
+}
+
+.no-hover-tree .ant-tree-node-content-wrapper:hover {
+  background-color: transparent !important;
+}

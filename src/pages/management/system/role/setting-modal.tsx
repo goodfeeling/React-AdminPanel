@@ -1,27 +1,23 @@
 import apiService from "@/api/services/apisService";
 import menuService from "@/api/services/menuService";
-import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
-import type { ApiGroupItem, MenuTreeUserGroup } from "@/types/entity";
+import {
+	useRoleSettingActions,
+	useRoleSettingApiIds,
+	useRoleSettingBtnIds,
+	useRoleSettingMenuIds,
+} from "@/store/roleSettingStore";
+import type { ApiGroupItem, MenuBtn, MenuTree, MenuTreeUserGroup, Role } from "@/types/entity";
 import { Button } from "@/ui/button";
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/ui/tabs";
-import { Collapse, Input, Tree } from "antd";
-import type { TreeDataNode, TreeProps } from "antd";
+import { Card, Collapse, Input, Modal, Table, Tabs, Tag, Tree } from "antd";
+import type { TableColumnsType, TableProps, TreeDataNode, TreeProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { buildTree } from "../menu/menu-modal";
-
 const { Search } = Input;
 export type SettingValue = {
 	id: string;
 };
 
-export type SettingModalProps = {
-	id: number;
-	title: string;
-	show: boolean;
-	onCancel: VoidFunction;
-};
 const getAllKeys = (data: TreeDataNode[]): React.Key[] => {
 	return data.reduce((acc, node) => {
 		acc.push(node.key);
@@ -32,11 +28,19 @@ const getAllKeys = (data: TreeDataNode[]): React.Key[] => {
 	}, [] as React.Key[]);
 };
 
-const MenuSetting = ({ id }: { id: number }) => {
+type MenuSettingProps = {
+	id: number;
+	defaultRoleRouter: string;
+	menuGroupIds: { [key: string]: number[] };
+	setSelectMenuBtn: React.Dispatch<React.SetStateAction<selectMenuData>>;
+};
+
+const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: MenuSettingProps) => {
 	// const [searchValue, setSearchValue] = useState("");
-	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+	const [roleMenuData, setRoleMenuData] = useState<{ [key: string]: any }>([]);
 	const [groupData, setGroupData] = useState<MenuTreeUserGroup[]>([]);
 	const [activeGroupKeys, setActiveGroupKeys] = useState<string[]>([]);
+	const [defaultRouter, setDefaultRouter] = useState<string>("");
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		console.log("onChange", e);
@@ -50,31 +54,18 @@ const MenuSetting = ({ id }: { id: number }) => {
 		setActiveGroupKeys(response.map((item) => item.path));
 	}, []);
 
-	// 加载权限菜单绑定数据
-	const loadMenuIds = useCallback(async () => {
-		const response = await roleService.getRoleSetting(id);
-		setCheckedKeys(response.role_menus.map((v) => String(v)));
-	}, [id]);
+	useEffect(() => {
+		setRoleMenuData(menuGroupIds);
+	}, [menuGroupIds]);
 
 	useEffect(() => {
 		onLoadMenuTree();
-		loadMenuIds();
-	}, [onLoadMenuTree, loadMenuIds]);
+	}, [onLoadMenuTree]);
 
-	// 更新菜单id
-	const updateRoleMenuIds = useCallback(
-		async (checkedKeysValue: number[]) => {
-			await roleService.updateRoleMenus(id, checkedKeysValue);
-		},
-		[id],
-	);
-
-	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
-		console.log("onCheck", checkedKeysValue);
-		setCheckedKeys(checkedKeysValue as React.Key[]);
-		updateRoleMenuIds(checkedKeysValue as number[]);
-	};
-
+	// 默认路由
+	useEffect(() => {
+		setDefaultRouter(defaultRoleRouter);
+	}, [defaultRoleRouter]);
 	return (
 		<div>
 			<Search style={{ marginBottom: 8 }} placeholder="Search" onChange={onChange} />
@@ -85,40 +76,123 @@ const MenuSetting = ({ id }: { id: number }) => {
 						key: item.path,
 						label: item.name,
 						children: (
-							<Tree
-								checkable
-								selectable={false}
-								expandedKeys={getAllKeys(treeData)}
-								onCheck={onCheck}
-								checkedKeys={checkedKeys}
+							<TreeList
+								id={id}
+								groupId={item.id}
+								defaultRouter={defaultRouter}
 								treeData={treeData}
-								multiple={true}
-								titleRender={(node) => {
-									const hasBtn = node.origin?.menu_btns && node.origin.menu_btns.length > 0;
-									return (
-										<span className="flex justify-between items-center w-full">
-											<span>{node.title}</span>
-											<Button variant="link">设为首页</Button>
-											<Button variant="link" hidden={!hasBtn}>
-												配置权限按钮
-											</Button>
-										</span>
-									);
-								}}
+								checkKeys={roleMenuData[item.id]}
+								setSelectMenuBtn={setSelectMenuBtn}
+								setDefaultRouter={setDefaultRouter}
 							/>
 						),
 					};
 				})}
-				defaultActiveKey={activeGroupKeys}
-				onChange={(key: string | string[]) => {
-					console.log(key);
-				}}
+				activeKey={activeGroupKeys}
 			/>
 		</div>
 	);
 };
 
-const ApiSetting = ({ id }: { id: number }) => {
+type TreeListProps = {
+	id: number;
+	defaultRouter: string;
+	treeData: MenuTree[];
+	checkKeys: string[];
+	groupId: number;
+	setSelectMenuBtn: (selectMenuData: selectMenuData) => void;
+	setDefaultRouter: React.Dispatch<React.SetStateAction<string>>;
+};
+const TreeList = ({
+	id,
+	defaultRouter,
+	treeData,
+	checkKeys,
+	groupId,
+	setSelectMenuBtn,
+	setDefaultRouter,
+}: TreeListProps) => {
+	const { updateMenus, updateRouterPath } = useRoleSettingActions();
+	// const [searchValue, setSearchValue] = useState("");
+	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>();
+
+	useEffect(() => {
+		if (checkKeys) {
+			setCheckedKeys(checkKeys.map((item) => String(item)));
+		}
+	}, [checkKeys]);
+
+	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
+		console.log("onCheck", checkedKeysValue);
+		setCheckedKeys(checkedKeysValue as React.Key[]);
+		updateMenus(id, String(groupId), checkedKeysValue as number[]);
+	};
+	// 更新默认路由
+	const updateDefaultRouter = (data: MenuTree) => {
+		const routerPath = data.origin ? data.origin.path : "";
+		setDefaultRouter(routerPath);
+		updateRouterPath(id, routerPath);
+	};
+	// 配置可控按钮
+	const settingRoleBtn = (data: MenuTree, menuBtns: MenuBtn[] | undefined) => {
+		setSelectMenuBtn({
+			menuId: data.origin ? data.origin.id : 0,
+			menuBtns: menuBtns ? menuBtns : [],
+			isSet: true,
+		});
+	};
+	return (
+		<Tree
+			checkable
+			selectable={false}
+			expandedKeys={getAllKeys(treeData)}
+			onCheck={onCheck}
+			checkedKeys={checkedKeys}
+			treeData={treeData}
+			multiple={true}
+			// 添加类名禁用悬停效果
+			className="no-hover-tree"
+			titleRender={(node) => {
+				const hasBtn = node.origin?.menu_btns && node.origin.menu_btns.length > 0;
+				return (
+					<span className="flex justify-between items-center w-full">
+						<span>{node.title}</span>
+						{defaultRouter === node.origin?.path ? (
+							<Tag color="blue">首页</Tag>
+						) : (
+							<Button
+								variant="link"
+								onClick={(e) => {
+									e.stopPropagation();
+									updateDefaultRouter(node);
+								}}
+							>
+								设为首页
+							</Button>
+						)}
+						<Button
+							variant="ghost"
+							onClick={(e) => {
+								e.stopPropagation();
+								settingRoleBtn(node, node.origin?.menu_btns);
+							}}
+							hidden={!hasBtn}
+						>
+							配置权限按钮
+						</Button>
+					</span>
+				);
+			}}
+		/>
+	);
+};
+
+type ApiSettingProps = {
+	id: number;
+	apiIds: string[];
+};
+const ApiSetting = ({ id, apiIds }: ApiSettingProps) => {
+	const { updateApis } = useRoleSettingActions();
 	const [searchValue, setSearchValue] = useState("");
 	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
 	const [treeData, setTreeData] = useState<ApiGroupItem[]>([]);
@@ -126,6 +200,10 @@ const ApiSetting = ({ id }: { id: number }) => {
 	const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
 
 	console.log(searchValue);
+
+	useEffect(() => {
+		setCheckedKeys(apiIds);
+	}, [apiIds]);
 
 	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
 		console.log("onChange", e);
@@ -144,29 +222,14 @@ const ApiSetting = ({ id }: { id: number }) => {
 		setExpandedKeys(getAllKeys(response));
 	}, []);
 
-	// 加载权限菜单绑定数据
-	const loadMenuIds = useCallback(async () => {
-		const response = await roleService.getRoleSetting(id);
-		setCheckedKeys(response.role_apis);
-	}, [id]);
-
 	useEffect(() => {
 		onLoadMenuTree();
-		loadMenuIds();
-	}, [onLoadMenuTree, loadMenuIds]);
-
-	// 更新菜单id
-	const updateRoleMenuIds = useCallback(
-		async (checkedKeysValue: string[]) => {
-			await roleService.updateRoleApis(id, checkedKeysValue);
-		},
-		[id],
-	);
+	}, [onLoadMenuTree]);
 
 	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
 		console.log("onCheck", checkedKeysValue);
 		setCheckedKeys(checkedKeysValue as React.Key[]);
-		updateRoleMenuIds(checkedKeysValue as string[]);
+		updateApis(id, checkedKeysValue as string[]);
 	};
 
 	return (
@@ -195,40 +258,149 @@ const ApiSetting = ({ id }: { id: number }) => {
 	);
 };
 
-export default function SettingModal({ id, title, show, onCancel }: SettingModalProps) {
-	console.log(title, show);
+type MenuBtnSettingProps = {
+	selectMenuBtn: selectMenuData;
+	roleId: number;
+};
+const MenuBtnSetting = ({ selectMenuBtn, roleId }: MenuBtnSettingProps) => {
+	const menuBtnIds = useRoleSettingBtnIds();
+	const { updateRoleBtns } = useRoleSettingActions();
+	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+	const [menuBtnData, setMenuBtnData] = useState<MenuBtn[]>([]);
+	const columns: TableColumnsType<MenuBtn> = [
+		{
+			title: "名称",
+			dataIndex: "name",
+		},
+		{
+			title: "描述",
+			dataIndex: "desc",
+		},
+	];
 
+	useEffect(() => {
+		setMenuBtnData(selectMenuBtn.menuBtns);
+		setSelectedRowKeys(menuBtnIds[selectMenuBtn.menuId]);
+	}, [menuBtnIds, selectMenuBtn]);
+
+	const rowSelection: TableProps<MenuBtn>["rowSelection"] = {
+		selectedRowKeys,
+		type: "checkbox",
+		onChange: (selectedRowKeys) => {
+			setSelectedRowKeys(selectedRowKeys);
+			updateRoleBtns(roleId, selectMenuBtn.menuId, selectedRowKeys as number[]);
+		},
+		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
+	};
 	return (
-		<Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
-			<DialogContent className="sm:max-w-3xl scrollbar-hide">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<Tabs defaultValue="1" className="w-full">
-					<div className="sticky top-0 z-10 bg-background">
-						<TabsList>
-							<TabsTrigger value="1">
-								<div className="flex items-center">
-									<Icon icon="solar:user-id-bold" size={24} className="mr-2" />
-									<span>角色菜单</span>
-								</div>
-							</TabsTrigger>
-							<TabsTrigger value="2">
-								<div className="flex items-center">
-									<Icon icon="solar:bell-bing-bold-duotone" size={24} className="mr-2" />
-									<span>角色api</span>
-								</div>
-							</TabsTrigger>
-						</TabsList>
-					</div>
-					<TabsContent value="1" className="max-h-[500px] overflow-y-auto">
-						<MenuSetting id={id} />
-					</TabsContent>
-					<TabsContent value="2" className="max-h-[500px] overflow-y-auto">
-						<ApiSetting id={id} />
-					</TabsContent>
-				</Tabs>
-			</DialogContent>
-		</Dialog>
+		<>
+			<Table<MenuBtn>
+				rowKey={"id"}
+				rowSelection={rowSelection}
+				columns={columns}
+				dataSource={menuBtnData}
+				pagination={false}
+				onChange={(value) => {
+					console.log("selectedRowKeys changed: ", value);
+				}}
+			/>
+		</>
+	);
+};
+export type SettingModalProps = {
+	roleData: Role;
+	id: number;
+	title: string;
+	show: boolean;
+	onCancel: VoidFunction;
+};
+
+type selectMenuData = { menuId: number; menuBtns: MenuBtn[]; isSet: boolean };
+
+export default function SettingModal({ roleData, title, show, onCancel }: SettingModalProps) {
+	const menuGroupIds = useRoleSettingMenuIds();
+	const ApiIds = useRoleSettingApiIds();
+	const { fetch } = useRoleSettingActions();
+	const [selectMenuBtn, setSelectMenuBtn] = useState<selectMenuData>({
+		menuId: 0,
+		menuBtns: [],
+		isSet: false,
+	});
+	useEffect(() => {
+		if (show && roleData.id) {
+			fetch(roleData.id);
+		}
+	}, [roleData.id, fetch, show]);
+	return (
+		<Modal
+			title={title}
+			closable={{ "aria-label": "Custom Close Button" }}
+			open={show}
+			onCancel={() => {
+				onCancel();
+				setSelectMenuBtn({
+					menuId: 0,
+					menuBtns: [],
+					isSet: false,
+				});
+			}}
+			footer={null}
+			width={800}
+			centered
+		>
+			<Tabs
+				hidden={selectMenuBtn.isSet}
+				defaultActiveKey="1"
+				items={[
+					{
+						key: "1",
+						label: "角色菜单",
+						children: (
+							<div className="max-h-[600px] overflow-y-auto">
+								<MenuSetting
+									id={roleData.id}
+									defaultRoleRouter={roleData.default_router}
+									menuGroupIds={menuGroupIds}
+									setSelectMenuBtn={setSelectMenuBtn}
+								/>
+							</div>
+						),
+					},
+					{
+						key: "2",
+						label: "角色api",
+						children: (
+							<div className="max-h-[600px] overflow-y-auto">
+								<ApiSetting id={roleData.id} apiIds={ApiIds} />
+							</div>
+						),
+					},
+				]}
+				onChange={(key: string) => {
+					console.log(key);
+				}}
+			/>
+			<Card
+				hidden={!selectMenuBtn.isSet}
+				title={
+					<Button
+						variant="ghost"
+						size="sm"
+						className="flex items-center gap-2 px-3 py-2 hover:bg-accent rounded-md transition-colors"
+						onClick={() =>
+							setSelectMenuBtn((prev) => ({
+								...prev,
+								isSet: false,
+							}))
+						}
+					>
+						<Icon icon="solar:alt-arrow-left-outline" className="text-3xl" />
+						<span className="text-sm">返回</span>
+					</Button>
+				}
+			>
+				<MenuBtnSetting selectMenuBtn={selectMenuBtn} roleId={roleData.id} />
+			</Card>
+		</Modal>
 	);
 }

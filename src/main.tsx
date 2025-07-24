@@ -19,7 +19,7 @@ import { buildRoutes, convertMenuTreeUserGroupToMenus } from "./routes/sections/
 import { mainRoutes } from "./routes/sections/main";
 import type { Menu } from "./types/entity";
 
-// 创建路由函数
+// create function router
 function createAppRouter(menuData: Menu[]) {
 	const routesSection = buildRoutes(menuData);
 
@@ -51,38 +51,73 @@ function createAppRouter(menuData: Menu[]) {
 				},
 				...authRoutes,
 				...mainRoutes,
+				{ path: "*", element: <Navigate to="/404" replace /> },
 			],
 		},
 	]);
 }
 
-// 顶层组件，用于处理异步数据加载
+// top app component
 function AppWrapper() {
 	const { menuData, loading, error } = useAppMenu();
 
 	const [router, setRouter] = useState<any>(null);
+	const [initialized, setInitialized] = useState(false);
+
 	useEffect(() => {
-		if (Array.isArray(menuData) && menuData.length > 0) {
-			const newRouter = createAppRouter(convertMenuTreeUserGroupToMenus(menuData));
-			setRouter(newRouter);
+		let isMounted = true;
+
+		const initializeRouter = async () => {
+			try {
+				let routesData: Menu[] = [];
+				if (Array.isArray(menuData) && menuData.length > 0) {
+					routesData = convertMenuTreeUserGroupToMenus(menuData);
+				}
+
+				if (isMounted) {
+					const newRouter = createAppRouter(routesData);
+					setRouter(newRouter);
+					setInitialized(true);
+				}
+			} catch (err) {
+				console.error("Failed to initialize router:", err);
+				if (isMounted) {
+					// 即使出错也要确保有基本路由
+					const fallbackRouter = createAppRouter([]);
+					setRouter(fallbackRouter);
+					setInitialized(true);
+				}
+			}
+		};
+
+		if (!loading) {
+			initializeRouter();
 		}
-	}, [menuData]);
-	if (loading) {
+
+		return () => {
+			isMounted = false;
+		};
+	}, [menuData, loading]);
+
+	if (loading || !initialized) {
 		return <LineLoading />;
 	}
+
 	if (error) {
 		return (
 			<PageError
-				error={undefined}
+				error={error}
 				resetErrorBoundary={(): void => {
-					throw new Error("Function not implemented.");
+					window.location.reload();
 				}}
 			/>
 		);
 	}
+
 	if (!router) {
-		return null;
+		return <LineLoading />;
 	}
+
 	return <RouterProvider router={router} />;
 }
 // 入口函数

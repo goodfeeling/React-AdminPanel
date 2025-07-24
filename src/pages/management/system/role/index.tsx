@@ -35,6 +35,7 @@ const App: React.FC = () => {
 
 	const [settingModalPros, setSettingModalProps] = useState<SettingModalProps>({
 		id: 0,
+		roleData: { ...defaultValue },
 		title: "New",
 		show: false,
 		onCancel: () => {
@@ -49,10 +50,10 @@ const App: React.FC = () => {
 		treeRawData: [],
 		onOk: async (values: Role): Promise<boolean> => {
 			if (values.id === 0) {
-				await roleService.createUser(values);
+				await roleService.createRole(values);
 			} else {
 				const { parent_id = 0, name = "", label = "", order = 0, description = "", status = false } = values;
-				await roleService.updateUser(values.id, {
+				await roleService.updateRole(values.id, {
 					parent_id,
 					name,
 					label,
@@ -117,6 +118,7 @@ const App: React.FC = () => {
 			show: true,
 			title: "角色设置",
 			id: value.id,
+			roleData: value,
 		}));
 	};
 

@@ -13,7 +13,7 @@ import { useMutation } from "@tanstack/react-query";
 import { useState } from "react";
 import { useTranslation } from "react-i18next";
 import { NavLink } from "react-router";
-import SwitchModal, { type SwitchRoleModalProps } from "./switch-role";
+import SwitchModal, { type SwitchModalProps } from "./switch-role";
 
 /**
  * Account Dropdown
@@ -21,12 +21,11 @@ import SwitchModal, { type SwitchRoleModalProps } from "./switch-role";
 export default function AccountDropdown() {
 	const { replace } = useRouter();
 	const { t } = useTranslation();
-
-	const { user_name, email, header_img } = useUserInfo();
+	const { user_name, email, header_img, current_role_name } = useUserInfo();
 	const { clearUserInfoAndToken } = useUserActions();
 	// const { backToLogin } = useLoginStateContext();
 
-	const [switchDataModal, setSwitchDataModal] = useState<SwitchRoleModalProps>({
+	const [switchDataModal, setSwitchDataModal] = useState<SwitchModalProps>({
 		title: "Switch Role",
 		show: false,
 		onCancel: () => {
@@ -55,7 +54,7 @@ export default function AccountDropdown() {
 		setSwitchDataModal((prev) => ({
 			...prev,
 			show: true,
-			title: "New",
+			title: "Switch Role",
 		}));
 	};
 
@@ -75,11 +74,14 @@ export default function AccountDropdown() {
 					</div>
 				</div>
 				<DropdownMenuSeparator />
+				<DropdownMenuItem asChild>
+					<span>当前角色：{current_role_name}</span>
+				</DropdownMenuItem>
 
+				<DropdownMenuItem onClick={handleSwitch}>{t("sys.menu.user.switch_role")}</DropdownMenuItem>
 				<DropdownMenuItem asChild>
 					<NavLink to="/management/user/account">{t("sys.menu.user.account")}</NavLink>
 				</DropdownMenuItem>
-				<DropdownMenuItem onClick={handleSwitch}>{t("sys.menu.user.switch_role")}</DropdownMenuItem>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem className="font-bold text-warning" onClick={handleLogout}>
 					{t("sys.login.logout")}

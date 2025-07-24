@@ -5,13 +5,14 @@ type NavItemRendererProps = {
 	item: NavItemProps;
 	className: string;
 	children: React.ReactNode;
+	hidden: boolean;
 };
 
 /**
  * Renderer for Navigation Items.
  * Handles disabled, external link, clickable child container, and internal link logic.
  */
-export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, className, children }) => {
+export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, className, children, hidden }) => {
 	const { disabled, externalLink, hasChild, path, onClick } = item;
 
 	if (disabled) {
@@ -37,7 +38,7 @@ export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, classNam
 
 	// Default: internal link
 	return (
-		<RouterLink href={path} className={className}>
+		<RouterLink hidden={hidden} href={path} className={className}>
 			{children}
 		</RouterLink>
 	);

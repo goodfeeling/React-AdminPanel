@@ -26,6 +26,8 @@ export enum UserApi {
 	SignUp = "/auth/signup",
 	Logout = "/auth/logout",
 	Refresh = "/auth/access-token",
+	SwitchRole = "/auth/switch-role",
+
 	User = "/user",
 	SearchUser = "/user/search",
 }
@@ -33,8 +35,6 @@ export enum UserApi {
 const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.SignIn, data });
 const signup = (data: SignUpReq) => apiClient.post<SignInRes>({ url: UserApi.SignUp, data });
 const logout = () => apiClient.get({ url: UserApi.Logout });
-// const refreshToken = (refreshToken: string) =>
-// 	apiClient.post<SignInRes>({ url: UserApi.Refresh, data: { refreshToken } });
 
 const refreshToken = async (refreshToken: string) => {
 	try {
@@ -70,6 +70,16 @@ const bindRole = (userId: number, roleIds: string[]) =>
 		},
 	});
 
+const resetPassword = (id: number) =>
+	apiClient.post<boolean>({
+		url: `${UserApi.User}/${id}/reset-password`,
+	});
+
+const switchRole = (roleId: number) =>
+	apiClient.post<SignInRes>({
+		url: `${UserApi.SwitchRole}?role_id=${roleId}`,
+	});
+
 export default {
 	signin,
 	signup,
@@ -81,4 +91,6 @@ export default {
 	createUser,
 	deleteUser,
 	bindRole,
+	resetPassword,
+	switchRole,
 };

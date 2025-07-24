@@ -1,46 +1,39 @@
+// @/components/icon-picker-custom.tsx
 import { Icon } from "@/components/icon";
-import { Button } from "@/ui/button";
-import { CommandInput, CommandGroup, CommandItem } from "@/ui/command";
+import { useTheme } from "@/theme/hooks";
 import { useEffect, useRef, useState } from "react";
 
-type IconPickerProps = {
-  value: string;
-  onChange: (value: string) => void;
+// 示例图标库（可替换为您的图标库）
+const icons = [
+  "solar:pen-bold-duotone",
+  "solar:accumulator-linear",
+  "solar:album-outline",
+  "solar:archive-minimalistic-bold",
+];
+
+export type IconPickerProps = {
+  value?: string;
+  onChange: (icon: string) => void;
 };
 
-const IconPicker = ({ value, onChange }: IconPickerProps) => {
+export const IconPicker = ({ value, onChange }: IconPickerProps) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
+  const { themeTokens } = useTheme();
 
-  // Lucide 图标列表（已简化）
-  const icons = [
-    "activity",
-    "airplay",
-    "alert-circle",
-    "align-center",
-    "anchor",
-    "aperture",
-    "archive",
-    "arrow-down",
-    "arrow-up",
-    "at-sign",
-    "award",
-    "bar-chart",
-    // ...其他图标
-  ];
-
-  // 筛选图标
+  // 设置进度条颜色，优先使用传入的颜色，否则使用主题色
+  const backgroundColor = themeTokens.color.background.default;
   const filteredIcons = search
     ? icons.filter((icon) => icon.toLowerCase().includes(search.toLowerCase()))
     : icons;
 
-  // 点击外部关闭
+  // 点击外部关闭弹窗
   useEffect(() => {
-    const handleClickOutside = (event: MouseEvent) => {
+    const handleClickOutside = (e: MouseEvent) => {
       if (
         containerRef.current &&
-        !containerRef.current.contains(event.target as Node)
+        !containerRef.current.contains(e.target as Node)
       ) {
         setOpen(false);
       }
@@ -51,14 +44,14 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
   }, []);
 
   return (
-    <div ref={containerRef} className="relative inline-block w-full max-w-xs">
-      <Button
-        variant="outline"
-        className="w-full justify-between"
+    <div ref={containerRef} className="relative inline-block w-full">
+      <button
+        type="button"
+        className="flex w-full items-center justify-between gap-2 rounded-md border border-input bg-background px-3 py-2 text-sm"
         onClick={() => setOpen(!open)}
       >
         <div className="flex items-center gap-2 truncate">
-          <Icon icon={value || "solar:document-bold"} size={18} />
+          {value && <Icon icon={value} size={18} />}
           <span>{value || "Select Icon"}</span>
         </div>
         <svg
@@ -75,47 +68,49 @@ const IconPicker = ({ value, onChange }: IconPickerProps) => {
             open ? "rotate-180" : ""
           }`}
         >
-          <polyline points="6 9 12 15 18 9"></polyline>
+          <polyline points="6 9 12 15 18 9" />
         </svg>
-      </Button>
+      </button>
 
-      {/* 手动实现的弹窗 */}
+      {/* 弹窗内容 */}
       {open && (
         <div
-          className="absolute z-50 mt-1 w-full rounded-md border bg-white p-2 shadow-lg"
-          style={{ maxHeight: "300px", overflowY: "auto" }}
+          className="absolute z-50 mt-1 w-full rounded-md  border p-2 shadow-md"
+          style={{ backgroundColor: backgroundColor }}
         >
-          <CommandInput
+          <input
+            type="text"
             placeholder="Search icon..."
             value={search}
-            onValueChange={setSearch}
+            onChange={(e) => setSearch(e.target.value)}
+            className="w-full rounded-md border px-3 py-1 text-sm"
           />
 
-          <CommandGroup>
+          <div className="mt-2 max-h-60 overflow-y-auto pr-1">
             {filteredIcons.length === 0 ? (
               <div className="py-2 text-center text-sm text-muted-foreground">
                 No icon found.
               </div>
             ) : (
-              filteredIcons.map((icon) => (
-                <CommandItem
-                  key={icon}
-                  onSelect={() => {
-                    onChange(icon);
-                    setOpen(false);
-                  }}
-                  className="flex cursor-pointer items-center gap-2 px-2 py-1 hover:bg-gray-100"
-                >
-                  <Icon icon={icon} size={16} />
-                  <span>{icon}</span>
-                </CommandItem>
-              ))
+              <div className="grid grid-cols-4 gap-2">
+                {filteredIcons.map((icon) => (
+                  <div
+                    key={icon}
+                    className="flex cursor-pointer flex-col items-center justify-center rounded p-2 hover:bg-gray-200 dark:hover:bg-gray-800"
+                    onClick={() => {
+                      onChange(icon);
+                      setOpen(false);
+                    }}
+                  >
+                    <Icon icon={icon} size={16} />
+                    <span className="text-xs">{icon}</span>
+                  </div>
+                ))}
+              </div>
             )}
-          </CommandGroup>
+          </div>
         </div>
       )}
     </div>
   );
 };
-
-export default IconPicker;

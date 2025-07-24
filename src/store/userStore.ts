@@ -19,6 +19,7 @@ type UserStore = {
 	actions: {
 		setUserInfo: (userInfo: UserInfo) => void;
 		setUserToken: (token: UserToken) => void;
+		switchRole: (roleId: number) => Promise<void>;
 		clearUserInfoAndToken: () => void;
 	};
 };
@@ -34,6 +35,31 @@ const useUserStore = create<UserStore>()(
 				},
 				setUserToken: (userToken) => {
 					set({ userToken });
+				},
+				switchRole: async (roleId: number): Promise<void> => {
+					return new Promise<void>((resolve, reject) => {
+						(async () => {
+							try {
+								const response = await userService.switchRole(roleId);
+								const { security } = response;
+								const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } =
+									security;
+								set({
+									userToken: {
+										accessToken: jwtAccessToken,
+										refreshToken: jwtRefreshToken,
+										expirationAccessDateTime,
+										expirationRefreshDateTime,
+									},
+									userInfo: response.userinfo,
+								});
+								resolve();
+							} catch (error) {
+								console.log(error);
+								reject(error);
+							}
+						})();
+					});
 				},
 				clearUserInfoAndToken() {
 					set({ userInfo: {}, userToken: {} });

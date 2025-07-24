@@ -10,7 +10,7 @@ import { navItemClasses, navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";
 
 export function NavItem(item: NavItemProps) {
-	const { title, icon, info, caption, open, active, disabled, depth, hasChild } = item;
+	const { title, icon, info, caption, open, active, disabled, depth, hasChild, hidden } = item;
 	const { t } = useLocale();
 
 	const content = (
@@ -66,7 +66,7 @@ export function NavItem(item: NavItemProps) {
 	);
 
 	return (
-		<NavItemRenderer item={item} className={itemClassName}>
+		<NavItemRenderer hidden={Boolean(hidden)} item={item} className={itemClassName}>
 			{content}
 		</NavItemRenderer>
 	);

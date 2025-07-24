@@ -28,6 +28,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 	const onSubmit = (values: MenuGroup) => {
 		onOk(values);
 	};
+
 	return (
 		<Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
 			<DialogContent className="sm:max-w-lg">

@@ -53,6 +53,7 @@ export interface UserInfo {
 	created_at: string;
 	updated_at: string;
 	current_role_id?: number;
+	current_role_name?: string;
 	roles?: Role[];
 }
 
@@ -160,7 +161,7 @@ export interface Menu {
 	parent_id: number;
 	name: string;
 	path: string;
-	hidden: number;
+	hidden: boolean;
 	component: string;
 	sort: number;
 	active_name: string;
@@ -188,8 +189,9 @@ export interface MenuTree {
 }
 
 export interface roleSetting {
-	role_menus: number[];
+	role_menus: { [key: string]: number[] };
 	role_apis: string[];
+	role_btns: { [key: string]: number[] };
 }
 
 export interface MenuGroup {
@@ -202,6 +204,7 @@ export interface MenuGroup {
 }
 
 export interface MenuTreeUserGroup {
+	id: number;
 	name: string;
 	path: string;
 	items: Menu[];

@@ -30,6 +30,7 @@ export function NavList({ data, depth = 1, enabledRootRedirect = false }: NavLis
 					open={open}
 					active={isActive}
 					disabled={data.disabled}
+					hidden={data.hidden}
 					// options
 					hasChild={hasChild}
 					depth={depth}

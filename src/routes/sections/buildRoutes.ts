@@ -50,7 +50,7 @@ export function convertMenuTreeUserGroupToMenus(data: MenuTreeUserGroup[]): Menu
 			id: index + 1, // 如果没有 id 可用索引或 UUID
 			menu_level: 1, // 默认设置为第一级
 			parent_id: 0,
-			hidden: 0,
+			hidden: false,
 			component: `${group.path}/index`, // 如果有默认组件名，也可以传
 			sort: 0,
 			active_name: group.name,

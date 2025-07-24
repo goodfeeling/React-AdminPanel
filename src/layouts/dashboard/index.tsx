@@ -18,6 +18,7 @@ const DashboardLayout: FC = () => {
 	const isMobile = useMediaQuery(down("md"));
 	const { themeLayout } = useSettings();
 	const menuData = useMenu();
+
 	return (
 		<div
 			data-slot="slash-layout-root"
