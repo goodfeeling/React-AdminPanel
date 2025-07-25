@@ -13,15 +13,17 @@ import { LineLoading } from "./components/loading";
 import DashboardLayout from "./layouts/dashboard";
 import PageError from "./pages/sys/error/PageError";
 import AuthGuard from "./routes/components/auth-guard";
-import useAppMenu from "./routes/hooks/use-menu"; // ✅ 引入你的 useMenu Hook
+import useAppMenu from "./routes/hooks/use-menu";
 import { authRoutes } from "./routes/sections/auth";
 import { buildRoutes, convertMenuTreeUserGroupToMenus } from "./routes/sections/buildRoutes";
 import { mainRoutes } from "./routes/sections/main";
-import type { Menu } from "./types/entity";
+import { useUserInfo } from "./store/userStore";
+import type { Menu, Role } from "./types/entity";
 
 // create function router
-function createAppRouter(menuData: Menu[]) {
+function createAppRouter(menuData: Menu[], role: Role | undefined) {
 	const routesSection = buildRoutes(menuData);
+	const defaultRouter = role?.default_router;
 
 	return createHashRouter([
 		{
@@ -44,7 +46,7 @@ function createAppRouter(menuData: Menu[]) {
 					children: [
 						{
 							index: true,
-							element: <Navigate to="/dashboard/workbench" replace />,
+							element: <Navigate to={defaultRouter || "/dashboard/workbench"} replace />,
 						},
 						...routesSection,
 					],
@@ -60,7 +62,7 @@ function createAppRouter(menuData: Menu[]) {
 // top app component
 function AppWrapper() {
 	const { menuData, loading, error } = useAppMenu();
-
+	const { current_role: currentRole } = useUserInfo();
 	const [router, setRouter] = useState<any>(null);
 	const [initialized, setInitialized] = useState(false);
 
@@ -75,7 +77,7 @@ function AppWrapper() {
 				}
 
 				if (isMounted) {
-					const newRouter = createAppRouter(routesData);
+					const newRouter = createAppRouter(routesData, currentRole);
 					setRouter(newRouter);
 					setInitialized(true);
 				}
@@ -83,7 +85,7 @@ function AppWrapper() {
 				console.error("Failed to initialize router:", err);
 				if (isMounted) {
 					// 即使出错也要确保有基本路由
-					const fallbackRouter = createAppRouter([]);
+					const fallbackRouter = createAppRouter([], currentRole);
 					setRouter(fallbackRouter);
 					setInitialized(true);
 				}
@@ -97,7 +99,7 @@ function AppWrapper() {
 		return () => {
 			isMounted = false;
 		};
-	}, [menuData, loading]);
+	}, [menuData, loading, currentRole]);
 
 	if (loading || !initialized) {
 		return <LineLoading />;

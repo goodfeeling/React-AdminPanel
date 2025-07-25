@@ -28,6 +28,8 @@ const defaultUserValue: UserInfo = {
 	status: false,
 	created_at: "",
 	updated_at: "",
+	roles: [],
+	current_role: undefined,
 };
 
 type SearchFormFieldType = {
@@ -56,10 +58,10 @@ const App: React.FC = () => {
 		treeData: [],
 		show: false,
 		onOk: async (values: UserInfo): Promise<boolean> => {
-			updateOrCreate(values);
-			toast.success("success!");
+			await updateOrCreate(values);
+			await getData();
 			setUserModalProps((prev) => ({ ...prev, show: false }));
-			getData();
+			toast.success("success!");
 			return true;
 		},
 		onCancel: () => {

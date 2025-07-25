@@ -63,6 +63,18 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						/>
 						<FormField
 							control={form.control}
+							name="sort"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Sort</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
 							name="status"
 							render={({ field }) => (
 								<FormItem>

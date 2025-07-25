@@ -11,13 +11,11 @@ import QrCodeFrom from "./qrcode-form";
 import RegisterForm from "./register-form";
 import ResetForm from "./reset-form";
 
-const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
-
 function LoginPage() {
 	const token = useUserToken();
 
 	if (token.accessToken) {
-		return <Navigate to={HOMEPAGE} replace />;
+		return <Navigate to="/" replace />;
 	}
 
 	return (

@@ -52,8 +52,7 @@ export interface UserInfo {
 	status?: boolean;
 	created_at: string;
 	updated_at: string;
-	current_role_id?: number;
-	current_role_name?: string;
+	current_role?: Role;
 	roles?: Role[];
 }
 
@@ -177,6 +176,7 @@ export interface Menu {
 	children?: Menu[];
 	menu_btns?: MenuBtn[];
 	menu_parameters?: MenuParameter[];
+	btn_slice?: string[];
 }
 
 export interface MenuTree {
@@ -199,6 +199,7 @@ export interface MenuGroup {
 	name: string;
 	path: string;
 	status: boolean;
+	sort: number;
 	created_at: string;
 	updated_at: string;
 }

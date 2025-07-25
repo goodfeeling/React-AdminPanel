@@ -72,6 +72,7 @@ const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 				title={title}
 				onOk={handleOk}
 				onCancel={handleCancel}
+				centered
 				footer={[
 					<Button key="back" onClick={handleCancel}>
 						Return

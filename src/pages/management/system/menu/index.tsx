@@ -293,6 +293,7 @@ const MenuGroupList = ({
 		id: 0,
 		name: "",
 		path: "",
+		sort: 0,
 		status: false,
 		created_at: "",
 		updated_at: "",
@@ -306,8 +307,8 @@ const MenuGroupList = ({
 			pageSize: 10,
 			total: 0,
 		},
-		sortField: "id",
-		sortOrder: "descend",
+		sortField: "sort",
+		sortOrder: "ascend",
 	});
 	const [apiModalProps, setDictionaryModalProps] = useState<MenuGroupModalProps>({
 		formValue: { ...defaultValue },

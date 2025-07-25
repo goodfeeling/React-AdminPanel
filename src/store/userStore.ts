@@ -1,5 +1,4 @@
 import { useMutation } from "@tanstack/react-query";
-import { useNavigate } from "react-router";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
@@ -9,8 +8,6 @@ import { toast } from "sonner";
 import type { UserInfo, UserToken } from "#/entity";
 import { StorageEnum } from "#/enum";
 import { useMenuActions } from "./useMenuStore";
-
-const { VITE_APP_HOMEPAGE: HOMEPAGE } = import.meta.env;
 
 type UserStore = {
 	userInfo: Partial<UserInfo>;
@@ -82,7 +79,6 @@ export const useUserToken = () => useUserStore((state) => state.userToken);
 export const useUserActions = () => useUserStore((state) => state.actions);
 
 export const useSignIn = () => {
-	const navigatge = useNavigate();
 	const { setUserToken, setUserInfo } = useUserActions();
 	const menuActions = useMenuActions();
 
@@ -104,7 +100,6 @@ export const useSignIn = () => {
 			setUserInfo(userInfo);
 			// get user menu
 			await menuActions.fetchMenu();
-			navigatge(HOMEPAGE, { replace: true });
 			toast.success("Sign in success!", {
 				closeButton: true,
 			});

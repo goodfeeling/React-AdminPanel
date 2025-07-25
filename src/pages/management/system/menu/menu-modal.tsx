@@ -86,6 +86,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 				title={title}
 				onOk={handleOk}
 				onCancel={handleCancel}
+				centered
 				footer={[
 					<Button key="back" onClick={handleCancel}>
 						Return

@@ -1,3 +1,4 @@
+import PermissionGuard from "@/components/premission/guard";
 import { useUserToken } from "@/store/userStore";
 import { useCallback, useEffect } from "react";
 import { useRouter } from "../hooks";
@@ -20,5 +21,5 @@ export default function AuthGuard({ children }: Props) {
 		check();
 	}, [check, accessToken]);
 
-	return <>{children}</>;
+	return <PermissionGuard fallback={<div>您没有权限访问该页面</div>}>{children}</PermissionGuard>;
 }

@@ -21,7 +21,7 @@ import SwitchModal, { type SwitchModalProps } from "./switch-role";
 export default function AccountDropdown() {
 	const { replace } = useRouter();
 	const { t } = useTranslation();
-	const { user_name, email, header_img, current_role_name } = useUserInfo();
+	const { user_name, email, header_img, current_role } = useUserInfo();
 	const { clearUserInfoAndToken } = useUserActions();
 	// const { backToLogin } = useLoginStateContext();
 
@@ -75,7 +75,7 @@ export default function AccountDropdown() {
 				</div>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild>
-					<span>当前角色：{current_role_name}</span>
+					<span>当前角色：{current_role ? current_role.name : "暂无"}</span>
 				</DropdownMenuItem>
 
 				<DropdownMenuItem onClick={handleSwitch}>{t("sys.menu.user.switch_role")}</DropdownMenuItem>
