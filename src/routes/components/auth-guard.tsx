@@ -21,5 +21,5 @@ export default function AuthGuard({ children }: Props) {
 		check();
 	}, [check, accessToken]);
 
-	return <PermissionGuard fallback={<div>您没有权限访问该页面</div>}>{children}</PermissionGuard>;
+	return <PermissionGuard fallback={<div> No Permission!</div>}>{children}</PermissionGuard>;
 }

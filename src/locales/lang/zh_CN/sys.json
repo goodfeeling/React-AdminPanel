@@ -171,7 +171,7 @@
 		"account": {
 			"general": "资料设置",
 			"notifications": "通知设置",
-			"security": "密码重置",
+			"security": "密码修改",
 			"username": "用户名",
 			"phone": "手机号码",
 			"email": "邮箱",

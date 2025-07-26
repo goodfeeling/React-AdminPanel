@@ -1,3 +1,6 @@
+import { useRouter } from "@/routes/hooks";
+import { useUserActions, useUserInfo } from "@/store/userStore";
+import type { PasswordEditReq } from "@/types/entity";
 import { Button } from "@/ui/button";
 import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
@@ -6,16 +9,12 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
-type FieldType = {
-	oldPassword: string;
-	newPassword: string;
-	confirmPassword: string;
-};
-
 export default function SecurityTab() {
 	const { t } = useTranslation();
-
-	const form = useForm<FieldType>({
+	const { replace } = useRouter();
+	const { passwordEdit, clearUserInfoAndToken } = useUserActions();
+	const userInfo = useUserInfo();
+	const form = useForm<PasswordEditReq>({
 		defaultValues: {
 			oldPassword: "",
 			newPassword: "",
@@ -23,9 +22,24 @@ export default function SecurityTab() {
 		},
 	});
 
-	const handleSubmit = () => {
-		// Handle form submission here
-		toast.success("Update success!");
+	const handleSubmit = async () => {
+		const values = form.getValues();
+		console.log(values);
+
+		if (values.newPassword !== values.confirmPassword) {
+			toast.error("Password does not match!");
+			return;
+		}
+		if (values.oldPassword === values.newPassword) {
+			toast.error("New password cannot be the same as the old password!");
+			return;
+		}
+		if (userInfo.id) {
+			await passwordEdit(userInfo.id, values);
+			toast.success("修改密码成功");
+			clearUserInfoAndToken();
+			replace("/auth/login");
+		}
 	};
 
 	return (

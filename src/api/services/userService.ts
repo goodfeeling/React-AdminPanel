@@ -1,6 +1,6 @@
 import apiClient from "../apiClient";
 
-import type { PageList, UpdateUser, UserInfo } from "#/entity";
+import type { PageList, PasswordEditReq, UpdateUser, UserInfo } from "#/entity";
 import refreshClient from "../refreshClient";
 
 export interface SignInReq {
@@ -74,7 +74,11 @@ const resetPassword = (id: number) =>
 	apiClient.post<boolean>({
 		url: `${UserApi.User}/${id}/reset-password`,
 	});
-
+const editPassword = (id: number, updateInfo: PasswordEditReq) =>
+	apiClient.post<boolean>({
+		url: `${UserApi.User}/${id}/edit-password`,
+		data: updateInfo,
+	});
 const switchRole = (roleId: number) =>
 	apiClient.post<SignInRes>({
 		url: `${UserApi.SwitchRole}?role_id=${roleId}`,
@@ -93,4 +97,5 @@ export default {
 	bindRole,
 	resetPassword,
 	switchRole,
+	editPassword,
 };

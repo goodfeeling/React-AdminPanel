@@ -4,6 +4,9 @@ const checkChildren = (menu: Menu, pathnames: string[], level: number): Menu | n
 	if (!pathnames[level] || !menu) {
 		return null;
 	}
+	if (menu.path === `/${pathnames.join("/")}`) {
+		return menu;
+	}
 	const currentPath = menu.path.replace("/", "").split("/");
 	if (currentPath[currentPath.length - 1] === pathnames[level]) {
 		const isLastPath = level === pathnames.length - 1;

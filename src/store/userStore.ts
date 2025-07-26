@@ -5,7 +5,7 @@ import { createJSONStorage, persist } from "zustand/middleware";
 import userService, { type SignInReq } from "@/api/services/userService";
 
 import { toast } from "sonner";
-import type { UserInfo, UserToken } from "#/entity";
+import type { PasswordEditReq, UserInfo, UserToken } from "#/entity";
 import { StorageEnum } from "#/enum";
 import { useMenuActions } from "./useMenuStore";
 
@@ -18,6 +18,7 @@ type UserStore = {
 		setUserToken: (token: UserToken) => void;
 		switchRole: (roleId: number) => Promise<void>;
 		clearUserInfoAndToken: () => void;
+		passwordEdit: (id: number, editInfo: PasswordEditReq) => Promise<void>;
 	};
 };
 
@@ -50,6 +51,20 @@ const useUserStore = create<UserStore>()(
 									},
 									userInfo: response.userinfo,
 								});
+								resolve();
+							} catch (error) {
+								console.log(error);
+								reject(error);
+							}
+						})();
+					});
+				},
+				passwordEdit: async (id: number, editInfo: PasswordEditReq) => {
+					return new Promise<void>((resolve, reject) => {
+						(async () => {
+							try {
+								await userService.editPassword(id, editInfo);
+
 								resolve();
 							} catch (error) {
 								console.log(error);

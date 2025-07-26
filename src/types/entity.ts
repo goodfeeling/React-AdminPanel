@@ -225,3 +225,8 @@ export interface MenuParameter {
 	value: string;
 	sys_base_menu_id: number;
 }
+export type PasswordEditReq = {
+	oldPassword: string;
+	newPassword: string;
+	confirmPassword: string;
+};
