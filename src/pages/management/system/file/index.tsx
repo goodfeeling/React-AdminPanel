@@ -1,51 +1,45 @@
-import apisService from "@/api/services/apisService";
+import fileService from "@/api/services/fileService";
 import { Icon } from "@/components/icon";
 import {
-	useApiActions,
-	useApiManageCondition,
-	useApiQuery,
-	useBatchRemoveApiMutation,
-	useRemoveApiMutation,
-	useSynchronizeApiMutation,
-	useUpdateOrCreateApiMutation,
-} from "@/store/apiManageStore";
-import { Methods } from "@/types/enum";
-import { Badge } from "@/ui/badge";
+	useBatchRemoveFileInfoMutation,
+	useRemoveFileInfoMutation,
+	useUpdateOrCreateFileInfoMutation,
+} from "@/store/fileManageStore";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
+import { useQuery } from "@tanstack/react-query";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { Api, ApiGroup, ColumnsType } from "#/entity";
-import ApiModal, { type ApiModalProps } from "./api-modal";
+import type { ColumnsType, FileInfo, TableParams } from "#/entity";
+import FileModal, { type FileModalProps } from "./modal";
 
-const defaultApiValue: Api = {
+const defaultFileValue: FileInfo = {
 	id: 0,
-	path: "",
-	api_group: "",
-	method: "",
-	description: "",
+	file_name: "",
+	file_md5: "",
+	file_path: "",
+	file_url: "",
+	file_origin_name: "",
+	storage_engine: "",
 	created_at: "",
 	updated_at: "",
 };
 
 type SearchFormFieldType = {
-	path?: string;
-	description?: string;
-	api_group?: string;
-	method?: string;
+	file_origin_name?: string;
+	storage_engine?: string;
 };
 
 const searchDefaultValue = {
-	path: "",
-	description: "",
-	api_group: "",
-	method: "",
+	file_origin_name: "",
+	storage_engine: "",
 };
 
 const App: React.FC = () => {
@@ -53,45 +47,67 @@ const App: React.FC = () => {
 		defaultValues: searchDefaultValue,
 	});
 
-	const updateOrCreateMutation = useUpdateOrCreateApiMutation();
-	const removeMutation = useRemoveApiMutation();
-	const batchRemoveMutation = useBatchRemoveApiMutation();
-	const synchronizeMutation = useSynchronizeApiMutation();
-	const { data, isLoading } = useApiQuery();
-	const condition = useApiManageCondition();
-	const { setCondition } = useApiActions();
+	const updateOrCreateMutation = useUpdateOrCreateFileInfoMutation();
+	const removeMutation = useRemoveFileInfoMutation();
+	const batchRemoveMutation = useBatchRemoveFileInfoMutation();
 
-	const [apiGroup, setApiGroup] = useState<ApiGroup>();
+	const [tableParams, setTableParams] = useState<TableParams>({
+		pagination: {
+			current: 1,
+			pageSize: 10,
+			total: 0,
+		},
+		sortField: "id",
+		sortOrder: "descend",
+	});
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-	const [apiModalProps, setApiModalProps] = useState<ApiModalProps>({
-		formValue: { ...defaultApiValue },
-		apiGroup: undefined,
+	const [apiModalProps, setFileModalProps] = useState<FileModalProps>({
+		formValue: { ...defaultFileValue },
 		title: "New",
 		show: false,
-		onOk: async (values: Api) => {
+		onOk: async (values: FileInfo) => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
 					toast.success("success!");
-					setApiModalProps((prev) => ({ ...prev, show: false }));
+					setFileModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
+			return true;
 		},
 		onCancel: () => {
-			setApiModalProps((prev) => ({ ...prev, show: false }));
+			setFileModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
 
-	const getGroups = useCallback(async () => {
-		const response = await apisService.getApiGroups();
-		setApiGroup(response);
-	}, []);
+	const { data, isLoading } = useQuery({
+		queryKey: [
+			"apiManageList",
+			tableParams.pagination?.current,
+			tableParams.pagination?.pageSize,
+			tableParams.sortField,
+			tableParams.sortOrder,
+			tableParams.searchParams,
+			tableParams.filters,
+		],
+		queryFn: () => {
+			const params = toURLSearchParams(
+				getRandomUserParams(tableParams, (result, searchParams) => {
+					if (searchParams) {
+						if (searchParams.file_origin_name) {
+							result.file_origin_name_like = searchParams.file_origin_name;
+						}
+						if (searchParams.storage_engine) {
+							result.storage_engine_like = searchParams.storage_engine;
+						}
+					}
+				}),
+			);
+			return fileService.searchPageList(params.toString());
+		},
+	});
 
-	useEffect(() => {
-		getGroups();
-	}, [getGroups]);
-
-	const handleTableChange: TableProps<Api>["onChange"] = (pagination, filters, sorter) => {
-		setCondition({
+	const handleTableChange: TableProps<FileInfo>["onChange"] = (pagination, filters, sorter) => {
+		setTableParams({
 			pagination,
 			filters,
 			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
@@ -100,27 +116,15 @@ const App: React.FC = () => {
 	};
 
 	const onCreate = () => {
-		setApiModalProps((prev) => ({
+		setFileModalProps((prev) => ({
 			...prev,
-			apiGroup,
 			show: true,
-			...defaultApiValue,
+			...defaultFileValue,
 			title: "New",
-			formValue: { ...defaultApiValue },
+			formValue: { ...defaultFileValue },
 		}));
 	};
 
-	const onEdit = (formValue: Api) => {
-		setApiModalProps((prev) => ({
-			...prev,
-			apiGroup,
-			show: true,
-			title: "Edit",
-			formValue,
-		}));
-	};
-
-	// single delete
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
@@ -132,7 +136,6 @@ const App: React.FC = () => {
 		});
 	};
 
-	// batch delete
 	const handleDeleteSelection = async () => {
 		batchRemoveMutation.mutate(selectedRowKeys as number[], {
 			onSuccess: () => {
@@ -144,33 +147,27 @@ const App: React.FC = () => {
 		});
 	};
 
-	const columns: ColumnsType<Api> = [
+	const columns: ColumnsType<FileInfo> = [
 		{
 			title: "ID",
 			dataIndex: "id",
 			key: "id",
 		},
 		{
-			title: "路径",
-			dataIndex: "path",
-			key: "path",
+			title: "文件名",
+			dataIndex: "file_origin_name",
+			key: "file_origin_name",
 			ellipsis: true,
 		},
 		{
-			title: "所属组",
-			dataIndex: "api_group",
-			key: "api_group",
+			title: "文件链接",
+			dataIndex: "file_url",
+			key: "file_url",
 		},
 		{
-			title: "请求方法",
-			dataIndex: "method",
-			key: "method",
-		},
-		{
-			title: "描述",
-			dataIndex: "description",
-			key: "description",
-			ellipsis: true,
+			title: "存储方式",
+			dataIndex: "storage_engine",
+			key: "storage_engine",
 		},
 		{
 			title: "创建时间",
@@ -190,16 +187,6 @@ const App: React.FC = () => {
 			width: 100,
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
-					<Button
-						variant="ghost"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">修改</span>
-					</Button>
 					<Popconfirm
 						title="Delete the task"
 						description="Are you sure to delete this task?"
@@ -222,43 +209,37 @@ const App: React.FC = () => {
 	];
 
 	const onReset = () => {
-		setCondition({
-			...condition,
+		setTableParams((prev) => ({
+			...prev,
 			searchParams: searchDefaultValue,
 			pagination: {
-				...condition.pagination,
+				...prev.pagination,
 				current: 1,
 			},
-		});
+		}));
 		searchForm.reset();
 	};
 
 	const onSearch = () => {
 		const values = searchForm.getValues();
-		setCondition({
-			...condition,
+		setTableParams((prev) => ({
+			...prev,
 			searchParams: {
 				...values,
 			},
 			pagination: {
-				...condition.pagination,
+				...prev.pagination,
 				current: 1,
 			},
-		});
+		}));
 	};
 
-	// 同步数据
-	const onSynchronize = () => {
-		synchronizeMutation.mutate();
-	};
-
-	// 选择改变
 	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
 		console.log("selectedRowKeys changed: ", newSelectedRowKeys);
 		setSelectedRowKeys(newSelectedRowKeys);
 	};
 
-	const rowSelection: TableRowSelection<Api> = {
+	const rowSelection: TableRowSelection<FileInfo> = {
 		selectedRowKeys,
 		onChange: onSelectChange,
 		selections: [
@@ -306,10 +287,10 @@ const App: React.FC = () => {
 						<div className="flex items-center gap-4">
 							<FormField
 								control={searchForm.control}
-								name="path"
+								name="file_origin_name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Path</FormLabel>
+										<FormLabel>fileOriginName</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -319,75 +300,17 @@ const App: React.FC = () => {
 
 							<FormField
 								control={searchForm.control}
-								name="description"
+								name="storage_engine"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Description</FormLabel>
+										<FormLabel>storageEngine</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
 									</FormItem>
 								)}
 							/>
-							<FormField
-								control={searchForm.control}
-								name="method"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Status</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={field.value}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												{Object.entries(Methods).map(([key, value]) => {
-													if (Number.isNaN(Number(key))) {
-														return (
-															<SelectItem value={key} key={key}>
-																<Badge variant="default">{value}</Badge>
-															</SelectItem>
-														);
-													}
-													return null;
-												})}
-											</SelectContent>
-										</Select>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={searchForm.control}
-								name="api_group"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>ApiGroup</FormLabel>
-										<Select
-											onValueChange={(value) => {
-												field.onChange(value);
-											}}
-											value={field.value}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												{apiGroup?.groups.map((item) => {
-													return (
-														<SelectItem value={item} key={item}>
-															<Badge variant="success">{item}</Badge>
-														</SelectItem>
-													);
-												})}
-											</SelectContent>
-										</Select>
-									</FormItem>
-								)}
-							/>
+
 							<div className="flex ml-auto">
 								<Button variant="outline" onClick={() => onReset()}>
 									<Icon icon="solar:restart-line-duotone" size={18} />
@@ -402,7 +325,7 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title="Api List">
+			<Card title="File List">
 				<CardHeader>
 					<div className="flex items-start justify-start">
 						<Button onClick={() => onCreate()} variant="default">
@@ -413,35 +336,19 @@ const App: React.FC = () => {
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							Delete
 						</Button>
-						<Button onClick={() => onSynchronize()} variant="outline" className="ml-2">
-							<Icon icon="solar:refresh-outline" size={18} />
-							Synchronize
-						</Button>
-						{/* <Button onClick={() => onCreate()} className="ml-2" variant="default">
-							<Icon icon="solar:cloud-download-outline" size={18} />
-							Download Template
-						</Button>
-						<Button onClick={() => onCreate()} className="ml-2" variant="default">
-							<Icon icon="solar:import-outline" size={18} />
-							import
-						</Button>
-						<Button onClick={() => onCreate()} className="ml-2" variant="default">
-							<Icon icon="solar:export-outline" size={18} />
-							export
-						</Button> */}
 					</div>
 				</CardHeader>
 
 				<CardContent>
-					<Table<Api>
+					<Table<FileInfo>
 						rowKey={(record) => record.id}
 						rowSelection={rowSelection}
 						scroll={{ x: "max-content" }}
 						columns={columns}
 						pagination={{
-							current: data?.page || condition.pagination?.current || 1,
-							pageSize: data?.page_size || condition.pagination?.pageSize || 10,
-							total: data?.total || condition?.pagination?.total || 0,
+							current: data?.page || tableParams.pagination?.current || 1,
+							pageSize: data?.page_size || tableParams.pagination?.pageSize || 10,
+							total: data?.total || tableParams?.pagination?.total || 0,
 							showTotal: (total) => `共 ${total} 条`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],
@@ -451,7 +358,7 @@ const App: React.FC = () => {
 						onChange={handleTableChange}
 					/>
 				</CardContent>
-				<ApiModal {...apiModalProps} />
+				<FileModal {...apiModalProps} />
 			</Card>
 		</div>
 	);

@@ -1,19 +1,18 @@
-import apisService from "@/api/services/apisService";
-import type { Api, PageList, TableParams } from "@/types/entity";
+import fileService from "@/api/services/fileService";
+import type { FileInfo, PageList, TableParams } from "@/types/entity";
 import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
-import { toast } from "sonner";
 import { create } from "zustand";
 
-interface ApiManageState {
-	data: PageList<Api>;
+interface FileInfoManageState {
+	data: PageList<FileInfo>;
 	condition: TableParams;
 	actions: {
 		setCondition: (tableParams: TableParams) => void;
 	};
 }
 
-const useApiManageStore = create<ApiManageState>()((set) => ({
+const useFileInfoManageStore = create<FileInfoManageState>()((set) => ({
 	data: {
 		list: [],
 		total: 0,
@@ -39,16 +38,16 @@ const useApiManageStore = create<ApiManageState>()((set) => ({
 }));
 
 // 更新
-export const useUpdateOrCreateApiMutation = () => {
+export const useUpdateOrCreateFileInfoMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: Api) => {
+		mutationFn: async (data: FileInfo) => {
 			if (data.id) {
-				await apisService.updateApi(data.id, data);
+				await fileService.updateFileInfo(data.id, data);
 				return { ...data };
 			}
 			// 创建
-			const response = await apisService.createApi(data);
+			const response = await fileService.createFileInfo(data);
 			return { ...data, id: response.id };
 		},
 		onSuccess: () => {
@@ -61,12 +60,12 @@ export const useUpdateOrCreateApiMutation = () => {
 };
 
 // 删除
-export const useRemoveApiMutation = () => {
+export const useRemoveFileInfoMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (id: number) => {
-			await apisService.deleteApi(id);
+			await fileService.deleteFileInfo(id);
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
@@ -78,12 +77,12 @@ export const useRemoveApiMutation = () => {
 	});
 };
 // 批量删除
-export const useBatchRemoveApiMutation = () => {
+export const useBatchRemoveFileInfoMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (selectedRowKeys: number[]) => {
-			await apisService.deleteBatch(selectedRowKeys);
+			await fileService.deleteBatch(selectedRowKeys);
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
@@ -95,26 +94,8 @@ export const useBatchRemoveApiMutation = () => {
 	});
 };
 
-// 同步数据
-export const useSynchronizeApiMutation = () => {
-	const queryClient = useQueryClient();
-	return useMutation({
-		mutationFn: async () => {
-			return await apisService.synchronizeApi();
-		},
-		onSuccess: (response) => {
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
-			toast.success(`同步完成数量：${response.count} 条`);
-		},
-		onError: (err) => {
-			console.error("Synchronize API failed:", err);
-			toast.error(`同步失败: ${err.message}`);
-		},
-	});
-};
-
-export const useApiQuery = () => {
-	const tableParams = useApiManageStore.getState().condition;
+export const useFileInfoQuery = () => {
+	const tableParams = useFileInfoManageStore.getState().condition;
 	return useQuery({
 		queryKey: [
 			"apiManageList",
@@ -129,28 +110,21 @@ export const useApiQuery = () => {
 			const params = toURLSearchParams(
 				getRandomUserParams(tableParams, (result, searchParams) => {
 					if (searchParams) {
-						if (searchParams.path) {
-							result.path_like = searchParams.path;
+						if (searchParams.file_origin_name) {
+							result.file_origin_name_like = searchParams.file_origin_name;
 						}
-						if (searchParams.description) {
-							result.description_like = searchParams.description;
-						}
-
-						if (searchParams.method) {
-							result.method_match = searchParams.method;
-						}
-						if (searchParams.api_group) {
-							result.apiGroup_match = searchParams.api_group;
+						if (searchParams.storage_engine) {
+							result.storage_engine_like = searchParams.storage_engine;
 						}
 					}
 				}),
 			);
-			return apisService.searchPageList(params.toString());
+			return fileService.searchPageList(params.toString());
 		},
 	});
 };
 
-export const useApiManage = () => useApiManageStore((state) => state.data);
+export const useFileInfoManage = () => useFileInfoManageStore((state) => state.data);
 
-export const useApiManageCondition = () => useApiManageStore((state) => state.condition);
-export const useApiActions = () => useApiManageStore((state) => state.actions);
+export const useFileInfoManageCondition = () => useFileInfoManageStore((state) => state.condition);
+export const useFileInfoActions = () => useFileInfoManageStore((state) => state.actions);

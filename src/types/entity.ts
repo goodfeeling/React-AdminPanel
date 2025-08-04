@@ -88,12 +88,16 @@ export interface RoleTree {
 	path: number[];
 }
 
-export interface Upload {
-	id: string;
+export interface FileInfo {
+	id: number;
 	file_name: string;
 	file_path: string;
 	file_md5: string;
 	file_url: string;
+	storage_engine: string;
+	file_origin_name: string;
+	created_at: string;
+	updated_at: string;
 }
 
 export interface Operation {
@@ -129,6 +133,7 @@ export interface ApiGroup {
 export interface ApiGroupItem {
 	title: string;
 	key: string;
+	disableCheckbox: boolean;
 	children: ApiGroupItem[];
 }
 
@@ -225,6 +230,7 @@ export interface MenuParameter {
 	value: string;
 	sys_base_menu_id: number;
 }
+
 export type PasswordEditReq = {
 	oldPassword: string;
 	newPassword: string;

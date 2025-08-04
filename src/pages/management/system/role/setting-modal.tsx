@@ -36,22 +36,15 @@ type MenuSettingProps = {
 };
 
 const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: MenuSettingProps) => {
-	// const [searchValue, setSearchValue] = useState("");
+	const [searchValue, setSearchValue] = useState("");
 	const [roleMenuData, setRoleMenuData] = useState<{ [key: string]: any }>([]);
 	const [groupData, setGroupData] = useState<MenuTreeUserGroup[]>([]);
-	const [activeGroupKeys, setActiveGroupKeys] = useState<string[]>([]);
 	const [defaultRouter, setDefaultRouter] = useState<string>("");
-
-	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		console.log("onChange", e);
-		// setSearchValue(e.target.value);
-	};
 
 	// 加载菜单树
 	const onLoadMenuTree = useCallback(async () => {
 		const response = await menuService.getUserMenu(true);
 		setGroupData(response);
-		setActiveGroupKeys(response.map((item) => item.path));
 	}, []);
 
 	useEffect(() => {
@@ -66,10 +59,20 @@ const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: 
 	useEffect(() => {
 		setDefaultRouter(defaultRoleRouter);
 	}, [defaultRoleRouter]);
+
 	return (
 		<div>
-			<Search style={{ marginBottom: 8 }} placeholder="Search" onChange={onChange} />
+			<Search
+				style={{ marginBottom: 8 }}
+				placeholder="Search"
+				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+					console.log("onChange", e);
+					setSearchValue(e.target.value);
+					console.log(searchValue);
+				}}
+			/>
 			<Collapse
+				accordion
 				items={groupData.map((item: MenuTreeUserGroup) => {
 					const treeData = buildTree(item.items);
 					return {
@@ -81,14 +84,13 @@ const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: 
 								groupId={item.id}
 								defaultRouter={defaultRouter}
 								treeData={treeData}
-								checkKeys={roleMenuData[item.id]}
+								checkKeys={roleMenuData}
 								setSelectMenuBtn={setSelectMenuBtn}
 								setDefaultRouter={setDefaultRouter}
 							/>
 						),
 					};
 				})}
-				activeKey={activeGroupKeys}
 			/>
 		</div>
 	);
@@ -98,7 +100,7 @@ type TreeListProps = {
 	id: number;
 	defaultRouter: string;
 	treeData: MenuTree[];
-	checkKeys: string[];
+	checkKeys: { [key: string]: any };
 	groupId: number;
 	setSelectMenuBtn: (selectMenuData: selectMenuData) => void;
 	setDefaultRouter: React.Dispatch<React.SetStateAction<string>>;
@@ -113,15 +115,24 @@ const TreeList = ({
 	setDefaultRouter,
 }: TreeListProps) => {
 	const { updateMenus, updateRouterPath } = useRoleSettingActions();
-	// const [searchValue, setSearchValue] = useState("");
 	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>();
 
 	useEffect(() => {
-		if (checkKeys) {
-			setCheckedKeys(checkKeys.map((item) => String(item)));
+		const tempData = checkKeys[groupId];
+		if (tempData && tempData.length > 0) {
+			setCheckedKeys(tempData.map((item: number) => String(item)));
+		} else {
+			// 如果没有数据，确保清空选中状态
+			setCheckedKeys([]);
 		}
-	}, [checkKeys]);
+	}, [checkKeys, groupId]);
 
+	// 组件卸载时清理状态
+	useEffect(() => {
+		return () => {
+			setCheckedKeys([]);
+		};
+	}, []);
 	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
 		console.log("onCheck", checkedKeysValue);
 		setCheckedKeys(checkedKeysValue as React.Key[]);
@@ -150,8 +161,7 @@ const TreeList = ({
 			checkedKeys={checkedKeys}
 			treeData={treeData}
 			multiple={true}
-			// 添加类名禁用悬停效果
-			className="no-hover-tree"
+			className="no-hover-tree" // 添加类名禁用悬停效果
 			titleRender={(node) => {
 				const hasBtn = node.origin?.menu_btns && node.origin.menu_btns.length > 0;
 				return (
@@ -199,16 +209,10 @@ const ApiSetting = ({ id, apiIds }: ApiSettingProps) => {
 	const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
 	const [autoExpandParent, setAutoExpandParent] = useState<boolean>(true);
 
-	console.log(searchValue);
-
 	useEffect(() => {
 		setCheckedKeys(apiIds);
 	}, [apiIds]);
 
-	const onChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-		console.log("onChange", e);
-		setSearchValue(e.target.value);
-	};
 	const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
 		setExpandedKeys(expandedKeysValue);
 		setAutoExpandParent(false);
@@ -234,7 +238,15 @@ const ApiSetting = ({ id, apiIds }: ApiSettingProps) => {
 
 	return (
 		<div>
-			<Search style={{ marginBottom: 8 }} placeholder="Search" onChange={onChange} />
+			<Search
+				style={{ marginBottom: 8 }}
+				placeholder="Search"
+				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
+					console.log("onChange", e);
+					setSearchValue(e.target.value);
+					console.log(searchValue);
+				}}
+			/>
 			<Tree
 				checkable
 				onExpand={onExpand}
@@ -245,6 +257,7 @@ const ApiSetting = ({ id, apiIds }: ApiSettingProps) => {
 				checkedKeys={checkedKeys}
 				treeData={treeData}
 				multiple={true}
+				className="no-hover-tree"
 				titleRender={(node) => {
 					return (
 						<span className="custom-tree-node flex justify-between items-center w-full">
