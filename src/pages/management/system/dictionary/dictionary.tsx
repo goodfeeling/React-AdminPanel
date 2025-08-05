@@ -10,7 +10,6 @@ import { toast } from "sonner";
 
 import {
 	useDictionaryActions,
-	useDictionaryManageCondition,
 	useDictionaryQuery,
 	useRemoveDictionaryMutation,
 	useUpdateOrCreateDictionaryMutation,
@@ -36,7 +35,6 @@ const DictionaryList = ({
 	const updateOrCreateMutation = useUpdateOrCreateDictionaryMutation();
 	const removeMutation = useRemoveDictionaryMutation();
 	const { data, isLoading } = useDictionaryQuery();
-	const condition = useDictionaryManageCondition();
 	const { setCondition } = useDictionaryActions();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [apiModalProps, setDictionaryModalProps] = useState<DictionaryModalProps>({
@@ -173,9 +171,9 @@ const DictionaryList = ({
 					scroll={{ x: "100%" }}
 					columns={columns}
 					pagination={{
-						current: data?.page || condition.pagination?.current || 1,
-						pageSize: data?.page_size || condition.pagination?.pageSize || 10,
-						total: data?.total || condition?.pagination?.total || 0,
+						current: data?.page || 1,
+						pageSize: data?.page_size || 10,
+						total: data?.total || 0,
 						showTotal: (total) => `共 ${total} 条`,
 						showSizeChanger: true,
 						pageSizeOptions: ["10", "20", "50", "100"],

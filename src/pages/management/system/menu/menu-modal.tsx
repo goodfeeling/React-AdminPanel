@@ -3,11 +3,44 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { IconPicker } from "@/ui/icon-picker";
 import { Input } from "@/ui/input";
 
+import lang from "@/locales/lang/zh_CN/index";
 import type { TreeNode } from "@/ui/tree-select-input";
 import { buildFileTree } from "@/utils/tree";
 import { Button, Modal, Switch, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+
+type LangTree = {
+	label: string;
+	value: string;
+	children: LangTree[];
+};
+
+const buildLangTree = (subChildren: any, parentKey: string): LangTree[] => {
+	const result: LangTree[] = [];
+	for (const k in subChildren) {
+		const currentKey = parentKey ? `${parentKey}.${k}` : k;
+		let temp: LangTree = {
+			label: k,
+			value: currentKey,
+			children: [],
+		};
+
+		const subTemp = (subChildren as any)[k];
+		if (subTemp instanceof Object) {
+			temp.children = buildLangTree((subChildren as any)[k], currentKey);
+		} else {
+			temp = {
+				label: `${k}-${subTemp}`,
+				value: currentKey,
+				children: [],
+			};
+		}
+		result.push(temp);
+	}
+
+	return result;
+};
 export type MenuModalProps = {
 	formValue: Menu;
 	treeRawData: Menu[];
@@ -34,6 +67,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const [dirTree, setDirTree] = useState<TreeNode[]>([]);
+	const [langTree, setLangTree] = useState<LangTree[]>([]);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
@@ -61,7 +95,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 		);
 		const tree = buildFileTree(filePaths);
 		setDirTree(tree ? (tree.children ? tree.children : []) : []);
-		console.log(tree);
+
+		// langTree
+		setLangTree(buildLangTree(lang, ""));
 	}, [formValue, treeRawData, form]);
 
 	const handleOk = async () => {
@@ -114,9 +150,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											}}
 											placeholder="Please select"
 											allowClear
-											treeDefaultExpandAll
 											onChange={(value) => {
-												console.log(value); // components/animate/index.tsx
 												field.onChange(value);
 											}}
 											treeData={dirTree}
@@ -132,7 +166,19 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 								<FormItem>
 									<FormLabel>展示名称</FormLabel>
 									<FormControl>
-										<Input {...field} />
+										<TreeSelect
+											showSearch
+											value={field.value}
+											styles={{
+												popup: { root: { maxHeight: 400, overflow: "auto" } },
+											}}
+											placeholder="Please select"
+											allowClear
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+											treeData={langTree}
+										/>
 									</FormControl>
 								</FormItem>
 							)}
@@ -191,7 +237,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											}}
 											placeholder="Please select"
 											allowClear
-											treeDefaultExpandAll
 											onChange={(value) => {
 												field.onChange(value);
 											}}

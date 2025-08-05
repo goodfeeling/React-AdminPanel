@@ -435,9 +435,9 @@ const App: React.FC = () => {
 						scroll={{ x: "max-content" }}
 						columns={columns}
 						pagination={{
-							current: data?.page || condition.pagination?.current || 1,
-							pageSize: data?.page_size || condition.pagination?.pageSize || 10,
-							total: data?.total || condition?.pagination?.total || 0,
+							current: data?.page || 1,
+							pageSize: data?.page_size || 10,
+							total: data?.total || 0,
 							showTotal: (total) => `共 ${total} 条`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],

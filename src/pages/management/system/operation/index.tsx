@@ -1,19 +1,24 @@
-import operationService from "@/api/services/operationService";
 import { Icon } from "@/components/icon";
 import useDictionaryByType from "@/hooks/dict";
+import {
+	useBatchRemoveOperationMutation,
+	useOperationActions,
+	useOperationManageCondition,
+	useOperationQuery,
+	useRemoveOperationMutation,
+} from "@/store/operationManageStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { ColumnsType, Operation, PageList, TableParams } from "#/entity";
+import type { ColumnsType, Operation } from "#/entity";
 
 type SearchFormFieldType = {
 	method: string;
@@ -21,102 +26,49 @@ type SearchFormFieldType = {
 	status: number;
 };
 
+const searchDefaultValue = { path: "", method: "", status: 0 };
+
 const App: React.FC = () => {
 	const searchForm = useForm<SearchFormFieldType>({
-		defaultValues: { path: "", method: "", status: 0 },
+		defaultValues: searchDefaultValue,
 	});
+	const removeMutation = useRemoveOperationMutation();
+	const batchRemoveMutation = useBatchRemoveOperationMutation();
+	const { data, isLoading } = useOperationQuery();
+	const condition = useOperationManageCondition();
+	const { setCondition } = useOperationActions();
 	const apiMethod = useDictionaryByType("api_method");
-	const [data, setData] = useState<PageList<Operation>>();
-	const [loading, setLoading] = useState(false);
-	const [tableParams, setTableParams] = useState<TableParams>({
-		pagination: {
-			current: 1,
-			pageSize: 10,
-			total: 0,
-		},
-		sortField: "id",
-		sortOrder: "descend",
-	});
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-	const getData = async () => {
-		const params = toURLSearchParams(
-			getRandomUserParams(tableParams, (result, searchParams) => {
-				if (searchParams) {
-					if (searchParams.method) {
-						result.method_like = searchParams.method;
-					}
-					if (searchParams.status) {
-						result.status_match = searchParams.status;
-					}
-					if (searchParams.path) {
-						result.path_like = searchParams.path;
-					}
-				}
-			}),
-		);
-		const response = await operationService.searchPageList(params.toString());
-		setData(response);
-		setTableParams((prev) => ({
-			...prev,
-			pagination: {
-				...prev.pagination,
-				current: response.page,
-				total: response.total,
-				pageSize: response.page_size,
-			},
-		}));
-		setLoading(false);
-	};
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		setLoading(true);
-		getData();
-	}, [
-		tableParams.pagination?.current,
-		tableParams.pagination?.pageSize,
-		tableParams?.sortOrder,
-		tableParams?.sortField,
-		tableParams?.searchParams?.method,
-		tableParams?.searchParams?.status,
-		tableParams?.searchParams?.path,
-		JSON.stringify(tableParams.filters),
-	]);
-
 	const handleTableChange: TableProps<Operation>["onChange"] = (pagination, filters, sorter) => {
-		setTableParams({
+		setCondition({
 			pagination,
 			filters,
 			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
 			sortField: Array.isArray(sorter) ? undefined : sorter.field,
 		});
-
-		// `dataSource` is useless since `pageSize` changed
-		if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-			setData(undefined);
-		}
 	};
 
 	const handleDelete = async (id: number) => {
-		try {
-			await operationService.deleteBatch([id]);
-			toast.success("删除成功");
-			getData();
-		} catch (error) {
-			console.error(error);
-			toast.error("删除失败");
-		}
+		removeMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("删除成功");
+			},
+			onError: () => {
+				toast.error("删除失败");
+			},
+		});
 	};
 
 	const handleDeleteSelection = async () => {
-		try {
-			await operationService.deleteBatch(selectedRowKeys as number[]);
-			toast.success("删除成功");
-			getData();
-		} catch (error) {
-			console.error(error);
-			toast.error("删除失败");
-		}
+		batchRemoveMutation.mutate(selectedRowKeys as number[], {
+			onSuccess: () => {
+				toast.success("删除成功");
+			},
+			onError: () => {
+				toast.error("删除失败");
+			},
+		});
 	};
 
 	const columns: ColumnsType<Operation> = [
@@ -212,35 +164,29 @@ const App: React.FC = () => {
 	];
 
 	const onReset = () => {
-		setTableParams((prev) => ({
-			...prev,
-			searchParams: {
-				method: "",
-				path: "",
-				status: 0,
-			},
+		setCondition({
+			...condition,
+			searchParams: searchDefaultValue,
 			pagination: {
-				...prev.pagination,
+				...condition.pagination,
 				current: 1,
 			},
-		}));
+		});
 		searchForm.reset();
 	};
 
 	const onSearch = () => {
 		const values = searchForm.getValues();
-		setTableParams((prev) => ({
-			...prev,
+		setCondition({
+			...condition,
 			searchParams: {
-				method: values.method || "",
-				path: values.path || "",
-				status: values.status,
+				...values,
 			},
 			pagination: {
-				...prev.pagination,
+				...condition.pagination,
 				current: 1,
 			},
-		}));
+		});
 	};
 
 	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -298,7 +244,7 @@ const App: React.FC = () => {
 								name="method"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Status</FormLabel>
+										<FormLabel>Method</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -306,7 +252,7 @@ const App: React.FC = () => {
 											value={field.value}
 										>
 											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
+												<SelectValue placeholder="Select Method" />
 											</SelectTrigger>
 											<SelectContent>
 												{apiMethod.map((item) => {
@@ -375,15 +321,15 @@ const App: React.FC = () => {
 						scroll={{ x: "max-content" }}
 						columns={columns}
 						pagination={{
-							current: tableParams.pagination?.current || 1,
-							pageSize: tableParams.pagination?.pageSize || 10,
-							total: tableParams?.pagination?.total || 0,
+							current: data?.page || 1,
+							pageSize: data?.page_size || 10,
+							total: data?.total || 0,
 							showTotal: (total) => `共 ${total} 条`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],
 						}}
 						dataSource={data?.list}
-						loading={loading}
+						loading={isLoading}
 						onChange={handleTableChange}
 					/>
 				</CardContent>

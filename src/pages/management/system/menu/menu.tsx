@@ -6,6 +6,7 @@ import type { ColumnsType, Menu } from "#/entity";
 
 import menuService from "@/api/services/menuService";
 import { CardContent, CardHeader } from "@/ui/card";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import MenuModal, { type MenuModalProps } from "./menu-modal";
 import SettingModal, { type SettingModalProps } from "./setting-modal";
@@ -32,6 +33,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		level: [],
 		children: [],
 	};
+	const { t } = useTranslation();
 	const [data, setData] = useState<Menu[]>();
 	const [loading, setLoading] = useState(false);
 	const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
@@ -173,6 +175,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		{
 			title: "展示名称",
 			dataIndex: "title",
+			render: (_, record) => {
+				return <span>{t(record.title)}</span>;
+			},
 		},
 		{
 			title: "图标",

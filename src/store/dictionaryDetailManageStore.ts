@@ -102,7 +102,6 @@ export const useBatchRemoveDictionaryDetailMutation = () => {
 
 export const useDictionaryDetailQuery = () => {
 	const tableParams = useDictionaryDetailManageStore.getState().condition;
-	console.log("====", tableParams.searchParams);
 
 	return useQuery({
 		queryKey: [

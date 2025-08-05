@@ -273,9 +273,9 @@ const DictionaryDetailList = ({
 					scroll={{ x: "max-content" }}
 					columns={columns}
 					pagination={{
-						current: condition.pagination?.current || 1,
-						pageSize: condition.pagination?.pageSize || 10,
-						total: condition?.pagination?.total || 0,
+						current: data?.page || 1,
+						pageSize: data?.page_size || 10,
+						total: data?.total || 0,
 						showTotal: (total) => `共 ${total} 条`,
 						showSizeChanger: true,
 						pageSizeOptions: ["10", "20", "50", "100"],

@@ -22,6 +22,7 @@ export function NavList({ data, depth = 0 }: NavListProps) {
 				// state
 				disabled={data.disabled}
 				active={isActive}
+				hidden={data.hidden}
 				// options
 				hasChild={hasChild}
 				depth={depth}
@@ -42,6 +43,7 @@ export function NavList({ data, depth = 0 }: NavListProps) {
 				// state
 				disabled={data.disabled}
 				active={isActive}
+				hidden={data.hidden}
 				// options
 				hasChild={hasChild}
 				depth={depth}

@@ -83,103 +83,105 @@ const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 				]}
 			>
 				<Form {...form}>
-					<FormField
-						control={form.control}
-						name="name"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Name</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="parent_id"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Parent</FormLabel>
-								<FormControl>
-									<TreeSelect
-										showSearch
-										style={{ width: "100%" }}
-										value={field.value}
-										styles={{
-											popup: { root: { maxHeight: 400, overflow: "auto" } },
-										}}
-										placeholder="Please select"
-										allowClear
-										treeDefaultExpandAll
-										onChange={(value) => {
-											field.onChange(value);
-										}}
-										treeData={treeData}
-									/>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="label"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>label</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-							</FormItem>
-						)}
-					/>
+					<form className="space-y-4">
+						<FormField
+							control={form.control}
+							name="name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Name</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="parent_id"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Parent</FormLabel>
+									<FormControl>
+										<TreeSelect
+											showSearch
+											style={{ width: "100%" }}
+											value={field.value}
+											styles={{
+												popup: { root: { maxHeight: 400, overflow: "auto" } },
+											}}
+											placeholder="Please select"
+											allowClear
+											treeDefaultExpandAll
+											onChange={(value) => {
+												field.onChange(value);
+											}}
+											treeData={treeData}
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="label"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>label</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
 
-					<FormField
-						control={form.control}
-						name="description"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>description</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="order"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>order</FormLabel>
-								<FormControl>
-									<Input {...field} />
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="status"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>Status</FormLabel>
-								<FormControl>
-									<ToggleGroup
-										type="single"
-										variant="outline"
-										value={field.value ? "1" : "0"}
-										onValueChange={(value) => {
-											field.onChange(value === "1");
-										}}
-									>
-										<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
-										<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
-									</ToggleGroup>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
+						<FormField
+							control={form.control}
+							name="description"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>description</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="order"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>order</FormLabel>
+									<FormControl>
+										<Input {...field} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="status"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Status</FormLabel>
+									<FormControl>
+										<ToggleGroup
+											type="single"
+											variant="outline"
+											value={field.value ? "1" : "0"}
+											onValueChange={(value) => {
+												field.onChange(value === "1");
+											}}
+										>
+											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
+											<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
+										</ToggleGroup>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</form>
 				</Form>
 			</Modal>
 		</>
