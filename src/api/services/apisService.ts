@@ -1,6 +1,6 @@
 import apiClient from "../apiClient";
 
-import type { Api, ApiGroup, ApiGroupItem, PageList } from "#/entity";
+import type { Api, ApiGroupItem, PageList } from "#/entity";
 
 export enum ApiClient {
 	Api = "/api",
@@ -24,8 +24,6 @@ const deleteApi = (id: number) => apiClient.delete<string>({ url: `${ApiClient.A
 
 const deleteBatch = (ids: number[]) => apiClient.post<number>({ url: `${ApiClient.DeleteBatch}`, data: { ids } });
 
-const getApiGroups = () => apiClient.get<ApiGroup>({ url: `${ApiClient.GroupsApi}` });
-
 const getApiGroupList = () => apiClient.get<ApiGroupItem[]>({ url: `${ApiClient.ApiGroupList}` });
 
 const synchronizeApi = () => apiClient.post<{ count: number }>({ url: `${ApiClient.ApiSynchronize}` });
@@ -36,7 +34,6 @@ export default {
 	createApi,
 	deleteApi,
 	getApis,
-	getApiGroups,
 	deleteBatch,
 	getApiGroupList,
 	synchronizeApi,

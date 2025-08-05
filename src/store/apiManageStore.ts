@@ -122,7 +122,10 @@ export const useApiQuery = () => {
 			tableParams.pagination?.pageSize,
 			tableParams.sortField,
 			tableParams.sortOrder,
-			tableParams.searchParams,
+			tableParams.searchParams?.path,
+			tableParams.searchParams?.description,
+			tableParams.searchParams?.method,
+			tableParams.searchParams?.api_group,
 			tableParams.filters,
 		],
 		queryFn: () => {

@@ -6,19 +6,19 @@ import { Input } from "@/ui/input";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import { useEffect } from "react";
 import { useForm } from "react-hook-form";
-import type { Api, ApiGroup } from "#/entity";
-import { Methods } from "#/enum";
+import type { Api, DictionaryDetail } from "#/entity";
 
 export type ApiModalProps = {
 	formValue: Api;
-	apiGroup: ApiGroup | undefined;
+	apiGroup: DictionaryDetail[] | undefined;
+	apiMethod: DictionaryDetail[] | undefined;
 	title: string;
 	show: boolean;
 	onOk: (values: Api) => void;
 	onCancel: VoidFunction;
 };
 
-export default function ApiModal({ title, show, formValue, apiGroup, onOk, onCancel }: ApiModalProps) {
+export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, onOk, onCancel }: ApiModalProps) {
 	const form = useForm<Api>({
 		defaultValues: formValue,
 	});
@@ -68,15 +68,12 @@ export default function ApiModal({ title, show, formValue, apiGroup, onOk, onCan
 											<SelectValue placeholder="Select Method" />
 										</SelectTrigger>
 										<SelectContent>
-											{Object.entries(Methods).map(([key, value]) => {
-												if (Number.isNaN(Number(key))) {
-													return (
-														<SelectItem value={key} key={key}>
-															<Badge variant="default">{value}</Badge>
-														</SelectItem>
-													);
-												}
-												return null;
+											{apiMethod?.map((item) => {
+												return (
+													<SelectItem value={item.value} key={item.id}>
+														<Badge variant="success">{item.label}</Badge>
+													</SelectItem>
+												);
 											})}
 										</SelectContent>
 									</Select>
@@ -99,10 +96,10 @@ export default function ApiModal({ title, show, formValue, apiGroup, onOk, onCan
 											<SelectValue placeholder="Select ApiGroup" />
 										</SelectTrigger>
 										<SelectContent>
-											{apiGroup?.groups.map((item) => {
+											{apiGroup?.map((item) => {
 												return (
-													<SelectItem value={item} key={item}>
-														<Badge variant="success">{item}</Badge>
+													<SelectItem value={item.value} key={item.id}>
+														<Badge variant="success">{item.label}</Badge>
 													</SelectItem>
 												);
 											})}

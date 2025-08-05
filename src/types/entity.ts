@@ -145,6 +145,7 @@ export interface Dictionary {
 	desc: string;
 	created_at: string;
 	updated_at: string;
+	details: DictionaryDetail[];
 }
 
 export interface DictionaryDetail {

@@ -69,12 +69,3 @@ export enum SortDirection {
 	SortASC = "asc",
 	SortDesc = "desc",
 }
-export enum Methods {
-	GET = "GET",
-	POST = "POST",
-	PUT = "PUT",
-	DELETE = "DELETE",
-	OPTIONS = "OPTIONS",
-	PATCH = "PATCH",
-	HEAD = "HEAD",
-}

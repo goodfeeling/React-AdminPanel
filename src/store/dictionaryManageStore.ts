@@ -1,18 +1,18 @@
-import fileService from "@/api/services/fileService";
-import type { FileInfo, PageList, TableParams } from "@/types/entity";
+import dictionaryService from "@/api/services/dictionaryService";
+import type { Dictionary, PageList, TableParams } from "@/types/entity";
 import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-interface FileInfoManageState {
-	data: PageList<FileInfo>;
+interface DictionaryManageState {
+	data: PageList<Dictionary>;
 	condition: TableParams;
 	actions: {
 		setCondition: (tableParams: TableParams) => void;
 	};
 }
 
-const useFileInfoManageStore = create<FileInfoManageState>()((set) => ({
+const useDictionaryManageStore = create<DictionaryManageState>()((set) => ({
 	data: {
 		list: [],
 		total: 0,
@@ -38,20 +38,20 @@ const useFileInfoManageStore = create<FileInfoManageState>()((set) => ({
 }));
 
 // 更新
-export const useUpdateOrCreateFileInfoMutation = () => {
+export const useUpdateOrCreateDictionaryMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: FileInfo) => {
+		mutationFn: async (data: Dictionary) => {
 			if (data.id) {
-				await fileService.updateFileInfo(data.id, data);
+				await dictionaryService.updateDictionary(data.id, data);
 				return { ...data };
 			}
 			// 创建
-			const response = await fileService.createFileInfo(data);
+			const response = await dictionaryService.createDictionary(data);
 			return { ...data, id: response.id };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["fileManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["dictionaryManageList"] });
 		},
 		onError: (err) => {
 			console.error("Update or create API failed:", err);
@@ -60,16 +60,16 @@ export const useUpdateOrCreateFileInfoMutation = () => {
 };
 
 // 删除
-export const useRemoveFileInfoMutation = () => {
+export const useRemoveDictionaryMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (id: number) => {
-			await fileService.deleteFileInfo(id);
+			await dictionaryService.deleteDictionary(id);
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
-			queryClient.invalidateQueries({ queryKey: ["fileManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["dictionaryManageList"] });
 		},
 		onError: (err) => {
 			console.error("Delete API failed:", err);
@@ -77,16 +77,16 @@ export const useRemoveFileInfoMutation = () => {
 	});
 };
 // 批量删除
-export const useBatchRemoveFileInfoMutation = () => {
+export const useBatchRemoveDictionaryMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (selectedRowKeys: number[]) => {
-			await fileService.deleteBatch(selectedRowKeys);
+			await dictionaryService.deleteBatch(selectedRowKeys);
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
-			queryClient.invalidateQueries({ queryKey: ["fileManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["dictionaryManageList"] });
 		},
 		onError: (err) => {
 			console.error("Delete API failed:", err);
@@ -94,11 +94,11 @@ export const useBatchRemoveFileInfoMutation = () => {
 	});
 };
 
-export const useFileInfoQuery = () => {
-	const tableParams = useFileInfoManageStore.getState().condition;
+export const useDictionaryQuery = () => {
+	const tableParams = useDictionaryManageStore.getState().condition;
 	return useQuery({
 		queryKey: [
-			"fileManageList",
+			"dictionaryManageList",
 			tableParams.pagination?.current,
 			tableParams.pagination?.pageSize,
 			tableParams.sortField,
@@ -107,24 +107,13 @@ export const useFileInfoQuery = () => {
 			tableParams.filters,
 		],
 		queryFn: () => {
-			const params = toURLSearchParams(
-				getRandomUserParams(tableParams, (result, searchParams) => {
-					if (searchParams) {
-						if (searchParams.file_origin_name) {
-							result.file_origin_name_like = searchParams.file_origin_name;
-						}
-						if (searchParams.storage_engine) {
-							result.storage_engine_like = searchParams.storage_engine;
-						}
-					}
-				}),
-			);
-			return fileService.searchPageList(params.toString());
+			const params = toURLSearchParams(getRandomUserParams(tableParams));
+			return dictionaryService.searchPageList(params.toString());
 		},
 	});
 };
 
-export const useFileInfoManage = () => useFileInfoManageStore((state) => state.data);
+export const useDictionaryManage = () => useDictionaryManageStore((state) => state.data);
 
-export const useFileInfoManageCondition = () => useFileInfoManageStore((state) => state.condition);
-export const useFileInfoActions = () => useFileInfoManageStore((state) => state.actions);
+export const useDictionaryManageCondition = () => useDictionaryManageStore((state) => state.condition);
+export const useDictionaryActions = () => useDictionaryManageStore((state) => state.actions);

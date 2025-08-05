@@ -1,23 +1,26 @@
-import fileService from "@/api/services/fileService";
 import { Icon } from "@/components/icon";
 import {
 	useBatchRemoveFileInfoMutation,
+	useFileInfoActions,
+	useFileInfoManageCondition,
+	useFileInfoQuery,
 	useRemoveFileInfoMutation,
 	useUpdateOrCreateFileInfoMutation,
 } from "@/store/fileManageStore";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 
-import { getRandomUserParams, toURLSearchParams } from "@/utils";
-import { useQuery } from "@tanstack/react-query";
+import useDictionaryByType from "@/hooks/dict";
+import { Badge } from "@/ui/badge";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { ColumnsType, FileInfo, TableParams } from "#/entity";
+import type { ColumnsType, FileInfo } from "#/entity";
 import FileModal, { type FileModalProps } from "./modal";
 
 const defaultFileValue: FileInfo = {
@@ -50,20 +53,17 @@ const App: React.FC = () => {
 	const updateOrCreateMutation = useUpdateOrCreateFileInfoMutation();
 	const removeMutation = useRemoveFileInfoMutation();
 	const batchRemoveMutation = useBatchRemoveFileInfoMutation();
+	const { data, isLoading } = useFileInfoQuery();
+	const condition = useFileInfoManageCondition();
+	const { setCondition } = useFileInfoActions();
 
-	const [tableParams, setTableParams] = useState<TableParams>({
-		pagination: {
-			current: 1,
-			pageSize: 10,
-			total: 0,
-		},
-		sortField: "id",
-		sortOrder: "descend",
-	});
+	const storageEngine = useDictionaryByType("storage_engine");
+
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setFileModalProps] = useState<FileModalProps>({
 		formValue: { ...defaultFileValue },
-		title: "New",
+		title: "上传文件",
+		storageEngine: undefined,
 		show: false,
 		onOk: async (values: FileInfo) => {
 			updateOrCreateMutation.mutate(values, {
@@ -79,35 +79,12 @@ const App: React.FC = () => {
 		},
 	});
 
-	const { data, isLoading } = useQuery({
-		queryKey: [
-			"apiManageList",
-			tableParams.pagination?.current,
-			tableParams.pagination?.pageSize,
-			tableParams.sortField,
-			tableParams.sortOrder,
-			tableParams.searchParams,
-			tableParams.filters,
-		],
-		queryFn: () => {
-			const params = toURLSearchParams(
-				getRandomUserParams(tableParams, (result, searchParams) => {
-					if (searchParams) {
-						if (searchParams.file_origin_name) {
-							result.file_origin_name_like = searchParams.file_origin_name;
-						}
-						if (searchParams.storage_engine) {
-							result.storage_engine_like = searchParams.storage_engine;
-						}
-					}
-				}),
-			);
-			return fileService.searchPageList(params.toString());
-		},
-	});
+	useEffect(() => {
+		setFileModalProps((prev) => ({ ...prev, storageEngine }));
+	}, [storageEngine]);
 
 	const handleTableChange: TableProps<FileInfo>["onChange"] = (pagination, filters, sorter) => {
-		setTableParams({
+		setCondition({
 			pagination,
 			filters,
 			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
@@ -120,7 +97,7 @@ const App: React.FC = () => {
 			...prev,
 			show: true,
 			...defaultFileValue,
-			title: "New",
+			title: "上传文件",
 			formValue: { ...defaultFileValue },
 		}));
 	};
@@ -163,6 +140,13 @@ const App: React.FC = () => {
 			title: "文件链接",
 			dataIndex: "file_url",
 			key: "file_url",
+			render: (_, record) => {
+				return (
+					<div className="flex">
+						<img alt="" src={record.file_url} className="h-20 w-20" />
+					</div>
+				);
+			},
 		},
 		{
 			title: "存储方式",
@@ -209,29 +193,29 @@ const App: React.FC = () => {
 	];
 
 	const onReset = () => {
-		setTableParams((prev) => ({
-			...prev,
+		setCondition({
+			...condition,
 			searchParams: searchDefaultValue,
 			pagination: {
-				...prev.pagination,
+				...condition.pagination,
 				current: 1,
 			},
-		}));
+		});
 		searchForm.reset();
 	};
 
 	const onSearch = () => {
 		const values = searchForm.getValues();
-		setTableParams((prev) => ({
-			...prev,
+		setCondition({
+			...condition,
 			searchParams: {
 				...values,
 			},
 			pagination: {
-				...prev.pagination,
+				...condition.pagination,
 				current: 1,
 			},
-		}));
+		});
 	};
 
 	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
@@ -305,7 +289,25 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>storageEngine</FormLabel>
 										<FormControl>
-											<Input {...field} />
+											<Select
+												onValueChange={(value) => {
+													field.onChange(value);
+												}}
+												value={field.value}
+											>
+												<SelectTrigger>
+													<SelectValue placeholder="Select type" />
+												</SelectTrigger>
+												<SelectContent>
+													{storageEngine.map((item) => {
+														return (
+															<SelectItem value={item.value} key={item.id}>
+																<Badge variant="success">{item.label}</Badge>
+															</SelectItem>
+														);
+													})}
+												</SelectContent>
+											</Select>
 										</FormControl>
 									</FormItem>
 								)}
@@ -330,7 +332,7 @@ const App: React.FC = () => {
 					<div className="flex items-start justify-start">
 						<Button onClick={() => onCreate()} variant="default">
 							<Icon icon="solar:add-circle-outline" size={18} />
-							New
+							Upload
 						</Button>
 						<Button onClick={() => handleDeleteSelection()} variant="ghost" className="ml-2" disabled={!hasSelected}>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
@@ -346,9 +348,9 @@ const App: React.FC = () => {
 						scroll={{ x: "max-content" }}
 						columns={columns}
 						pagination={{
-							current: data?.page || tableParams.pagination?.current || 1,
-							pageSize: data?.page_size || tableParams.pagination?.pageSize || 10,
-							total: data?.total || tableParams?.pagination?.total || 0,
+							current: data?.page || condition.pagination?.current || 1,
+							pageSize: data?.page_size || condition.pagination?.pageSize || 10,
+							total: data?.total || condition?.pagination?.total || 0,
 							showTotal: (total) => `共 ${total} 条`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],

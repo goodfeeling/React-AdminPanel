@@ -1,5 +1,5 @@
-import apisService from "@/api/services/apisService";
 import { Icon } from "@/components/icon";
+import useDictionaryByType from "@/hooks/dict";
 import {
 	useApiActions,
 	useApiManageCondition,
@@ -9,7 +9,6 @@ import {
 	useSynchronizeApiMutation,
 	useUpdateOrCreateApiMutation,
 } from "@/store/apiManageStore";
-import { Methods } from "@/types/enum";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
@@ -18,10 +17,10 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { Api, ApiGroup, ColumnsType } from "#/entity";
+import type { Api, ColumnsType } from "#/entity";
 import ApiModal, { type ApiModalProps } from "./api-modal";
 
 const defaultApiValue: Api = {
@@ -60,12 +59,14 @@ const App: React.FC = () => {
 	const { data, isLoading } = useApiQuery();
 	const condition = useApiManageCondition();
 	const { setCondition } = useApiActions();
+	const apiGroup = useDictionaryByType("api_group");
+	const apiMethod = useDictionaryByType("api_method");
 
-	const [apiGroup, setApiGroup] = useState<ApiGroup>();
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setApiModalProps] = useState<ApiModalProps>({
 		formValue: { ...defaultApiValue },
 		apiGroup: undefined,
+		apiMethod: undefined,
 		title: "New",
 		show: false,
 		onOk: async (values: Api) => {
@@ -81,14 +82,14 @@ const App: React.FC = () => {
 		},
 	});
 
-	const getGroups = useCallback(async () => {
-		const response = await apisService.getApiGroups();
-		setApiGroup(response);
-	}, []);
-
+	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		getGroups();
-	}, [getGroups]);
+		setApiModalProps((prev) => ({
+			...prev,
+			apiGroup: apiGroup,
+			apiMethod: apiMethod,
+		}));
+	}, [apiGroup, apiMethod]);
 
 	const handleTableChange: TableProps<Api>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
@@ -102,7 +103,6 @@ const App: React.FC = () => {
 	const onCreate = () => {
 		setApiModalProps((prev) => ({
 			...prev,
-			apiGroup,
 			show: true,
 			...defaultApiValue,
 			title: "New",
@@ -113,7 +113,6 @@ const App: React.FC = () => {
 	const onEdit = (formValue: Api) => {
 		setApiModalProps((prev) => ({
 			...prev,
-			apiGroup,
 			show: true,
 			title: "Edit",
 			formValue,
@@ -334,7 +333,7 @@ const App: React.FC = () => {
 								name="method"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Status</FormLabel>
+										<FormLabel>Method</FormLabel>
 										<Select
 											onValueChange={(value) => {
 												field.onChange(value);
@@ -345,15 +344,12 @@ const App: React.FC = () => {
 												<SelectValue placeholder="Select Status" />
 											</SelectTrigger>
 											<SelectContent>
-												{Object.entries(Methods).map(([key, value]) => {
-													if (Number.isNaN(Number(key))) {
-														return (
-															<SelectItem value={key} key={key}>
-																<Badge variant="default">{value}</Badge>
-															</SelectItem>
-														);
-													}
-													return null;
+												{apiMethod.map((item) => {
+													return (
+														<SelectItem value={item.value} key={item.id}>
+															<Badge variant="success">{item.label}</Badge>
+														</SelectItem>
+													);
 												})}
 											</SelectContent>
 										</Select>
@@ -376,10 +372,10 @@ const App: React.FC = () => {
 												<SelectValue placeholder="Select Status" />
 											</SelectTrigger>
 											<SelectContent>
-												{apiGroup?.groups.map((item) => {
+												{apiGroup.map((item) => {
 													return (
-														<SelectItem value={item} key={item}>
-															<Badge variant="success">{item}</Badge>
+														<SelectItem value={item.value} key={item.id}>
+															<Badge variant="success">{item.label}</Badge>
 														</SelectItem>
 													);
 												})}

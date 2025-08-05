@@ -3,10 +3,10 @@ import apiClient from "../apiClient";
 import type { FileInfo, PageList } from "#/entity";
 
 export enum FileInfoClient {
-	FileInfo = "/api",
-	SearchFileInfo = "/api/search",
-	GroupsFileInfo = "/api/groups",
-	DeleteBatch = "/api/batch",
+	FileInfo = "/file",
+	SearchFileInfo = "/file/search",
+	GroupsFileInfo = "/file/groups",
+	DeleteBatch = "/file/batch",
 }
 const getFileInfos = () => apiClient.get<FileInfo[]>({ url: `${FileInfoClient.FileInfo}` });
 const updateFileInfo = (id: number, apiInfo: FileInfo) =>
