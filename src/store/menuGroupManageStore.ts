@@ -1,15 +1,18 @@
 import menuGroupService from "@/api/services/menuGroupService";
-import type { MenuGroup, PageList } from "@/types/entity";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import type { MenuGroup, PageList, TableParams } from "@/types/entity";
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
 interface MenuGroupManageState {
 	data: PageList<MenuGroup>;
-	loading: boolean;
-	error: string | null;
+	condition: TableParams;
+	actions: {
+		setCondition: (tableParams: TableParams) => void;
+	};
 }
 
-const useMenuGroupManageStore = create<MenuGroupManageState>()(() => ({
+const useMenuGroupManageStore = create<MenuGroupManageState>()((set) => ({
 	data: {
 		list: [],
 		total: 0,
@@ -18,8 +21,20 @@ const useMenuGroupManageStore = create<MenuGroupManageState>()(() => ({
 		filters: undefined,
 		total_page: 1,
 	},
-	loading: true,
-	error: null,
+	condition: {
+		pagination: {
+			current: 1,
+			pageSize: 10,
+			total: 0,
+		},
+		sortField: "id",
+		sortOrder: "descend",
+	},
+	actions: {
+		setCondition: (condition: TableParams) => {
+			set({ condition });
+		},
+	},
 }));
 
 // 更新
@@ -36,7 +51,7 @@ export const useUpdateOrCreateMenuGroupMutation = () => {
 			return { ...data, id: response.id };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["menuGroupManageList"] });
 		},
 		onError: (err) => {
 			console.error("Update or create API failed:", err);
@@ -54,7 +69,7 @@ export const useRemoveMenuGroupMutation = () => {
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["menuGroupManageList"] });
 		},
 		onError: (err) => {
 			console.error("Delete API failed:", err);
@@ -62,6 +77,26 @@ export const useRemoveMenuGroupMutation = () => {
 	});
 };
 
+export const useMenuGroupQuery = () => {
+	const tableParams = useMenuGroupManageStore.getState().condition;
+	return useQuery({
+		queryKey: [
+			"menuGroupManageList",
+			tableParams.pagination?.current,
+			tableParams.pagination?.pageSize,
+			tableParams.sortField,
+			tableParams.sortOrder,
+			tableParams.searchParams,
+			tableParams.filters,
+		],
+		queryFn: () => {
+			const params = toURLSearchParams(getRandomUserParams(tableParams));
+			return menuGroupService.searchPageList(params.toString());
+		},
+	});
+};
+
 export const useMenuGroupManage = () => useMenuGroupManageStore((state) => state.data);
-export const useMenuGroupManageLoading = () => useMenuGroupManageStore((state) => state.loading);
-export const useMenuGroupManageError = () => useMenuGroupManageStore((state) => state.error);
+
+export const useMenuGroupManageCondition = () => useMenuGroupManageStore((state) => state.condition);
+export const useMenuGroupActions = () => useMenuGroupManageStore((state) => state.actions);

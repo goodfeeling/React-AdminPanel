@@ -31,7 +31,6 @@ const DictionaryList = ({
 		updated_at: "",
 		details: [],
 	};
-
 	const updateOrCreateMutation = useUpdateOrCreateDictionaryMutation();
 	const removeMutation = useRemoveDictionaryMutation();
 	const { data, isLoading } = useDictionaryQuery();
@@ -150,10 +149,6 @@ const DictionaryList = ({
 		}
 	};
 
-	const rowClassName = (record: Dictionary) => {
-		return record.id === selectedId ? "text-primary-foreground" : "";
-	};
-
 	return (
 		<>
 			<CardHeader className="p-0">
@@ -184,7 +179,11 @@ const DictionaryList = ({
 					onRow={(record) => ({
 						onClick: () => handleRowClick(record),
 					})}
-					rowClassName={rowClassName}
+					rowClassName={(record: Dictionary) => {
+						return record.id === selectedId
+							? "bg-primary  shadow hover:bg-primary/90"
+							: "text-gray-700 dark:text-gray-300";
+					}}
 				/>
 				<DictionaryModal {...apiModalProps} />
 			</CardContent>

@@ -233,7 +233,7 @@ const App: React.FC = () => {
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onEdit(record)}
 						style={{ minWidth: "70px" }}
@@ -243,7 +243,7 @@ const App: React.FC = () => {
 						<span className="text-xs">修改</span>
 					</Button>
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onResetPassword(record.id)}
 						style={{ minWidth: "90px" }}

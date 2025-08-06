@@ -1,3 +1,5 @@
+import { UploadApi } from "@/api/services/uploadService";
+import { useOssUpload } from "@/hooks/ossUpload";
 import type { DictionaryDetail, FileInfo } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { InboxOutlined } from "@ant-design/icons";
@@ -12,14 +14,14 @@ export type FileModalProps = {
 	title: string;
 	storageEngine: DictionaryDetail[] | undefined;
 	show: boolean;
-	onOk: (values: FileInfo) => Promise<boolean>;
+	onOk: (values: FileInfo | null) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
 
 const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }: FileModalProps) => {
-	const [loading, setLoading] = useState(false);
-
 	const [open, setOpen] = useState(false);
+	const [selectedStorageEngine, setSelectedStorageEngine] = useState<string>("local");
+	const { uploadToOSS, isLoading: isOssLoading } = useOssUpload(); // 使用OSS上传钩子
 
 	const form = useForm<FileInfo>({
 		defaultValues: formValue,
@@ -33,45 +35,68 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 		form.reset(formValue);
 	}, [formValue, form]);
 
-	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
-	};
-	console.log(loading);
-
 	const handleCancel = () => {
 		setOpen(false);
 		onCancel();
 	};
-
+	// 处理文件上传的函数
+	const handleFileUpload = async (file: File) => {
+		if (selectedStorageEngine === "aliyunoss") {
+			// 使用阿里云OSS上传
+			const result = await uploadToOSS(file);
+			if (result.success) {
+				// 上传成功后更新表单数据
+				form.setValue("file_url", result.url ?? "");
+				form.setValue("file_name", result.name ?? "");
+				form.setValue("file_origin_name", file.name);
+				onOk(form.getValues());
+				message.success(`${file.name} 文件上传成功`);
+			} else {
+				message.error(`${file.name} 文件上传失败`);
+			}
+			return false; // 阻止默认上传行为
+		}
+		// 其他存储引擎使用默认上传方式
+		return true;
+	};
 	const props: UploadProps = {
 		name: "file",
 		multiple: true,
-		action: "https://660d2bd96ddfa2943b33731c.mockapi.io/api/upload",
+		action: `${import.meta.env.VITE_APP_BASE_API}${UploadApi.Multiple}`,
 		onChange(info) {
 			const { status } = info.file;
-			if (status !== "uploading") {
-				console.log(info.file, info.fileList);
-			}
-			if (status === "done") {
-				message.success(`${info.file.name} file uploaded successfully.`);
-			} else if (status === "error") {
-				message.error(`${info.file.name} file upload failed.`);
+			switch (status) {
+				case "uploading":
+					console.log(info.file, info.fileList);
+					break;
+				case "done":
+					message.success(`${info.file.name} file uploaded successfully.`);
+					onOk(null);
+					break;
+				case "error":
+					message.error(`${info.file.name} file upload failed.`);
+
+					break;
+				default:
+					console.log(info);
 			}
 		},
 		onDrop(e) {
 			console.log("Dropped files", e.dataTransfer.files);
 		},
+		// 根据存储引擎类型决定是否使用自定义上传
+		beforeUpload: (file) => {
+			handleFileUpload(file);
+			// 如果是OSS上传，阻止默认上传行为
+			return selectedStorageEngine !== "aliyunoss";
+		},
+		// 禁用默认上传行为当使用OSS时
+		disabled: isOssLoading,
 	};
-	console.log(storageEngine);
 
 	return (
 		<>
-			<Modal open={open} title={title} onOk={handleOk} onCancel={handleCancel} centered footer={false}>
+			<Modal open={open} title={title} onCancel={handleCancel} centered footer={false}>
 				<Form {...form}>
 					<form className="space-y-4">
 						<FormField
@@ -84,7 +109,12 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 										<Select
 											defaultValue="local"
 											style={{ width: 120 }}
-											onChange={(value: string) => field.onChange(value)}
+											onChange={(value: string) => {
+												console.log(value);
+
+												field.onChange(value);
+												setSelectedStorageEngine(value);
+											}}
 											options={storageEngine}
 										/>
 									</FormControl>

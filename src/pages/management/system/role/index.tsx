@@ -204,7 +204,7 @@ const App: React.FC = () => {
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onSetting(record)}
 						style={{ minWidth: "110px" }}
@@ -214,7 +214,7 @@ const App: React.FC = () => {
 						<span className="text-xs">设置权限</span>
 					</Button>
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onCreate(record, true)}
 						style={{ minWidth: "80px" }}
@@ -224,7 +224,7 @@ const App: React.FC = () => {
 						<span className="text-xs">新增子角色</span>
 					</Button>
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onEdit(record)}
 						style={{ minWidth: "70px" }}

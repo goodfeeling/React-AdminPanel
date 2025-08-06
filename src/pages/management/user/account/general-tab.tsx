@@ -34,7 +34,13 @@ export default function GeneralTab() {
 	const handleClick = async () => {
 		try {
 			const { user_name = "", email = "", phone = "", header_img, nick_name = "" } = await form.getValues();
-			const updateUser: UpdateUser = { user_name, email, phone, header_img, nick_name };
+			const updateUser: UpdateUser = {
+				user_name,
+				email,
+				phone,
+				header_img,
+				nick_name,
+			};
 			const { actions } = userStore.getState();
 			const userInfo = await userService.updateUser(id, updateUser);
 			actions.setUserInfo(userInfo);
@@ -68,6 +74,7 @@ export default function GeneralTab() {
 								<FormField
 									control={form.control}
 									name="user_name"
+									disabled
 									render={({ field }) => (
 										<FormItem>
 											<FormLabel>{t("sys.account.username")}</FormLabel>

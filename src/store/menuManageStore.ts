@@ -1,42 +1,31 @@
-import fileService from "@/api/services/fileService";
-import type { FileInfo, PageList } from "@/types/entity";
-import { useMutation, useQueryClient } from "@tanstack/react-query";
+import menuService from "@/api/services/menuService";
+import type { Menu } from "@/types/entity";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { create } from "zustand";
 
-interface FileInfoManageState {
-	data: PageList<FileInfo>;
-	loading: boolean;
-	error: string | null;
+interface MenuManageState {
+	data: Menu[];
 }
 
-const useFileInfoManageStore = create<FileInfoManageState>()(() => ({
-	data: {
-		list: [],
-		total: 0,
-		page: 1,
-		page_size: 10,
-		filters: undefined,
-		total_page: 1,
-	},
-	loading: true,
-	error: null,
+const useMenuManageStore = create<MenuManageState>()(() => ({
+	data: [],
 }));
 
 // 更新
-export const useUpdateOrCreateFileInfoMutation = () => {
+export const useUpdateOrCreateMenuMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: FileInfo) => {
+		mutationFn: async (data: Menu) => {
 			if (data.id) {
-				await fileService.updateFileInfo(data.id, data);
+				await menuService.updateMenu(data.id, data);
 				return { ...data };
 			}
 			// 创建
-			const response = await fileService.createFileInfo(data);
+			const response = await menuService.createMenu(data);
 			return { ...data, id: response.id };
 		},
 		onSuccess: () => {
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["menuManageList"] });
 		},
 		onError: (err) => {
 			console.error("Update or create API failed:", err);
@@ -45,33 +34,16 @@ export const useUpdateOrCreateFileInfoMutation = () => {
 };
 
 // 删除
-export const useRemoveFileInfoMutation = () => {
+export const useRemoveMenuMutation = () => {
 	const queryClient = useQueryClient();
 
 	return useMutation({
 		mutationFn: async (id: number) => {
-			await fileService.deleteFileInfo(id);
+			await menuService.deleteMenu(id);
 		},
 		onSuccess: () => {
 			// 成功后使相关查询失效，触发重新获取
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
-		},
-		onError: (err) => {
-			console.error("Delete API failed:", err);
-		},
-	});
-};
-// 批量删除
-export const useBatchRemoveFileInfoMutation = () => {
-	const queryClient = useQueryClient();
-
-	return useMutation({
-		mutationFn: async (selectedRowKeys: number[]) => {
-			await fileService.deleteBatch(selectedRowKeys);
-		},
-		onSuccess: () => {
-			// 成功后使相关查询失效，触发重新获取
-			queryClient.invalidateQueries({ queryKey: ["apiManageList"] });
+			queryClient.invalidateQueries({ queryKey: ["menuManageList"] });
 		},
 		onError: (err) => {
 			console.error("Delete API failed:", err);
@@ -79,6 +51,13 @@ export const useBatchRemoveFileInfoMutation = () => {
 	});
 };
 
-export const useFileInfoManage = () => useFileInfoManageStore((state) => state.data);
-export const useFileInfoManageLoading = () => useFileInfoManageStore((state) => state.loading);
-export const useFileInfoManageError = () => useFileInfoManageStore((state) => state.error);
+export const useMenuQuery = (selectedId: number) => {
+	return useQuery({
+		queryKey: ["menuManageList", selectedId],
+		queryFn: () => {
+			return menuService.getMenus(selectedId);
+		},
+		enabled: selectedId !== 0,
+	});
+};
+export const useMenuManage = () => useMenuManageStore((state) => state.data);

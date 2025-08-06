@@ -14,6 +14,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 
 import useDictionaryByType from "@/hooks/dict";
 import { Badge } from "@/ui/badge";
+import { useQueryClient } from "@tanstack/react-query";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
@@ -56,7 +57,7 @@ const App: React.FC = () => {
 	const { data, isLoading } = useFileInfoQuery();
 	const condition = useFileInfoManageCondition();
 	const { setCondition } = useFileInfoActions();
-
+	const queryClient = useQueryClient(); // 将 useQueryClient 移到组件内部
 	const storageEngine = useDictionaryByType("storage_engine");
 
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -65,13 +66,18 @@ const App: React.FC = () => {
 		title: "上传文件",
 		storageEngine: undefined,
 		show: false,
-		onOk: async (values: FileInfo) => {
-			updateOrCreateMutation.mutate(values, {
-				onSuccess: () => {
-					toast.success("success!");
-					setFileModalProps((prev) => ({ ...prev, show: false }));
-				},
-			});
+		onOk: async (values: FileInfo | null) => {
+			if (values) {
+				updateOrCreateMutation.mutate(values, {
+					onSuccess: () => {
+						console.log("created file info success");
+					},
+				});
+			} else {
+				// 手动刷新列表
+				queryClient.invalidateQueries({ queryKey: ["fileManageList"] });
+			}
+
 			return true;
 		},
 		onCancel: () => {

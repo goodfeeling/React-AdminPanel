@@ -190,7 +190,7 @@ const App: React.FC = () => {
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onEdit(record)}
 						style={{ minWidth: "70px" }}

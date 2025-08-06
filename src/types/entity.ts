@@ -237,3 +237,12 @@ export type PasswordEditReq = {
 	newPassword: string;
 	confirmPassword: string;
 };
+
+export type STSToken = {
+	access_key_id: string;
+	access_key_secret: string;
+	security_token: string;
+	expiration: string;
+	bucket_name: string;
+	region: string;
+};

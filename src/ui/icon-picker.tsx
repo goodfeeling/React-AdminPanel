@@ -1,15 +1,8 @@
 // @/components/icon-picker-custom.tsx
 import { Icon } from "@/components/icon";
+import useDictionaryByType from "@/hooks/dict";
 import { useTheme } from "@/theme/hooks";
 import { useEffect, useRef, useState } from "react";
-
-// 示例图标库（可替换为您的图标库）
-const icons = [
-  "solar:pen-bold-duotone",
-  "solar:accumulator-linear",
-  "solar:album-outline",
-  "solar:archive-minimalistic-bold",
-];
 
 export type IconPickerProps = {
   value?: string;
@@ -21,7 +14,9 @@ export const IconPicker = ({ value, onChange }: IconPickerProps) => {
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const { themeTokens } = useTheme();
-
+  const icons = useDictionaryByType("icons").map((item) => {
+    return item.value;
+  });
   // 设置进度条颜色，优先使用传入的颜色，否则使用主题色
   const backgroundColor = themeTokens.color.background.default;
   const filteredIcons = search

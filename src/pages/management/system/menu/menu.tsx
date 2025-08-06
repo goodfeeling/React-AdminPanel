@@ -1,10 +1,10 @@
 import { Icon } from "@/components/icon";
 import { Button } from "@/ui/button";
 import { Popconfirm, Table } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useEffect, useState } from "react";
 import type { ColumnsType, Menu } from "#/entity";
 
-import menuService from "@/api/services/menuService";
+import { useMenuQuery, useRemoveMenuMutation, useUpdateOrCreateMenuMutation } from "@/store/menuManageStore";
 import { CardContent, CardHeader } from "@/ui/card";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -33,35 +33,26 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		level: [],
 		children: [],
 	};
+
+	const updateOrCreateMutation = useUpdateOrCreateMenuMutation();
+	const removeMutation = useRemoveMenuMutation();
+	const { data, isLoading } = useMenuQuery(selectedId ?? 0);
 	const { t } = useTranslation();
-	const [data, setData] = useState<Menu[]>();
-	const [loading, setLoading] = useState(false);
 	const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
+
 	const [menuModalProps, setUserModalProps] = useState<MenuModalProps>({
 		formValue: { ...defaultValue },
 		title: "New",
 		show: false,
 		treeRawData: [],
 		onOk: async (values: Menu): Promise<boolean> => {
-			try {
-				if (values.id === 0) {
-					await menuService.createMenu(values);
-				} else {
-					await menuService.updateMenu(values.id, values);
-				}
-				toast.success("success!");
-				setUserModalProps((prev) => ({ ...prev, show: false }));
-				if (selectedId) {
-					getData(selectedId);
-				}
-			} catch (e) {
-				if (selectedId) {
-					getData(selectedId);
-				}
-			} finally {
-				// biome-ignore lint/correctness/noUnsafeFinally: <explanation>
-				return true;
-			}
+			updateOrCreateMutation.mutate(values, {
+				onSuccess: () => {
+					toast.success("success!");
+					setUserModalProps((prev) => ({ ...prev, show: false }));
+				},
+			});
+			return true;
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));
@@ -77,25 +68,14 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		},
 	});
 
-	// get menu list
-	const getData = useCallback(async (selectedId: number) => {
-		const response = await menuService.getMenus(selectedId);
-		setData(response);
-		setLoading(false);
-		setUserModalProps((prev) => ({
-			...prev,
-			treeRawData: response,
-		}));
-	}, []);
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (!selectedId) {
-			return;
+		if (data) {
+			setUserModalProps((prev) => ({
+				...prev,
+				treeRawData: data,
+			}));
 		}
-		setLoading(true);
-		getData(selectedId);
-	}, [selectedId]);
+	}, [data]);
 
 	// create menu
 	const onCreate = (formValue: Menu | undefined) => {
@@ -132,16 +112,14 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	};
 
 	const handleDelete = async (id: number) => {
-		try {
-			await menuService.deleteMenu(id);
-			toast.success("删除成功");
-			if (selectedId) {
-				getData(selectedId);
-			}
-		} catch (error) {
-			console.error(error);
-			toast.error("删除失败");
-		}
+		removeMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("删除成功");
+			},
+			onError: () => {
+				toast.error("删除失败");
+			},
+		});
 	};
 	const handleExpand = (expanded: boolean, record: Menu) => {
 		const keys = expanded ? [...expandedKeys, record.id] : expandedKeys.filter((key) => key !== record.id);
@@ -270,7 +248,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 					scroll={{ x: "max-content" }}
 					columns={columns}
 					dataSource={data}
-					loading={loading}
+					loading={isLoading}
 					pagination={false}
 					expandable={{
 						showExpandColumn: false,

@@ -3,44 +3,12 @@ import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { IconPicker } from "@/ui/icon-picker";
 import { Input } from "@/ui/input";
 
-import lang from "@/locales/lang/zh_CN/index";
-import type { TreeNode } from "@/ui/tree-select-input";
-import { buildFileTree } from "@/utils/tree";
+import useDirTree from "@/hooks/dirTree";
+import useLangTree from "@/hooks/langTree";
 import { Button, Modal, Switch, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 
-type LangTree = {
-	label: string;
-	value: string;
-	children: LangTree[];
-};
-
-const buildLangTree = (subChildren: any, parentKey: string): LangTree[] => {
-	const result: LangTree[] = [];
-	for (const k in subChildren) {
-		const currentKey = parentKey ? `${parentKey}.${k}` : k;
-		let temp: LangTree = {
-			label: k,
-			value: currentKey,
-			children: [],
-		};
-
-		const subTemp = (subChildren as any)[k];
-		if (subTemp instanceof Object) {
-			temp.children = buildLangTree((subChildren as any)[k], currentKey);
-		} else {
-			temp = {
-				label: `${k}-${subTemp}`,
-				value: currentKey,
-				children: [],
-			};
-		}
-		result.push(temp);
-	}
-
-	return result;
-};
 export type MenuModalProps = {
 	formValue: Menu;
 	treeRawData: Menu[];
@@ -66,8 +34,8 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
-	const [dirTree, setDirTree] = useState<TreeNode[]>([]);
-	const [langTree, setLangTree] = useState<LangTree[]>([]);
+	const dirTree = useDirTree();
+	const langTree = useLangTree();
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
@@ -87,17 +55,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 				children: buildTree(treeRawData),
 			},
 		]);
-
-		// file dir tree
-		const modules = import.meta.glob("/src/pages/**/*.tsx");
-		const filePaths = Object.keys(modules).map(
-			(path) => path.replace("/src", "").replace(".tsx", ""), // 去掉 `/src/pages` 前缀
-		);
-		const tree = buildFileTree(filePaths);
-		setDirTree(tree ? (tree.children ? tree.children : []) : []);
-
-		// langTree
-		setLangTree(buildLangTree(lang, ""));
 	}, [formValue, treeRawData, form]);
 
 	const handleOk = async () => {
