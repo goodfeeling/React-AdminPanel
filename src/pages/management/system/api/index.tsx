@@ -82,7 +82,6 @@ const App: React.FC = () => {
 		},
 	});
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
 		setApiModalProps((prev) => ({
 			...prev,

@@ -1,14 +1,16 @@
 import { UploadApi } from "@/api/services/uploadService";
 import { useOssUpload } from "@/hooks/ossUpload";
+import { useSTSTokenLoading } from "@/store/stsTokenStore";
 import useUserStore from "@/store/userStore";
 import type { DictionaryDetail, FileInfo } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { InboxOutlined } from "@ant-design/icons";
 import { Modal, Select } from "antd";
 import type { UploadProps } from "antd";
-import { Upload, message } from "antd";
+import { Upload } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { toast } from "sonner";
 const { Dragger } = Upload;
 export type FileModalProps = {
 	formValue: FileInfo;
@@ -30,8 +32,10 @@ const parseUriFromUrl = (fileUrl: string): string => {
 };
 const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }: FileModalProps) => {
 	const [open, setOpen] = useState(false);
+	const { uploadFile } = useOssUpload();
+	const isOssLoading = useSTSTokenLoading();
 	const [selectedStorageEngine, setSelectedStorageEngine] = useState<string>("local");
-	const { uploadToOSS, isLoading: isOssLoading } = useOssUpload(); // 使用OSS上传钩子
+
 	const { userToken } = useUserStore.getState();
 	const form = useForm<FileInfo>({
 		defaultValues: formValue,
@@ -53,7 +57,7 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 	const handleFileUpload = async (file: File) => {
 		if (selectedStorageEngine === "aliyunoss") {
 			// 使用阿里云OSS上传
-			const result = await uploadToOSS(file);
+			const result = await uploadFile(file);
 			if (result.success) {
 				// 上传成功后更新表单数据
 				form.setValue("file_url", result.url ?? "");
@@ -64,15 +68,16 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 					form.setValue("file_path", uri);
 				}
 				onOk(form.getValues());
-				message.success(`${file.name} 文件上传成功`);
+				toast.success(`${file.name} 文件上传成功`);
 			} else {
-				message.error(`${file.name} 文件上传失败`);
+				toast.error(`${file.name} 文件上传失败`);
 			}
 			return false; // 阻止默认上传行为
 		}
 		// 其他存储引擎使用默认上传方式
 		return true;
 	};
+
 	const props: UploadProps = {
 		name: "file",
 		multiple: true,
@@ -87,11 +92,11 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 					console.log(info.file, info.fileList);
 					break;
 				case "done":
-					message.success(`${info.file.name} file uploaded successfully.`);
+					toast.success(`${info.file.name} file uploaded successfully.`);
 					onOk(null);
 					break;
 				case "error":
-					message.error(`${info.file.name} file upload failed.`);
+					toast.error(`${info.file.name} file upload failed.`);
 
 					break;
 				default:
@@ -105,10 +110,10 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 		beforeUpload: (file) => {
 			handleFileUpload(file);
 			// 如果是OSS上传，阻止默认上传行为
-			return selectedStorageEngine !== "aliyunoss";
+			return selectedStorageEngine === "local";
 		},
 		// 禁用默认上传行为当使用OSS时
-		disabled: isOssLoading,
+		disabled: !isOssLoading,
 	};
 
 	return (
@@ -127,8 +132,6 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 											defaultValue="local"
 											style={{ width: 120 }}
 											onChange={(value: string) => {
-												console.log(value);
-
 												field.onChange(value);
 												setSelectedStorageEngine(value);
 											}}

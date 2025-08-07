@@ -245,4 +245,5 @@ export type STSToken = {
 	expiration: string;
 	bucket_name: string;
 	region: string;
+	refresh_token: string;
 };

@@ -1,76 +1,67 @@
-import uploadService from "@/api/services/uploadService";
-import type { STSToken } from "@/types/entity";
-import { useMutation } from "@tanstack/react-query";
-import OSS from "ali-oss";
+import { useSTSToken, useSTSTokenActions } from "@/store/stsTokenStore";
 
 export const useOssUpload = () => {
-	const getSTSTokenMutation = useMutation({
-		mutationFn: () => uploadService.GetSTSToken(),
-	});
+	const stsToken = useSTSToken();
+	const actions = useSTSTokenActions();
+	return {
+		uploadFile: async (file: File, customName?: string) => {
+			let currentStsToken = stsToken;
 
-	const uploadToOSS = async (file: File, customName?: string) => {
-		try {
-			// 获取 STS Token
-			const stsToken: STSToken = await getSTSTokenMutation.mutateAsync();
+			let retryCount = 0;
+			const maxRetries = 2;
 
-			// 配置 OSS 客户端
-			const client = new OSS({
-				region: stsToken.region,
-				accessKeyId: stsToken.access_key_id,
-				accessKeySecret: stsToken.access_key_secret,
-				stsToken: stsToken.security_token,
-				bucket: stsToken.bucket_name,
-			});
-
-			// 生成文件名
-			const fileName = customName || `${Date.now()}-${file.name}`;
-
-			// 上传文件
-			const result = await client.put(fileName, file, {
-				// 添加进度回调
-				progress: (p: any) => {
-					console.log("上传进度:", p);
-				},
-			});
-
-			return {
-				success: true,
-				url: result.url,
-				name: fileName,
-			};
-		} catch (error: any) {
-			console.error("OSS上传失败:", error);
-
-			// 提供更详细的错误信息
-			let errorMessage = "未知错误";
-
-			// 检查是否是CORS错误
-			if (error.code === "RequestError" && error.status === -1) {
-				errorMessage = "CORS配置错误或网络连接问题，请检查OSS的跨域设置";
-			} else if (error.code) {
-				switch (error.code) {
-					case "AccessDenied":
-						errorMessage = "访问被拒绝，请检查STS Token权限";
-						break;
-					case "NoSuchBucket":
-						errorMessage = "Bucket不存在，请检查配置";
-						break;
-					default:
-						errorMessage = error.message || error.code;
+			while ((!currentStsToken || !currentStsToken.access_key_id) && retryCount < maxRetries) {
+				if (!currentStsToken || !currentStsToken.access_key_id) {
+					// 如果没有STS Token，获取一个新的
+					await actions.fetchSTSToken();
 				}
-			} else if (error.message) {
-				errorMessage = error.message;
+
+				// 等待一小段时间再检查
+				await new Promise((resolve) => setTimeout(resolve, 100));
+
+				// 重新获取状态
+				currentStsToken = useSTSToken();
+				retryCount++;
 			}
 
+			if (!currentStsToken) {
+				// 如果没有STS Token，获取一个新的
+				await actions.fetchSTSToken();
+				// 获取新的Token后重新获取状态
+				currentStsToken = useSTSToken();
+			}
+
+			if (currentStsToken?.expiration) {
+				const expirationDate = new Date(currentStsToken.expiration);
+				const now = new Date();
+				const timeDiff = expirationDate.getTime() - now.getTime();
+				const fiveMinutesInMs = 5 * 60 * 1000;
+
+				// 如果距离过期不足5分钟，刷新Token
+				if (timeDiff < fiveMinutesInMs) {
+					try {
+						await actions.refreshSTSToken();
+						// 刷新后重新获取Token
+						currentStsToken = useSTSToken();
+					} catch (error) {
+						console.error("刷新STS Token失败:", error);
+						// 刷新失败时获取新的Token
+						await actions.fetchSTSToken();
+						// 获取新的Token后重新获取状态
+						currentStsToken = useSTSToken();
+					}
+				}
+			}
+
+			// 确保有有效的Token再执行上传
+			if (currentStsToken) {
+				return await actions.uploadToOSS(file, customName);
+			}
+			// 如果仍然没有有效的Token，返回失败结果
 			return {
 				success: false,
-				error: errorMessage,
+				error: "无法获取有效的STS Token",
 			};
-		}
-	};
-
-	return {
-		uploadToOSS,
-		isLoading: getSTSTokenMutation.isPending,
+		},
 	};
 };

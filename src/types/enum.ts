@@ -17,6 +17,7 @@ export enum StorageEnum {
 	I18N = "i18nextLng",
 	Menu = "menu",
 	Role = "role",
+	STSToken = "stsToken",
 }
 
 export enum ThemeMode {
