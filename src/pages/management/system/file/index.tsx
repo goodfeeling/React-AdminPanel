@@ -47,6 +47,8 @@ const searchDefaultValue = {
 };
 
 const App: React.FC = () => {
+	const queryClient = useQueryClient();
+
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: searchDefaultValue,
 	});
@@ -57,7 +59,6 @@ const App: React.FC = () => {
 	const { data, isLoading } = useFileInfoQuery();
 	const condition = useFileInfoManageCondition();
 	const { setCondition } = useFileInfoActions();
-	const queryClient = useQueryClient(); // 将 useQueryClient 移到组件内部
 	const storageEngine = useDictionaryByType("storage_engine");
 
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -91,10 +92,11 @@ const App: React.FC = () => {
 
 	const handleTableChange: TableProps<FileInfo>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
+			...condition,
 			pagination,
 			filters,
-			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-			sortField: Array.isArray(sorter) ? undefined : sorter.field,
+			sortOrder: Array.isArray(sorter) ? undefined : condition.sortOrder,
+			sortField: Array.isArray(sorter) ? undefined : condition.sortField,
 		});
 	};
 
@@ -141,19 +143,17 @@ const App: React.FC = () => {
 			dataIndex: "file_origin_name",
 			key: "file_origin_name",
 			ellipsis: true,
-		},
-		{
-			title: "文件链接",
-			dataIndex: "file_url",
-			key: "file_url",
 			render: (_, record) => {
 				return (
 					<div className="flex">
-						<img alt="" src={record.file_url} className="h-20 w-20" />
+						<a target="_blank" href={record.file_url} rel="noopener noreferrer">
+							{record.file_origin_name}
+						</a>
 					</div>
 				);
 			},
 		},
+
 		{
 			title: "存储方式",
 			dataIndex: "storage_engine",
@@ -164,11 +164,7 @@ const App: React.FC = () => {
 			dataIndex: "created_at",
 			key: "created_at",
 		},
-		{
-			title: "更新时间",
-			dataIndex: "updated_at",
-			key: "updated_at",
-		},
+
 		{
 			title: "操作",
 			key: "operation",
@@ -184,12 +180,8 @@ const App: React.FC = () => {
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 							<span className="text-xs">删除</span>
 						</Button>
 					</Popconfirm>
@@ -267,8 +259,6 @@ const App: React.FC = () => {
 		],
 	};
 
-	const hasSelected = selectedRowKeys.length > 0;
-
 	return (
 		<div className="flex flex-col gap-4">
 			<Card>
@@ -340,7 +330,12 @@ const App: React.FC = () => {
 							<Icon icon="solar:add-circle-outline" size={18} />
 							Upload
 						</Button>
-						<Button onClick={() => handleDeleteSelection()} variant="ghost" className="ml-2" disabled={!hasSelected}>
+						<Button
+							onClick={() => handleDeleteSelection()}
+							variant="ghost"
+							className="ml-2"
+							disabled={!(selectedRowKeys.length > 0)}
+						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							Delete
 						</Button>

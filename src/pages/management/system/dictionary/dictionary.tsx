@@ -10,6 +10,7 @@ import { toast } from "sonner";
 
 import {
 	useDictionaryActions,
+	useDictionaryManageCondition,
 	useDictionaryQuery,
 	useRemoveDictionaryMutation,
 	useUpdateOrCreateDictionaryMutation,
@@ -34,6 +35,7 @@ const DictionaryList = ({
 	const updateOrCreateMutation = useUpdateOrCreateDictionaryMutation();
 	const removeMutation = useRemoveDictionaryMutation();
 	const { data, isLoading } = useDictionaryQuery();
+	const condition = useDictionaryManageCondition();
 	const { setCondition } = useDictionaryActions();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [apiModalProps, setDictionaryModalProps] = useState<DictionaryModalProps>({
@@ -63,10 +65,11 @@ const DictionaryList = ({
 
 	const handleTableChange: TableProps<Dictionary>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
+			...condition,
 			pagination,
 			filters,
-			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-			sortField: Array.isArray(sorter) ? undefined : sorter.field,
+			sortOrder: Array.isArray(sorter) ? undefined : condition.sortOrder,
+			sortField: Array.isArray(sorter) ? undefined : condition.sortField,
 		});
 	};
 
@@ -115,7 +118,7 @@ const DictionaryList = ({
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onEdit(record)}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
@@ -129,12 +132,8 @@ const DictionaryList = ({
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 						</Button>
 					</Popconfirm>
 				</div>

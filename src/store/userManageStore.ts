@@ -1,16 +1,15 @@
 import userService from "@/api/services/userService";
-import type { PageList, UserInfo } from "@/types/entity";
+import type { PageList, TableParams, UserInfo } from "@/types/entity";
+import { getRandomUserParams, toURLSearchParams } from "@/utils";
+import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
+
 import { create } from "zustand";
 
 interface UserManageState {
 	data: PageList<UserInfo>;
-	loading: boolean;
-	error: string | null;
+	condition: TableParams;
 	actions: {
-		fetch: (searchStr: string) => Promise<void>;
-		updateOrCreate: (data: UserInfo) => Promise<UserInfo | null>;
-		remove: (id: number) => Promise<void>;
-		resetPassword: (id: number) => Promise<void>;
+		setCondition: (tableParams: TableParams) => void;
 	};
 }
 
@@ -23,60 +22,112 @@ const useUserManageStore = create<UserManageState>()((set) => ({
 		filters: undefined,
 		total_page: 1,
 	},
-	loading: true,
-	error: null,
-
+	condition: {
+		pagination: {
+			current: 1,
+			pageSize: 10,
+			total: 0,
+		},
+		sortField: "id",
+		sortOrder: "descend",
+	},
 	actions: {
-		fetch: async (searchStr: string) => {
-			set({ loading: true, error: null });
-			try {
-				const response = await userService.searchPageList(searchStr);
-				set({
-					data: response,
-					loading: false,
-				});
-			} catch (err) {
-				set({ error: (err as Error).message, loading: false });
-			}
-		},
-		updateOrCreate: async (value: UserInfo): Promise<UserInfo | null> => {
-			set({ loading: true, error: null });
-			try {
-				let newData: UserInfo;
-				if (value.id) {
-					// 更新操作
-					await userService.updateUser(value.id, value);
-					newData = { ...value }; // 保持原有的数据，包括 id
-				} else {
-					// 创建操作
-					const response = await userService.createUser(value);
-					newData = { ...value, id: response.id }; // 将生成的 id 添加到 newData 中
-				}
-				return newData;
-			} catch (err) {
-				console.error(err);
-				set({ error: (err as Error).message, loading: false });
-				return null;
-			}
-		},
-		remove: async (id: number) => {
-			try {
-				await userService.deleteUser(id);
-			} catch (err) {
-				console.error(err);
-			}
-		},
-		resetPassword: async (id: number) => {
-			try {
-				await userService.resetPassword(id);
-			} catch (err) {
-				console.error(err);
-			}
+		setCondition: (condition: TableParams) => {
+			set({ condition });
 		},
 	},
 }));
 
-export const useUserManageActions = () => useUserManageStore((state) => state.actions);
+// 更新
+export const useUpdateOrCreateUserMutation = () => {
+	const queryClient = useQueryClient();
+	return useMutation({
+		mutationFn: async (data: UserInfo) => {
+			if (data.id) {
+				await userService.updateUser(data.id, data);
+				return { ...data };
+			}
+			// 创建
+			const response = await userService.createUser(data);
+			return { ...data, id: response.id };
+		},
+		onSuccess: () => {
+			queryClient.invalidateQueries({ queryKey: ["userManageList"] });
+		},
+		onError: (err) => {
+			console.error("Update or create API failed:", err);
+		},
+	});
+};
+
+// 删除
+export const useRemoveUserMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (id: number) => {
+			await userService.deleteUser(id);
+		},
+		onSuccess: () => {
+			// 成功后使相关查询失效，触发重新获取
+			queryClient.invalidateQueries({ queryKey: ["userManageList"] });
+		},
+		onError: (err) => {
+			console.error("Delete API failed:", err);
+		},
+	});
+};
+
+// passwordEdit
+export const usePasswordResetMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (id: number) => {
+			await userService.resetPassword(id);
+		},
+		onSuccess: () => {
+			// 成功后使相关查询失效，触发重新获取
+			queryClient.invalidateQueries({ queryKey: ["userManageList"] });
+		},
+		onError: (err) => {
+			console.error("Delete API failed:", err);
+		},
+	});
+};
+
+export const useUserQuery = () => {
+	const tableParams = useUserManageStore.getState().condition;
+	return useQuery({
+		queryKey: [
+			"userManageList",
+			tableParams.pagination?.current,
+			tableParams.pagination?.pageSize,
+			tableParams.sortField,
+			tableParams.sortOrder,
+			tableParams?.searchParams?.user_name,
+			tableParams?.searchParams?.status,
+			tableParams.filters,
+		],
+		queryFn: () => {
+			const params = toURLSearchParams(
+				getRandomUserParams(tableParams, (result, searchParams) => {
+					if (searchParams) {
+						if (searchParams.user_name) {
+							result.userName_like = searchParams.user_name;
+						}
+						if (searchParams.status) {
+							result.status_match = searchParams.status;
+						}
+					}
+				}),
+			);
+			return userService.searchPageList(params.toString());
+		},
+	});
+};
+
 export const useUserManage = () => useUserManageStore((state) => state.data);
-export const useUserManageLoading = () => useUserManageStore((state) => state.loading);
-export const useUserManageError = () => useUserManageStore((state) => state.error);
+
+export const useUserManageCondition = () => useUserManageStore((state) => state.condition);
+export const useUserManageActions = () => useUserManageStore((state) => state.actions);

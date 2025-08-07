@@ -25,7 +25,7 @@ const searchPageList = (searchStr: string) =>
 		url: `${RoleApi.SearchRole}?${searchStr}`,
 	});
 
-const deleteUser = (id: number) => apiClient.delete<string>({ url: `${RoleApi.Role}/${id}` });
+const deleteRole = (id: number) => apiClient.delete<string>({ url: `${RoleApi.Role}/${id}` });
 
 const getRoleTree = () => apiClient.get<RoleTree>({ url: `${RoleApi.RoleTree}` });
 
@@ -57,7 +57,7 @@ export default {
 	updateRole,
 	searchPageList,
 	createRole,
-	deleteUser,
+	deleteRole,
 	getRoleTree,
 	getRoles,
 	getRoleSetting,

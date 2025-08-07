@@ -221,8 +221,8 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button variant="linkwarning" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 							<span>删除</span>
 						</Button>
 					</Popconfirm>

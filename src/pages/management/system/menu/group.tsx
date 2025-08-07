@@ -7,6 +7,7 @@ import type { ColumnsType, MenuGroup } from "#/entity";
 
 import {
 	useMenuGroupActions,
+	useMenuGroupManageCondition,
 	useMenuGroupQuery,
 	useRemoveMenuGroupMutation,
 	useUpdateOrCreateMenuGroupMutation,
@@ -32,6 +33,7 @@ const MenuGroupList = ({
 	const updateOrCreateMutation = useUpdateOrCreateMenuGroupMutation();
 	const removeMutation = useRemoveMenuGroupMutation();
 	const { data, isLoading } = useMenuGroupQuery();
+	const condition = useMenuGroupManageCondition();
 	const { setCondition } = useMenuGroupActions();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 
@@ -62,10 +64,11 @@ const MenuGroupList = ({
 
 	const handleTableChange: TableProps<MenuGroup>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
+			...condition,
 			pagination,
 			filters,
-			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-			sortField: Array.isArray(sorter) ? undefined : sorter.field,
+			sortOrder: Array.isArray(sorter) ? undefined : condition.sortOrder,
+			sortField: Array.isArray(sorter) ? undefined : condition.sortField,
 		});
 	};
 
@@ -114,13 +117,14 @@ const MenuGroupList = ({
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
-						variant="ghost"
+						variant="link"
 						size="icon"
 						onClick={() => onEdit(record)}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
 						<Icon icon="solar:pen-bold-duotone" size={18} />
 					</Button>
+
 					<Popconfirm
 						title="Delete the task"
 						description="Are you sure to delete this task?"
@@ -128,12 +132,8 @@ const MenuGroupList = ({
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 						</Button>
 					</Popconfirm>
 				</div>

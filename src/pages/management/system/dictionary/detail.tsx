@@ -79,10 +79,11 @@ const DictionaryDetailList = ({
 
 	const handleTableChange: TableProps<DictionaryDetail>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
+			...condition,
 			pagination,
 			filters,
-			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-			sortField: Array.isArray(sorter) ? undefined : sorter.field,
+			sortOrder: Array.isArray(sorter) ? undefined : condition.sortOrder,
+			sortField: Array.isArray(sorter) ? undefined : condition.sortField,
 		});
 	};
 
@@ -192,12 +193,8 @@ const DictionaryDetailList = ({
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 							<span className="text-xs">删除</span>
 						</Button>
 					</Popconfirm>

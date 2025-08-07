@@ -2,6 +2,7 @@ import { UploadApi } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
+import useUserStore from "@/store/userStore";
 import type { UserInfo } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
@@ -23,7 +24,7 @@ export type UserModalProps = {
 const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: UserModalProps) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
-
+	const { userToken } = useUserStore.getState();
 	const form = useForm<UserInfo>({
 		defaultValues: formValue,
 	});
@@ -82,6 +83,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 												form.setValue("header_img", fileUrl);
 											}}
 											action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
+											headers={{
+												Authorization: `Bearer ${userToken?.accessToken}`,
+											}}
 										/>
 									</FormControl>
 								</FormItem>

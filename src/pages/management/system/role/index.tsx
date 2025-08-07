@@ -1,11 +1,11 @@
-import roleService from "@/api/services/roleService";
 import { Icon } from "@/components/icon";
+import { useRemoveRoleMutation, useRoleQuery, useUpdateOrCreateRoleMutation } from "@/store/roleManageStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
 import type { TableProps } from "antd";
 import { Popconfirm, Table } from "antd";
-import { useCallback, useEffect, useState } from "react";
+import { useState } from "react";
 import { toast } from "sonner";
 import type { Role } from "#/entity";
 import RoleModal, { type RoleModalProps } from "./modal";
@@ -29,8 +29,9 @@ const defaultValue: Role = {
 };
 
 const App: React.FC = () => {
-	const [data, setData] = useState<Role[]>();
-	const [loading, setLoading] = useState(false);
+	const updateOrCreateMutation = useUpdateOrCreateRoleMutation();
+	const removeMutation = useRemoveRoleMutation();
+	const { data, isLoading } = useRoleQuery();
 	const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
 
 	const [settingModalPros, setSettingModalProps] = useState<SettingModalProps>({
@@ -49,43 +50,18 @@ const App: React.FC = () => {
 		show: false,
 		treeRawData: [],
 		onOk: async (values: Role): Promise<boolean> => {
-			if (values.id === 0) {
-				await roleService.createRole(values);
-			} else {
-				const { parent_id = 0, name = "", label = "", order = 0, description = "", status = false } = values;
-				await roleService.updateRole(values.id, {
-					parent_id,
-					name,
-					label,
-					order,
-					description,
-					status,
-				});
-			}
-			toast.success("success!");
-			setUserModalProps((prev) => ({ ...prev, show: false }));
-			getData();
+			updateOrCreateMutation.mutate(values, {
+				onSuccess: () => {
+					toast.success("success!");
+					setUserModalProps((prev) => ({ ...prev, show: false }));
+				},
+			});
 			return true;
 		},
 		onCancel: () => {
 			setUserModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
-
-	const getData = useCallback(async () => {
-		const response = await roleService.getRoles();
-		setData(response);
-		setLoading(false);
-		setUserModalProps((prev) => ({
-			...prev,
-			treeRawData: response,
-		}));
-	}, []);
-
-	useEffect(() => {
-		setLoading(true);
-		getData();
-	}, [getData]);
 
 	const onCreate = (formValue: Role | undefined, isCreateSub = false) => {
 		const setValue = defaultValue;
@@ -123,14 +99,14 @@ const App: React.FC = () => {
 	};
 
 	const handleDelete = async (id: number) => {
-		try {
-			await roleService.deleteUser(id);
-			toast.success("删除成功");
-			getData();
-		} catch (error) {
-			console.error(error);
-			toast.error("删除失败");
-		}
+		removeMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("删除成功");
+			},
+			onError: () => {
+				toast.error("删除失败");
+			},
+		});
 	};
 
 	const handleExpand = (expanded: boolean, record: Role) => {
@@ -240,12 +216,8 @@ const App: React.FC = () => {
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 							<span className="text-xs">删除</span>
 						</Button>
 					</Popconfirm>
@@ -271,7 +243,7 @@ const App: React.FC = () => {
 					scroll={{ x: "max-content" }}
 					columns={columns}
 					dataSource={data}
-					loading={loading}
+					loading={isLoading}
 					pagination={false}
 					expandable={{
 						showExpandColumn: false,

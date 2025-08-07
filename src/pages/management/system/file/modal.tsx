@@ -1,5 +1,6 @@
 import { UploadApi } from "@/api/services/uploadService";
 import { useOssUpload } from "@/hooks/ossUpload";
+import useUserStore from "@/store/userStore";
 import type { DictionaryDetail, FileInfo } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { InboxOutlined } from "@ant-design/icons";
@@ -17,12 +18,21 @@ export type FileModalProps = {
 	onOk: (values: FileInfo | null) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
-
+const parseUriFromUrl = (fileUrl: string): string => {
+	try {
+		const url = new URL(fileUrl);
+		return url.pathname.startsWith("/") ? url.pathname.substring(1) : url.pathname;
+	} catch (error) {
+		// 如果不是有效的URL，返回原始字符串或处理错误
+		console.error("Invalid URL:", error);
+		return fileUrl;
+	}
+};
 const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }: FileModalProps) => {
 	const [open, setOpen] = useState(false);
 	const [selectedStorageEngine, setSelectedStorageEngine] = useState<string>("local");
 	const { uploadToOSS, isLoading: isOssLoading } = useOssUpload(); // 使用OSS上传钩子
-
+	const { userToken } = useUserStore.getState();
 	const form = useForm<FileInfo>({
 		defaultValues: formValue,
 	});
@@ -49,6 +59,10 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 				form.setValue("file_url", result.url ?? "");
 				form.setValue("file_name", result.name ?? "");
 				form.setValue("file_origin_name", file.name);
+				if (result.url) {
+					const uri = parseUriFromUrl(result.url);
+					form.setValue("file_path", uri);
+				}
 				onOk(form.getValues());
 				message.success(`${file.name} 文件上传成功`);
 			} else {
@@ -63,6 +77,9 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 		name: "file",
 		multiple: true,
 		action: `${import.meta.env.VITE_APP_BASE_API}${UploadApi.Multiple}`,
+		headers: {
+			Authorization: `Bearer ${userToken?.accessToken}`,
+		},
 		onChange(info) {
 			const { status } = info.file;
 			switch (status) {

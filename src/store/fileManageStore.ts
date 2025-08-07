@@ -119,6 +119,7 @@ export const useFileInfoQuery = () => {
 					}
 				}),
 			);
+
 			return fileService.searchPageList(params.toString());
 		},
 	});

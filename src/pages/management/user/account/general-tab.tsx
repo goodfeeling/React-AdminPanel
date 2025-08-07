@@ -1,7 +1,7 @@
 import { UploadApi } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
-import { useUserInfo } from "@/store/userStore";
+import useUserStore, { useUserInfo } from "@/store/userStore";
 import userStore from "@/store/userStore";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardFooter } from "@/ui/card";
@@ -21,6 +21,7 @@ type FieldType = {
 
 export default function GeneralTab() {
 	const { t } = useTranslation();
+	const { userToken } = useUserStore.getState();
 	const { header_img, user_name, email, phone, nick_name, id = 0 } = useUserInfo();
 	const form = useForm<FieldType>({
 		defaultValues: {
@@ -62,6 +63,9 @@ export default function GeneralTab() {
 						defaultAvatar={header_img}
 						onHeaderImgChange={onHeaderImgChange}
 						action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
+						headers={{
+							Authorization: `Bearer ${userToken?.accessToken}`,
+						}}
 					/>
 					<Button variant="destructive">{t("common.delAccountText")}</Button>
 				</Card>

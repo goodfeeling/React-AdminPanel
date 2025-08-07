@@ -2,19 +2,25 @@ import roleService from "@/api/services/roleService";
 import userService from "@/api/services/userService";
 import { Icon } from "@/components/icon";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
-import { useUserManage, useUserManageActions } from "@/store/userManageStore";
+import {
+	usePasswordResetMutation,
+	useRemoveUserMutation,
+	useUpdateOrCreateUserMutation,
+	useUserManageActions,
+	useUserManageCondition,
+	useUserQuery,
+} from "@/store/userManageStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
-import { getRandomUserParams, toURLSearchParams } from "@/utils";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { ColumnsType, PageList, RoleTree, TableParams, UserInfo } from "#/entity";
+import type { ColumnsType, RoleTree, UserInfo } from "#/entity";
 import { buildTree } from "../role/modal";
 import PermissionModal, { type UserModalProps } from "./modal";
 
@@ -37,31 +43,36 @@ type SearchFormFieldType = {
 	status: string;
 };
 
+const searchDefaultValue = {
+	user_name: "",
+	status: "",
+};
+
 const App: React.FC = () => {
-	const { fetch, updateOrCreate, remove, resetPassword } = useUserManageActions();
-	const userData = useUserManage();
+	const updateOrCreateMutation = useUpdateOrCreateUserMutation();
+	const removeMutation = useRemoveUserMutation();
+	const passwordResetMutation = usePasswordResetMutation();
+	const { data, isLoading } = useUserQuery();
+	const condition = useUserManageCondition();
+	const { setCondition } = useUserManageActions();
+	const [treeData, setTreeData] = useState<RoleTree[]>([]);
+
 	const searchForm = useForm<SearchFormFieldType>({
-		defaultValues: { user_name: "", status: "" },
+		defaultValues: searchDefaultValue,
 	});
-	const [data, setData] = useState<PageList<UserInfo>>();
-	const [loading, setLoading] = useState(false);
-	const [tableParams, setTableParams] = useState<TableParams>({
-		pagination: {
-			current: 1,
-			pageSize: 10,
-			total: 0,
-		},
-	});
+
 	const [userModalProps, setUserModalProps] = useState<UserModalProps>({
 		formValue: { ...defaultUserValue },
 		title: "New",
 		treeData: [],
 		show: false,
 		onOk: async (values: UserInfo): Promise<boolean> => {
-			await updateOrCreate(values);
-			await getData();
-			setUserModalProps((prev) => ({ ...prev, show: false }));
-			toast.success("success!");
+			updateOrCreateMutation.mutate(values, {
+				onSuccess: () => {
+					toast.success("success!");
+					setUserModalProps((prev) => ({ ...prev, show: false }));
+				},
+			});
 			return true;
 		},
 		onCancel: () => {
@@ -69,75 +80,37 @@ const App: React.FC = () => {
 		},
 	});
 
-	const getData = async () => {
-		const params = toURLSearchParams(
-			getRandomUserParams(tableParams, (result, searchParams) => {
-				if (searchParams) {
-					if (searchParams.user_name) {
-						result.userName_like = searchParams.user_name;
-					}
-					if (searchParams.status) {
-						result.status_match = searchParams.status;
-					}
-				}
-			}),
-		);
-		fetch(params.toString());
-		setLoading(false);
-	};
-
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
-	useEffect(() => {
-		setLoading(true);
-		getData();
-	}, [
-		tableParams.pagination?.current,
-		tableParams.pagination?.pageSize,
-		tableParams?.sortOrder,
-		tableParams?.sortField,
-		tableParams?.searchParams?.user_name,
-		tableParams?.searchParams?.status,
-		JSON.stringify(tableParams.filters),
-	]);
-
-	useEffect(() => {
-		setData(userData);
-		setTableParams((prev) => ({
-			...prev,
-			pagination: {
-				...prev.pagination,
-				current: userData.page,
-				total: userData.total,
-				pageSize: userData.page_size,
-			},
-		}));
-	}, [userData]);
-
 	const handleTableChange: TableProps<UserInfo>["onChange"] = (pagination, filters, sorter) => {
-		setTableParams({
+		setCondition({
+			...condition,
 			pagination,
 			filters,
-			sortOrder: Array.isArray(sorter) ? undefined : sorter.order,
-			sortField: Array.isArray(sorter) ? undefined : sorter.field,
+			sortOrder: Array.isArray(sorter) ? undefined : condition.sortOrder,
+			sortField: Array.isArray(sorter) ? undefined : condition.sortField,
 		});
-
-		// `dataSource` is useless since `pageSize` changed
-		if (pagination.pageSize !== tableParams.pagination?.pageSize) {
-			setData(undefined);
-		}
 	};
 
 	const handleDelete = async (id: number) => {
-		remove(id);
-		toast.success("删除成功");
-		getData();
+		removeMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("删除成功");
+			},
+			onError: () => {
+				toast.error("删除失败");
+			},
+		});
 	};
 
 	const onResetPassword = (id: number) => {
-		resetPassword(id);
+		passwordResetMutation.mutate(id, {
+			onSuccess: () => {
+				toast.success("重置成功");
+			},
+			onError: () => {
+				toast.error("操作失败");
+			},
+		});
 	};
-
-	const [treeData, setTreeData] = useState<RoleTree[]>([]);
 
 	const getTreeData = useCallback(async () => {
 		const response = await roleService.getRoles();
@@ -152,6 +125,51 @@ const App: React.FC = () => {
 	useEffect(() => {
 		getTreeData();
 	}, [getTreeData]);
+
+	const onReset = () => {
+		setCondition({
+			...condition,
+			searchParams: searchDefaultValue,
+			pagination: {
+				...condition.pagination,
+				current: 1,
+			},
+		});
+		searchForm.reset();
+	};
+
+	const onSearch = () => {
+		const values = searchForm.getValues();
+		setCondition({
+			...condition,
+			searchParams: {
+				...values,
+			},
+			pagination: {
+				...condition.pagination,
+				current: 1,
+			},
+		});
+	};
+
+	const onCreate = () => {
+		setUserModalProps((prev) => ({
+			...prev,
+			show: true,
+			...defaultUserValue,
+			title: "New",
+			formValue: { ...defaultUserValue },
+		}));
+	};
+
+	const onEdit = (formValue: UserInfo) => {
+		setUserModalProps((prev) => ({
+			...prev,
+			show: true,
+			title: "Edit",
+			formValue,
+		}));
+	};
 
 	const columns: ColumnsType<UserInfo> = [
 		{
@@ -259,12 +277,8 @@ const App: React.FC = () => {
 						okText="Yes"
 						cancelText="No"
 					>
-						<Button
-							variant="ghost"
-							size="icon"
-							className="flex flex-row  items-center justify-center gap-1 px-2 py-1 text-error"
-						>
-							<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
+						<Button variant="link" size="icon">
+							<Icon icon="mingcute:delete-2-fill" size={18} />
 							<span className="text-xs">删除</span>
 						</Button>
 					</Popconfirm>
@@ -272,55 +286,6 @@ const App: React.FC = () => {
 			),
 		},
 	];
-
-	const onReset = () => {
-		setTableParams((prev) => ({
-			...prev,
-			searchParams: {
-				user_name: "",
-				status: false,
-			},
-			pagination: {
-				...prev.pagination,
-				current: 1,
-			},
-		}));
-		searchForm.reset();
-	};
-
-	const onSearch = () => {
-		const values = searchForm.getValues();
-		setTableParams((prev) => ({
-			...prev,
-			searchParams: {
-				user_name: values.user_name || "",
-				status: values.status,
-			},
-			pagination: {
-				...prev.pagination,
-				current: 1,
-			},
-		}));
-	};
-
-	const onCreate = () => {
-		setUserModalProps((prev) => ({
-			...prev,
-			show: true,
-			...defaultUserValue,
-			title: "New",
-			formValue: { ...defaultUserValue },
-		}));
-	};
-
-	const onEdit = (formValue: UserInfo) => {
-		setUserModalProps((prev) => ({
-			...prev,
-			show: true,
-			title: "Edit",
-			formValue,
-		}));
-	};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -397,15 +362,15 @@ const App: React.FC = () => {
 						scroll={{ x: "max-content" }}
 						columns={columns}
 						pagination={{
-							current: tableParams.pagination?.current || 1,
-							pageSize: tableParams.pagination?.pageSize || 10,
-							total: tableParams?.pagination?.total || 0,
+							current: data?.page || 1,
+							pageSize: data?.page_size || 10,
+							total: data?.total || 0,
 							showTotal: (total) => `共 ${total} 条`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],
 						}}
 						dataSource={data?.list}
-						loading={loading}
+						loading={isLoading}
 						onChange={handleTableChange}
 					/>
 				</CardContent>
