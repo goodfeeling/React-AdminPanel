@@ -30,6 +30,7 @@ export default function SettingButton() {
 		darkSidebar,
 		fontSize,
 		fontFamily,
+		multiTab,
 		accordion,
 	} = settings;
 	const { setSettings } = useSettingActions();
@@ -244,7 +245,11 @@ export default function SettingButton() {
 									<Card
 										key={preset}
 										className="flex h-12 w-full cursor-pointer items-center justify-center"
-										onClick={() => updateSettings({ themeColorPresets: preset as ThemeColorPresets })}
+										onClick={() =>
+											updateSettings({
+												themeColorPresets: preset as ThemeColorPresets,
+											})
+										}
 									>
 										<div style={{ color: color.default }}>
 											<Icon
@@ -304,10 +309,10 @@ export default function SettingButton() {
 									<div>{t("sys.settings.breadcrumb")}</div>
 									<Switch checked={breadCrumb} onCheckedChange={(checked) => updateSettings({ breadCrumb: checked })} />
 								</div>
-								{/* <div className="flex items-center justify-between text-sm text-text-disabled">
+								<div className="flex items-center justify-between text-sm text-text-disabled">
 									<div>{t("sys.settings.multiTab")}</div>
 									<Switch checked={multiTab} onCheckedChange={(checked) => updateSettings({ multiTab: checked })} />
-								</div> */}
+								</div>
 								<div className="flex items-center justify-between text-sm text-text-disabled">
 									<div>{t("sys.settings.darkSidebar")}</div>
 									<Switch

@@ -1,8 +1,8 @@
-import PlaceholderImg from "@/assets/images/background/placeholder.svg";
+import PlaceholderImg from "@/assets/images/background/dashboard.png";
 import LocalePicker from "@/components/locale-picker";
 import Logo from "@/components/logo";
 import SettingButton from "@/layouts/components/setting-button";
-import { useUserToken } from "@/store/userStore";
+import { useUserInfo, useUserToken } from "@/store/userStore";
 import { Navigate } from "react-router";
 import LoginForm from "./login-form";
 import MobileForm from "./mobile-form";
@@ -13,9 +13,9 @@ import ResetForm from "./reset-form";
 
 function LoginPage() {
 	const token = useUserToken();
-
+	const { current_role: currentRole } = useUserInfo();
 	if (token.accessToken) {
-		return <Navigate to="/" replace />;
+		return <Navigate to={currentRole?.default_router ?? "/"} replace />;
 	}
 
 	return (
@@ -41,11 +41,7 @@ function LoginPage() {
 			</div>
 
 			<div className="relative hidden bg-background-paper lg:block">
-				<img
-					src={PlaceholderImg}
-					alt="placeholder img"
-					className="absolute inset-0 h-full w-full object-cover dark:brightness-[0.5] dark:grayscale"
-				/>
+				<img src={PlaceholderImg} alt="placeholder img" className="absolute inset-0 h-full w-full" />
 			</div>
 
 			<div className="absolute right-2 top-0 flex flex-row">

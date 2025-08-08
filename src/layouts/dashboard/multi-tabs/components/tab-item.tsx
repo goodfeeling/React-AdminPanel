@@ -3,7 +3,7 @@ import { Dropdown, type MenuProps } from "antd";
 import { useTranslation } from "react-i18next";
 import { MultiTabOperation } from "#/enum";
 import { useTabLabelRender } from "../hooks/use-tab-label-render";
-import { useMultiTabsContext } from "../providers/multi-tabs-provider";
+import { clearMenuPathCache, useMultiTabsContext } from "../providers/multi-tabs-provider";
 import type { TabItemProps } from "../types";
 
 export function TabItem({ tab, style, onClose }: TabItemProps) {
@@ -76,6 +76,7 @@ export function TabItem({ tab, style, onClose }: TabItemProps) {
 				break;
 			case MultiTabOperation.CLOSEALL:
 				closeAll();
+				clearMenuPathCache();
 				break;
 			default:
 				break;

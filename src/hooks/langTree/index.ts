@@ -1,11 +1,10 @@
-import lang from "@/locales/lang/zh_CN/index";
 export type LangTree = {
 	label: string;
 	value: string;
 	children: LangTree[];
 };
 
-export default function useLangTree(): LangTree[] {
+export default function useLangTree(lang: any): LangTree[] {
 	// 构建树结构
 	const buildLangTree = (subChildren: any, parentKey: string): LangTree[] => {
 		const result: LangTree[] = [];

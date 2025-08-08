@@ -24,7 +24,6 @@ export function useTabOperations(
 			} else {
 				push(tempTabs[deleteTabIndex + 1].key);
 			}
-
 			tempTabs.splice(deleteTabIndex, 1);
 			setTabs(tempTabs);
 		},

@@ -11,9 +11,9 @@ import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
 import { useUserActions } from "@/store/userStore";
 import { useEffect } from "react";
+import { AliveScope } from "react-activation";
 import { useNavigate } from "react-router";
 import { setNavigateFunction, setUpdateToken } from "./api/apiClient";
-
 function App({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
 
@@ -32,14 +32,16 @@ function App({ children }: { children: React.ReactNode }) {
 		<HelmetProvider>
 			<QueryClientProvider client={new QueryClient()}>
 				<ThemeProvider adapters={[AntdAdapter]}>
-					<VercelAnalytics />
-					<Helmet>
-						<title>My Admin</title>
-						<link rel="icon" href={Logo} />
-					</Helmet>
-					<Toast />
-					<RouteLoadingProgress />
-					<MotionLazy>{children}</MotionLazy>
+					<AliveScope>
+						<VercelAnalytics />
+						<Helmet>
+							<title>My Admin</title>
+							<link rel="icon" href={Logo} />
+						</Helmet>
+						<Toast />
+						<RouteLoadingProgress />
+						<MotionLazy>{children}</MotionLazy>
+					</AliveScope>
 				</ThemeProvider>
 			</QueryClientProvider>
 		</HelmetProvider>

@@ -3,7 +3,7 @@ import "./global.css";
 import "./theme/theme.css";
 import "./locales/i18n";
 
-import React, { Suspense, useState, useEffect } from "react";
+import { Suspense, useState, useEffect } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { Navigate, Outlet, RouterProvider, createHashRouter } from "react-router";
@@ -126,11 +126,7 @@ function AppWrapper() {
 async function initApp() {
 	await registerLocalIcons();
 
-	ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(
-		<React.StrictMode>
-			<AppWrapper />
-		</React.StrictMode>,
-	);
+	ReactDOM.createRoot(document.getElementById("root") as HTMLElement).render(<AppWrapper />);
 }
 
 initApp();

@@ -31,7 +31,10 @@ export function buildRoutes(menuData: Menu[]): RouteObject[] {
 
 			route.children = children;
 		} else {
-			route.element = lazyLoad(LazyComponent);
+			route.element = lazyLoad(LazyComponent, {
+				keepAlive: item.keep_alive === 1,
+				keepAliveName: item.path,
+			});
 		}
 
 		return route;

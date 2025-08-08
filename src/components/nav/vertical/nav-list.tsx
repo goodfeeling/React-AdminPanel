@@ -15,10 +15,10 @@ export function NavList({ data, depth = 1, enabledRootRedirect = false }: NavLis
 			setOpen(!open);
 		}
 	};
-
+	const style = data.hidden ? { display: "none" } : {};
 	return (
 		<Collapsible open={open} onOpenChange={setOpen}>
-			<CollapsibleTrigger className="w-full">
+			<CollapsibleTrigger className="w-full" style={style}>
 				<NavItem
 					// data
 					title={data.title}
@@ -39,7 +39,7 @@ export function NavList({ data, depth = 1, enabledRootRedirect = false }: NavLis
 				/>
 			</CollapsibleTrigger>
 			{hasChild && (
-				<CollapsibleContent>
+				<CollapsibleContent style={style}>
 					<div className="ml-4 mt-1 flex flex-col gap-1">
 						{data.children?.map((child) => (
 							<NavList key={child.title} data={child} depth={depth + 1} enabledRootRedirect={enabledRootRedirect} />

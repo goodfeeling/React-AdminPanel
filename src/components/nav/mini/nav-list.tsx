@@ -8,7 +8,7 @@ export function NavList({ data, depth = 0 }: NavListProps) {
 	const hasChild = data.children && data.children.length > 0;
 	const location = useLocation();
 	const isActive = location.pathname.includes(data.path);
-
+	const style = data.hidden ? { display: "none" } : {};
 	const renderRootNavItem = () => {
 		return (
 			<NavRootItem
@@ -66,5 +66,9 @@ export function NavList({ data, depth = 0 }: NavListProps) {
 		);
 	};
 
-	return <li className="list-none">{hasChild ? renderRootItemWithHoverCard() : renderNavItem()}</li>;
+	return (
+		<li className="list-none" style={style}>
+			{hasChild ? renderRootItemWithHoverCard() : renderNavItem()}
+		</li>
+	);
 }

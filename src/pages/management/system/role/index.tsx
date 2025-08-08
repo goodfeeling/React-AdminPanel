@@ -5,11 +5,11 @@ import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader } from "@/ui/card";
 import type { TableProps } from "antd";
 import { Popconfirm, Table } from "antd";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { toast } from "sonner";
 import type { Role } from "#/entity";
 import RoleModal, { type RoleModalProps } from "./modal";
-import SettingModal, { type SettingModalProps } from "./setting-modal";
+import SettingModal, { type SettingModalProps } from "./setting/index";
 
 type ColumnsType<T extends object = object> = TableProps<T>["columns"];
 
@@ -44,7 +44,7 @@ const App: React.FC = () => {
 		},
 	});
 
-	const [roleModalProps, setUserModalProps] = useState<RoleModalProps>({
+	const [roleModalProps, setRoleModalProps] = useState<RoleModalProps>({
 		formValue: { ...defaultValue },
 		title: "New",
 		show: false,
@@ -53,25 +53,33 @@ const App: React.FC = () => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
 					toast.success("success!");
-					setUserModalProps((prev) => ({ ...prev, show: false }));
+					setRoleModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
 			return true;
 		},
 		onCancel: () => {
-			setUserModalProps((prev) => ({ ...prev, show: false }));
+			setRoleModalProps((prev) => ({ ...prev, show: false }));
 		},
 	});
 
-	const onCreate = (formValue: Role | undefined, isCreateSub = false) => {
+	useEffect(() => {
+		if (data) {
+			setRoleModalProps((prev) => ({
+				...prev,
+				treeRawData: data,
+			}));
+		}
+	}, [data]);
+
+	const onCreate = (formValue: Role | undefined) => {
 		const setValue = defaultValue;
 		if (formValue !== undefined) {
 			setValue.parent_id = formValue.id;
 		}
-		setUserModalProps((prev) => ({
+		setRoleModalProps((prev) => ({
 			...prev,
 			show: true,
-			isCreateSub,
 			...setValue,
 			title: "New",
 			formValue: { ...setValue },
@@ -79,11 +87,10 @@ const App: React.FC = () => {
 	};
 
 	const onEdit = (formValue: Role) => {
-		setUserModalProps((prev) => ({
+		setRoleModalProps((prev) => ({
 			...prev,
 			show: true,
 			title: "Edit",
-			isCreateSub: false,
 			formValue,
 		}));
 	};
@@ -113,6 +120,7 @@ const App: React.FC = () => {
 		const keys = expanded ? [...expandedKeys, record.id] : expandedKeys.filter((key) => key !== record.id);
 		setExpandedKeys(keys);
 	};
+
 	const columns: ColumnsType<Role> = [
 		{
 			title: "角色ID",
@@ -192,7 +200,7 @@ const App: React.FC = () => {
 					<Button
 						variant="link"
 						size="icon"
-						onClick={() => onCreate(record, true)}
+						onClick={() => onCreate(record)}
 						style={{ minWidth: "80px" }}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
@@ -230,7 +238,7 @@ const App: React.FC = () => {
 		<Card title="Role List">
 			<CardHeader>
 				<div className="flex items-center justify-between">
-					<Button onClick={() => onCreate(undefined, true)}>
+					<Button onClick={() => onCreate(undefined)}>
 						<Icon icon="solar:add-circle-outline" size={18} />
 						New
 					</Button>

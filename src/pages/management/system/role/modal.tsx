@@ -26,7 +26,7 @@ export function buildTree(tree: Role[]): RoleTree[] {
 		};
 	});
 }
-const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: RoleModalProps) => {
+const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: RoleModalProps) => {
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
@@ -106,7 +106,7 @@ const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 										<TreeSelect
 											showSearch
 											style={{ width: "100%" }}
-											value={field.value}
+											value={String(field.value)}
 											styles={{
 												popup: { root: { maxHeight: 400, overflow: "auto" } },
 											}}
@@ -114,7 +114,7 @@ const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 											allowClear
 											treeDefaultExpandAll
 											onChange={(value) => {
-												field.onChange(value);
+												field.onChange(Number(value));
 											}}
 											treeData={treeData}
 										/>
@@ -188,4 +188,4 @@ const UserNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 	);
 };
 
-export default UserNewModal;
+export default RoleNewModal;

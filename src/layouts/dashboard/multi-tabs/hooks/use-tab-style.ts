@@ -12,18 +12,23 @@ export function useMultiTabsStyle() {
 	return useMemo(() => {
 		const style: CSSProperties = {
 			position: "fixed",
-			// top: HEADER_HEIGHT,
-			right: 0,
-			// height: MULTI_TABS_HEIGHT,
+			top: "var(--layout-header-height)", // 紧接在头部下方
+			height: "36px", // 设置标签页高度
 			backgroundColor: rgbAlpha(themeVars.colors.background.defaultChannel, 0.9),
 			transition: "all 200ms cubic-bezier(0.4, 0, 0.2, 1) 0ms",
 			width: "100%",
 		};
 
+		// 根据布局类型调整宽度
 		if (themeLayout === ThemeLayout.Horizontal) {
-			// style.top = HEADER_HEIGHT + NAV_HORIZONTAL_HEIGHT - 2;
+			// 水平布局时保持全宽
 		} else if (isPc) {
-			// style.width = `calc(100% - ${themeLayout === ThemeLayout.Vertical ? NAV_WIDTH : NAV_COLLAPSED_WIDTH}px`;
+			// 垂直布局时需要考虑侧边栏宽度
+			style.width = "calc(100% - var(--layout-nav-width))";
+		} else {
+			// 移动端保持全宽
+			style.width = "100%";
+			style.left = 0;
 		}
 
 		return style;

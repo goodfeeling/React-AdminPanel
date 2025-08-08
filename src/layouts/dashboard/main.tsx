@@ -9,7 +9,6 @@ import { MultiTabsProvider } from "./multi-tabs/providers/multi-tabs-provider";
 
 const Main = () => {
 	const { themeStretch, multiTab } = useSettings();
-
 	return (
 		<main
 			data-slot="slash-layout-main"
@@ -21,6 +20,10 @@ const Main = () => {
 				className={cn(
 					"h-full w-full p-2 mx-auto transition-all duration-300 ease-in-out overscroll-none",
 					themeStretch ? "" : "xl:max-w-screen-xl",
+					{
+						// 当启用多标签页且在PC端时，需要额外的顶部padding来为固定定位的标签栏留出空间
+						"md:pt-0": multiTab,
+					},
 				)}
 			>
 				{multiTab ? (

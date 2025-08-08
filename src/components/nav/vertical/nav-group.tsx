@@ -26,7 +26,15 @@ export function NavGroup({ name, items, ...props }: NavGroupProps) {
 	);
 }
 
-function Group({ name, open, onClick }: { name?: string; open: boolean; onClick: (nextValue: boolean) => void }) {
+function Group({
+	name,
+	open,
+	onClick,
+}: {
+	name?: string;
+	open: boolean;
+	onClick: (nextValue: boolean) => void;
+}) {
 	const { t } = useLocale();
 	return (
 		name && (

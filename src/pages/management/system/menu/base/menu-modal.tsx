@@ -6,9 +6,10 @@ import { Input } from "@/ui/input";
 import useDirTree from "@/hooks/dirTree";
 import useLangTree from "@/hooks/langTree";
 import { Button, Modal, Switch, TreeSelect } from "antd";
+import type { TFunction } from "i18next";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-
+import { useTranslation } from "react-i18next";
 export type MenuModalProps = {
 	formValue: Menu;
 	treeRawData: Menu[];
@@ -18,24 +19,27 @@ export type MenuModalProps = {
 	onCancel: VoidFunction;
 };
 // 构建树形结构
-export const buildTree = (tree: Menu[]): MenuTree[] => {
+export const buildTree = (tree: Menu[], t: TFunction<"translation", undefined>, disabledId?: string): MenuTree[] => {
 	return tree.map((item: Menu): MenuTree => {
 		return {
 			value: item.id.toString(),
-			title: item.title,
+			title: t(item.title),
 			key: item.id.toString(),
 			path: item.level,
 			origin: item,
-			children: item.children ? buildTree(item.children) : [],
+			disabled: item.id.toString() === disabledId,
+			children: item.children ? buildTree(item.children, t) : [],
 		};
 	});
 };
 const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: MenuModalProps) => {
+	const { t, i18n } = useTranslation();
+
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const dirTree = useDirTree();
-	const langTree = useLangTree();
+	const langTree = useLangTree(i18n.store.data[i18n.language].translation);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
@@ -46,16 +50,17 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 
 	useEffect(() => {
 		form.reset(formValue);
+		const currentId = formValue.id.toString();
 		setTreeData([
 			{
 				value: "0",
 				title: "根节点",
 				key: "0",
 				path: [0],
-				children: buildTree(treeRawData),
+				children: buildTree(treeRawData, t, currentId),
 			},
 		]);
-	}, [formValue, treeRawData, form]);
+	}, [formValue, treeRawData, form, t]);
 
 	const handleOk = async () => {
 		const values = form.getValues();
@@ -188,14 +193,14 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 										<TreeSelect
 											showSearch
 											style={{ width: "100%" }}
-											value={field.value}
+											value={String(field.value)}
 											styles={{
 												popup: { root: { maxHeight: 400, overflow: "auto" } },
 											}}
 											placeholder="Please select"
 											allowClear
 											onChange={(value) => {
-												field.onChange(value);
+												field.onChange(Number(value));
 											}}
 											treeData={treeData}
 										/>

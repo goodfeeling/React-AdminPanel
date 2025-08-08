@@ -13,6 +13,7 @@ import {
 	useUpdateOrCreateMenuGroupMutation,
 } from "@/store/menuGroupManageStore";
 import { CardContent, CardHeader } from "@/ui/card";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import MenuGroupModal, { type MenuGroupModalProps } from "./group-modal";
 
@@ -30,13 +31,13 @@ const MenuGroupList = ({
 		created_at: "",
 		updated_at: "",
 	};
+	const { t } = useTranslation();
 	const updateOrCreateMutation = useUpdateOrCreateMenuGroupMutation();
 	const removeMutation = useRemoveMenuGroupMutation();
 	const { data, isLoading } = useMenuGroupQuery();
 	const condition = useMenuGroupManageCondition();
 	const { setCondition } = useMenuGroupActions();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
-
 	const [apiModalProps, setDictionaryModalProps] = useState<MenuGroupModalProps>({
 		formValue: { ...defaultValue },
 		title: "New",
@@ -108,6 +109,9 @@ const MenuGroupList = ({
 			dataIndex: "name",
 			key: "name",
 			ellipsis: true,
+			render: (_, record) => {
+				return <span>{t(record.name)}</span>;
+			},
 		},
 		{
 			title: "操作",

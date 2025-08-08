@@ -14,6 +14,7 @@ import {
 	useRemoveDictionaryDetailMutation,
 	useUpdateOrCreateDictionaryDetailMutation,
 } from "@/store/dictionaryDetailManageStore";
+import { Badge } from "@/ui/badge";
 import { CardContent, CardHeader } from "@/ui/card";
 import { toast } from "sonner";
 import DictionaryDetailModal, { type DictionaryDetailModalProps } from "./detail-modal";
@@ -155,6 +156,9 @@ const DictionaryDetailList = ({
 			dataIndex: "status",
 			key: "status",
 			ellipsis: true,
+			render: (_, record) => {
+				return <Badge variant={record.status ? "success" : "error"}>{record.status ? "Enable" : "Disabled"}</Badge>;
+			},
 		},
 		{
 			title: "排序标记",

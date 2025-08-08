@@ -192,6 +192,7 @@ export interface MenuTree {
 	origin?: Menu;
 	children: MenuTree[];
 	path: number[];
+	disabled?: boolean;
 }
 
 export interface roleSetting {

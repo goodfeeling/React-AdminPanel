@@ -1,6 +1,12 @@
+import { getPathnames, groupCheck } from "@/components/premission/common";
+import { useMenu } from "@/store/useMenuStore";
+import type { Menu } from "@/types/entity";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
+import { useLocation } from "react-router";
 import { useTabOperations } from "../hooks/use-tab-operations";
 import type { KeepAliveTab, MultiTabsContextType } from "../types";
+
+const menuPathCache = new Map<string, Menu | null>();
 
 const MultiTabsContext = createContext<MultiTabsContextType>({
 	tabs: [],
@@ -16,41 +22,46 @@ const MultiTabsContext = createContext<MultiTabsContextType>({
 
 export function MultiTabsProvider({ children }: { children: React.ReactNode }) {
 	const [tabs, setTabs] = useState<KeepAliveTab[]>([]);
-	const currentRouteMeta = {
-		key: "/",
-		label: "Home",
-		hideTab: false,
-		children: null,
-		outlet: null,
-		params: {},
-	};
+	const location = useLocation();
+	const menuData = useMenu();
+	const currentRouteKey = location.pathname;
+	// 使用缓存查找菜单项
+	const currentMenu = useMemo(() => {
+		// 首先检查缓存中是否有结果
+		if (menuPathCache.has(currentRouteKey)) {
+			return menuPathCache.get(currentRouteKey);
+		}
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+		// 如果缓存中没有，则执行查找
+		const pathnames = getPathnames(currentRouteKey);
+		const menu = groupCheck(menuData, pathnames);
+
+		// 将结果存入缓存
+		menuPathCache.set(currentRouteKey, menu);
+
+		return menu;
+	}, [currentRouteKey, menuData]);
+
 	const activeTabRoutePath = useMemo(() => {
-		if (!currentRouteMeta) return "";
-		const { key } = currentRouteMeta;
-		return key;
-	}, [currentRouteMeta]);
+		return currentRouteKey;
+	}, [currentRouteKey]);
 
 	const operations = useTabOperations(tabs, setTabs, activeTabRoutePath);
 
-	// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 	useEffect(() => {
-		if (!currentRouteMeta) return;
-
 		setTabs((prev) => {
 			const filtered = prev.filter((item) => !item.hideTab);
-
-			const { key, outlet: children } = currentRouteMeta;
-
-			const isExisted = filtered.find((item) => item.key === key);
-			if (!isExisted) {
+			const isAlreadyExisted = filtered.some((item) => item.key === currentRouteKey);
+			if (!isAlreadyExisted && currentRouteKey !== "/") {
 				return [
 					...filtered,
 					{
-						...currentRouteMeta,
-						key,
-						children,
+						key: currentRouteKey,
+						label: currentMenu?.title || currentRouteKey,
+						hideTab: false,
+						icon: currentMenu?.icon || "",
+						children: null,
+						params: {},
 						timeStamp: new Date().getTime().toString(),
 					},
 				];
@@ -58,7 +69,7 @@ export function MultiTabsProvider({ children }: { children: React.ReactNode }) {
 
 			return filtered;
 		});
-	}, [currentRouteMeta]);
+	}, [currentRouteKey, currentMenu]);
 
 	const contextValue = useMemo(
 		() => ({
@@ -75,4 +86,8 @@ export function MultiTabsProvider({ children }: { children: React.ReactNode }) {
 
 export function useMultiTabsContext() {
 	return useContext(MultiTabsContext);
+}
+// 提供一个清除缓存的方法，当菜单数据更新时可以调用
+export function clearMenuPathCache() {
+	menuPathCache.clear();
 }

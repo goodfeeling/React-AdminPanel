@@ -15,13 +15,19 @@ type NavItemRendererProps = {
 export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, className, children, hidden }) => {
 	const { disabled, externalLink, hasChild, path, onClick } = item;
 
+	const style = hidden ? { display: "none" } : {};
+
 	if (disabled) {
-		return <div className={className}>{children}</div>;
+		return (
+			<div className={className} style={style}>
+				{children}
+			</div>
+		);
 	}
 
 	if (externalLink) {
 		return (
-			<a href={path} target="_blank" rel="noopener noreferrer" className={className}>
+			<a href={path} target="_blank" rel="noopener noreferrer" className={className} style={style}>
 				{children}
 			</a>
 		);
@@ -30,7 +36,7 @@ export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, classNam
 	if (hasChild) {
 		// Vertical nav items with children are clickable containers
 		return (
-			<div className={className} onClick={onClick}>
+			<div className={className} onClick={onClick} style={style}>
 				{children}
 			</div>
 		);
@@ -38,7 +44,7 @@ export const NavItemRenderer: React.FC<NavItemRendererProps> = ({ item, classNam
 
 	// Default: internal link
 	return (
-		<RouterLink hidden={hidden} href={path} className={className}>
+		<RouterLink href={path} className={className} style={style}>
 			{children}
 		</RouterLink>
 	);

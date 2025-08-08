@@ -5,6 +5,7 @@ import { useEffect, useState } from "react";
 import type { ColumnsType, Menu } from "#/entity";
 
 import { useMenuQuery, useRemoveMenuMutation, useUpdateOrCreateMenuMutation } from "@/store/menuManageStore";
+import { Badge } from "@/ui/badge";
 import { CardContent, CardHeader } from "@/ui/card";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -160,6 +161,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		{
 			title: "图标",
 			dataIndex: "icon",
+			render: (_, record) => {
+				return <Icon icon={record.icon} size={18} />;
+			},
 		},
 		{
 			title: "路由Name",
@@ -172,6 +176,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		{
 			title: "是否显示隐藏",
 			dataIndex: "hidden",
+			render: (_, record) => {
+				return <Badge variant={record.hidden ? "success" : "error"}>{record.hidden ? "Yes" : "No"}</Badge>;
+			},
 		},
 		{
 			title: "父节点",

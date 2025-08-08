@@ -1,6 +1,6 @@
 import { useRouter } from "@/routes/hooks";
-import { Tabs } from "antd";
 import { useEffect, useRef } from "react";
+import { Outlet } from "react-router";
 import styled from "styled-components";
 import SortableContainer from "./components/sortable-container";
 import { SortableItem } from "./components/sortable-item";
@@ -71,46 +71,68 @@ export default function MultiTabs() {
 
 	return (
 		<StyledMultiTabs>
-			<Tabs
-				size="small"
-				type="card"
-				tabBarGutter={4}
-				activeKey={activeTabRoutePath}
-				items={tabs.map((tab) => ({
-					...tab,
-					children: <div key={tab.timeStamp}>{tab.children}</div>,
-				}))}
-				renderTabBar={() => {
-					return (
-						<div style={style}>
-							<SortableContainer items={tabs} onSortEnd={handleDragEnd} renderOverlay={renderOverlay}>
-								<ul ref={scrollContainer} className="flex overflow-x-auto w-full px-2 h-[32px] hide-scrollbar">
-									{tabs.map((tab) => (
-										<SortableItem tab={tab} key={tab.key} onClick={() => handleTabClick(tab)} />
-									))}
-								</ul>
-							</SortableContainer>
-						</div>
-					);
-				}}
-			/>
+			{/* 标签栏部分 */}
+			<div style={style}>
+				<SortableContainer items={tabs} onSortEnd={handleDragEnd} renderOverlay={renderOverlay}>
+					<ul ref={scrollContainer} className="flex overflow-x-auto w-full px-2 h-full hide-scrollbar">
+						{tabs.map((tab) => (
+							<SortableItem tab={tab} key={tab.key} onClick={() => handleTabClick(tab)} />
+						))}
+					</ul>
+				</SortableContainer>
+			</div>
+
+			{/* 内容部分 */}
+			<div className="tab-content flex-1 overflow-hidden">
+				{tabs.map((tab) => (
+					<div
+						key={tab.key}
+						style={{
+							display: tab.key === activeTabRoutePath ? "block" : "none",
+							height: "100%",
+						}}
+					>
+						{tab.children ? (
+							<div key={tab.timeStamp}>{tab.children}</div>
+						) : (
+							<div
+								key={tab.timeStamp}
+								style={{
+									height: "100%",
+								}}
+							>
+								<Outlet />
+							</div>
+						)}
+					</div>
+				))}
+			</div>
 		</StyledMultiTabs>
 	);
 }
 
 const StyledMultiTabs = styled.div`
   height: 100%;
-  margin-top: 2px;
-  
-  .anticon {
-    margin: 0px !important;
+  display: flex;
+  flex-direction: column;
+
+  .tab-content {
+    flex: 1;
+    overflow: hidden;
+    margin-top: var(--layout-multi-tabs-height);
   }
-  
+
   .ant-tabs {
     height: 100%;
+    display: flex;
+    flex-direction: column;
+
     .ant-tabs-content {
+      flex: 1;
       height: 100%;
+      overflow: auto;
     }
+
     .ant-tabs-tabpane {
       height: 100%;
       & > div {
@@ -124,7 +146,7 @@ const StyledMultiTabs = styled.div`
     scrollbar-width: none;
     -ms-overflow-style: none;
     will-change: transform;
- 
+
     &::-webkit-scrollbar {
       display: none;
     }
