@@ -30,8 +30,8 @@ export default function UserModal({ title, show, formValue, onCancel }: SettingM
 				<DialogHeader>
 					<DialogTitle>{title}</DialogTitle>
 				</DialogHeader>
-				<ParameterPage MenuId={id} />
 				<BtnPage MenuId={id} />
+				<ParameterPage MenuId={id} />
 			</DialogContent>
 		</Dialog>
 	);

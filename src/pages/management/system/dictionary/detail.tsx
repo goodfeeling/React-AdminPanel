@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
 import { Button } from "@/ui/button";
 import type { TableProps } from "antd";
-import { Popconfirm, Table } from "antd";
+import { Image, Popconfirm, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import type { ColumnsType, DictionaryDetail } from "#/entity";
@@ -31,6 +31,7 @@ const DictionaryDetailList = ({
 		extend: "",
 		status: 2,
 		sort: 0,
+		type: "string",
 		sys_dictionary_Id: selectedDictId,
 		created_at: "",
 		updated_at: "",
@@ -145,6 +146,16 @@ const DictionaryDetailList = ({
 			title: "字典值",
 			dataIndex: "value",
 			key: "value",
+			render: (_, record) => {
+				switch (record.type) {
+					case "image":
+						return <Image src={record.value} width={50} height={50} />;
+					case "icon":
+						return <Icon icon={record.value} size={18} />;
+					default:
+						return record.value;
+				}
+			},
 		},
 		{
 			title: "扩展值",

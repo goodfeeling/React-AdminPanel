@@ -37,6 +37,7 @@ const DictionaryList = ({
 	const { data, isLoading } = useDictionaryQuery();
 	const condition = useDictionaryManageCondition();
 	const { setCondition } = useDictionaryActions();
+
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [apiModalProps, setDictionaryModalProps] = useState<DictionaryModalProps>({
 		formValue: { ...defaultDictionaryValue },

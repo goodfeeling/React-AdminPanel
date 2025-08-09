@@ -26,6 +26,8 @@ export default function UploadListItem({ file, actions, thumbnail = false }: Pro
 		if (file.status && ["done", "error"].includes(file.status) && format === "img") {
 			if (file.originFileObj) {
 				setImgThumbUrl(getBlobUrl(file.originFileObj));
+			} else {
+				setImgThumbUrl(file.url ?? "");
 			}
 		}
 	}, [file, format]);

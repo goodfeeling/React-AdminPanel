@@ -1,4 +1,3 @@
-// main.tsx
 import "./global.css";
 import "./theme/theme.css";
 import "./locales/i18n";
@@ -15,7 +14,7 @@ import PageError from "./pages/sys/error/PageError";
 import AuthGuard from "./routes/components/auth-guard";
 import useAppMenu from "./routes/hooks/use-menu";
 import { authRoutes } from "./routes/sections/auth";
-import { buildRoutes, convertMenuTreeUserGroupToMenus } from "./routes/sections/buildRoutes";
+import { buildRoutes, convertMenuTreeUserGroupToMenus } from "./routes/sections/build-routes";
 import { mainRoutes } from "./routes/sections/main";
 import { useUserInfo } from "./store/userStore";
 import type { Menu, Role } from "./types/entity";

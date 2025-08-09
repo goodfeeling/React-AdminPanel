@@ -2,7 +2,7 @@
 import type { Menu, MenuTreeUserGroup } from "@/types/entity";
 import React from "react";
 import { Navigate, type RouteObject } from "react-router";
-import { lazyLoad } from "./lazyWrapper";
+import { lazyLoad } from "./lazy-wrapper";
 const modules = import.meta.glob("/src/pages/**/*.tsx");
 export function buildRoutes(menuData: Menu[]): RouteObject[] {
 	return menuData.map((item) => {

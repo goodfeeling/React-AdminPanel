@@ -1,6 +1,7 @@
 import Logo from "@/components/logo";
 import { NavMini, NavVertical } from "@/components/nav";
 import type { NavProps } from "@/components/nav/types";
+import { useMapByType } from "@/hooks/dict";
 import { useSettings } from "@/store/settingStore";
 import { ThemeLayout } from "@/types/enum";
 import { ScrollArea } from "@/ui/scroll-area";
@@ -13,7 +14,7 @@ type Props = {
 
 export function NavVerticalLayout({ data, className }: Props) {
 	const { themeLayout } = useSettings();
-
+	const siteConfig = useMapByType("site_config");
 	return (
 		<nav
 			data-slot="slash-layout-nav"
@@ -29,7 +30,9 @@ export function NavVerticalLayout({ data, className }: Props) {
 			>
 				<div className="flex items-center gap-2">
 					<Logo />
-					{themeLayout !== ThemeLayout.Mini && <span className="text-xl font-bold text-primary">My Admin</span>}
+					{themeLayout !== ThemeLayout.Mini && (
+						<span className="text-xl font-bold text-primary">{siteConfig.site_name}</span>
+					)}
 				</div>
 			</div>
 
