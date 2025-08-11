@@ -1,5 +1,5 @@
 export enum BasicStatus {
-	DISABLE = 0,
+	DISABLE = 2,
 	ENABLE = 1,
 }
 

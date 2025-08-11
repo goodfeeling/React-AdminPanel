@@ -6,8 +6,8 @@ import { Collapse, Input, Tag, Tree } from "antd";
 import type { TreeProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
-import { getAllKeys, type selectMenuData } from "./index";
 import { buildTree } from "../../menu/base/menu-modal";
+import { getAllKeys, type selectMenuData } from "./index";
 
 const { Search } = Input;
 
@@ -80,6 +80,11 @@ const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: 
 	);
 };
 
+type checkedKeys = {
+	checked: number[];
+	halfChecked: number[];
+};
+
 type TreeListProps = {
 	id: number;
 	defaultRouter: string;
@@ -99,15 +104,12 @@ const TreeList = ({
 	setDefaultRouter,
 }: TreeListProps) => {
 	const { updateMenus, updateRouterPath } = useRoleSettingActions();
-	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>();
+	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
 
 	useEffect(() => {
 		const tempData = checkKeys[groupId];
 		if (tempData && tempData.length > 0) {
 			setCheckedKeys(tempData.map((item: number) => String(item)));
-		} else {
-			// 如果没有数据，确保清空选中状态
-			setCheckedKeys([]);
 		}
 	}, [checkKeys, groupId]);
 
@@ -119,8 +121,9 @@ const TreeList = ({
 	}, []);
 	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
 		console.log("onCheck", checkedKeysValue);
-		setCheckedKeys(checkedKeysValue as React.Key[]);
-		updateMenus(id, String(groupId), checkedKeysValue as number[]);
+		const temp: checkedKeys = checkedKeysValue as checkedKeys;
+		setCheckedKeys(temp.checked);
+		updateMenus(id, String(groupId), temp.checked);
 	};
 	// 更新默认路由
 	const updateDefaultRouter = (data: MenuTree) => {
@@ -140,12 +143,13 @@ const TreeList = ({
 		<Tree
 			checkable
 			selectable={false}
+			checkStrictly={true}
 			expandedKeys={getAllKeys(treeData)}
 			onCheck={onCheck}
 			checkedKeys={checkedKeys}
 			treeData={treeData}
 			multiple={true}
-			className="no-hover-tree" // 添加类名禁用悬停效果
+			className="no-hover-tree"
 			titleRender={(node) => {
 				const hasBtn = node.origin?.menu_btns && node.origin.menu_btns.length > 0;
 				return (

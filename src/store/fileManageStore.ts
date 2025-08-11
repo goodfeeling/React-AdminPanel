@@ -103,7 +103,8 @@ export const useFileInfoQuery = () => {
 			tableParams.pagination?.pageSize,
 			tableParams.sortField,
 			tableParams.sortOrder,
-			tableParams.searchParams,
+			tableParams.searchParams?.storage_engine,
+			tableParams.searchParams?.file_origin_name,
 			tableParams.filters,
 		],
 		queryFn: () => {

@@ -10,13 +10,11 @@ import {
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 
 import useDictionaryByType from "@/hooks/dict";
-import { Badge } from "@/ui/badge";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
+import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -59,7 +57,7 @@ const App: React.FC = () => {
 	const { data, isLoading } = useFileInfoQuery();
 	const condition = useFileInfoManageCondition();
 	const { setCondition } = useFileInfoActions();
-	const storageEngine = useDictionaryByType("storage_engine");
+	const storageEngine = useDictionaryByType("file_storage_engine");
 
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setFileModalProps] = useState<FileModalProps>({
@@ -286,24 +284,13 @@ const App: React.FC = () => {
 										<FormLabel>storageEngine</FormLabel>
 										<FormControl>
 											<Select
-												onValueChange={(value) => {
+												style={{ width: 150 }}
+												onChange={(value: string) => {
 													field.onChange(value);
 												}}
-												value={field.value}
-											>
-												<SelectTrigger>
-													<SelectValue placeholder="Select type" />
-												</SelectTrigger>
-												<SelectContent>
-													{storageEngine.map((item) => {
-														return (
-															<SelectItem value={item.value} key={item.id}>
-																<Badge variant="success">{item.label}</Badge>
-															</SelectItem>
-														);
-													})}
-												</SelectContent>
-											</Select>
+												value={String(field.value)}
+												options={storageEngine}
+											/>
 										</FormControl>
 									</FormItem>
 								)}

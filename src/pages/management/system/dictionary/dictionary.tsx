@@ -28,6 +28,7 @@ const DictionaryList = ({
 		type: "",
 		status: 2,
 		desc: "",
+		is_generate_file: 0,
 		created_at: "",
 		updated_at: "",
 		details: [],
@@ -50,6 +51,7 @@ const DictionaryList = ({
 					setDictionaryModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
+			return true;
 		},
 		onCancel: () => {
 			setDictionaryModalProps((prev) => ({ ...prev, show: false }));

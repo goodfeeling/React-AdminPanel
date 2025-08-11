@@ -1,6 +1,6 @@
-import PlaceholderImg from "@/assets/images/background/dashboard.png";
 import LocalePicker from "@/components/locale-picker";
 import Logo from "@/components/logo";
+import { useMapByType } from "@/hooks";
 import SettingButton from "@/layouts/components/setting-button";
 import { useUserInfo, useUserToken } from "@/store/userStore";
 import { Navigate } from "react-router";
@@ -13,6 +13,7 @@ import ResetForm from "./reset-form";
 
 function LoginPage() {
 	const token = useUserToken();
+	const siteConfig = useMapByType("site_config");
 	const { current_role: currentRole } = useUserInfo();
 	if (token.accessToken) {
 		return <Navigate to={currentRole?.default_router ?? "/"} replace />;
@@ -24,7 +25,7 @@ function LoginPage() {
 				<div className="flex justify-center gap-2 md:justify-start">
 					<div className="flex items-center gap-2 font-medium cursor-pointer">
 						<Logo size={28} />
-						<span>Slash Admin</span>
+						<span>{siteConfig.site_name}</span>
 					</div>
 				</div>
 				<div className="flex flex-1 items-center justify-center">
@@ -41,7 +42,7 @@ function LoginPage() {
 			</div>
 
 			<div className="relative hidden bg-background-paper lg:block">
-				<img src={PlaceholderImg} alt="placeholder img" className="absolute inset-0 h-full w-full" />
+				<img src={siteConfig.site_login_bg} alt="placeholder img" className="absolute inset-0 h-full w-full" />
 			</div>
 
 			<div className="absolute right-2 top-0 flex flex-row">

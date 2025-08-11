@@ -169,9 +169,9 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 										<ToggleGroup
 											type="single"
 											variant="outline"
-											value={field.value ? "1" : "0"}
+											value={String(field.value)}
 											onValueChange={(value) => {
-												field.onChange(value === "1");
+												field.onChange(value);
 											}}
 										>
 											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>

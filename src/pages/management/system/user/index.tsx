@@ -1,6 +1,7 @@
 import roleService from "@/api/services/roleService";
 import userService from "@/api/services/userService";
 import { Icon } from "@/components/icon";
+import useDictionaryByType from "@/hooks/dict";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import {
 	usePasswordResetMutation,
@@ -14,9 +15,8 @@ import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import type { TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
+import { Card, Input, Popconfirm, Select, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
@@ -31,7 +31,7 @@ const defaultUserValue: UserInfo = {
 	nick_name: "",
 	header_img: "",
 	phone: "",
-	status: false,
+	status: 0,
 	created_at: "",
 	updated_at: "",
 	roles: [],
@@ -56,7 +56,7 @@ const App: React.FC = () => {
 	const condition = useUserManageCondition();
 	const { setCondition } = useUserManageActions();
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
-
+	const statusType = useDictionaryByType("status");
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: searchDefaultValue,
 	});
@@ -312,23 +312,13 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>Status</FormLabel>
 										<Select
-											onValueChange={(value) => {
+											style={{ width: 120 }}
+											onChange={(value: string) => {
 												field.onChange(value);
 											}}
-											value={field.value}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												<SelectItem value="1">
-													<Badge variant="success">Enable</Badge>
-												</SelectItem>
-												<SelectItem value="0">
-													<Badge variant="error">Disable</Badge>
-												</SelectItem>
-											</SelectContent>
-										</Select>
+											value={String(field.value)}
+											options={statusType}
+										/>
 									</FormItem>
 								)}
 							/>

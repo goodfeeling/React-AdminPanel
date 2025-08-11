@@ -1,26 +1,29 @@
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import { Input } from "@/ui/input";
 
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Button, Modal, Switch } from "antd";
+import useDictionaryByType from "@/hooks/dict";
+import AdvancedCronField from "@/pages/components/cron";
+import { Button, Input, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import type { Dictionary } from "#/entity";
+import type { ScheduledTask } from "#/entity";
 
-export type DictionaryModalProps = {
-	formValue: Dictionary;
+export type ScheduledTaskModalProps = {
+	formValue: ScheduledTask;
 	title: string;
 	show: boolean;
-	onOk: (values: Dictionary) => Promise<boolean>;
+	onOk: (values: ScheduledTask) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
 
-export default function UserModal({ title, show, formValue, onOk, onCancel }: DictionaryModalProps) {
-	const form = useForm<Dictionary>({
+export default function ScheduledTaskModal({ title, show, formValue, onOk, onCancel }: ScheduledTaskModalProps) {
+	const statusType = useDictionaryByType("status");
+	const taskTypes = useDictionaryByType("task_type");
+	const form = useForm<ScheduledTask>({
 		defaultValues: formValue,
 	});
-	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
+	const [open, setOpen] = useState(false);
+
 	useEffect(() => {
 		form.reset(formValue);
 	}, [formValue, form]);
@@ -42,6 +45,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 		setOpen(false);
 		onCancel();
 	};
+
 	return (
 		<Modal
 			open={open}
@@ -62,10 +66,10 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 				<form className="space-y-4">
 					<FormField
 						control={form.control}
-						name="name"
+						name="task_name"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>name</FormLabel>
+								<FormLabel>task_name</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -74,61 +78,69 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					/>
 					<FormField
 						control={form.control}
-						name="type"
+						name="task_description"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>type</FormLabel>
+								<FormLabel>task_description</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
 							</FormItem>
 						)}
 					/>
+					<AdvancedCronField />
 					<FormField
 						control={form.control}
-						name="is_generate_file"
+						name="task_type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>isGenerateFile</FormLabel>
+								<FormLabel>task_type</FormLabel>
 								<FormControl>
-									<div className="w-fit">
-										<Switch checked={Boolean(field.value)} onChange={(value) => field.onChange(Number(value))} />
-									</div>
+									<Select
+										style={{ width: 150 }}
+										onChange={(value: string) => {
+											field.onChange(value);
+										}}
+										value={String(field.value)}
+										options={taskTypes}
+									/>
 								</FormControl>
 							</FormItem>
 						)}
 					/>
-
+					<FormField
+						control={form.control}
+						name="task_params"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>task_params</FormLabel>
+								<FormControl>
+									{
+										<Input.TextArea
+											rows={4}
+											onChange={(e) => field.onChange(e.target.value)}
+											value={JSON.stringify(field.value)}
+										/>
+									}
+								</FormControl>
+							</FormItem>
+						)}
+					/>
 					<FormField
 						control={form.control}
 						name="status"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Status</FormLabel>
+								<FormLabel>status</FormLabel>
 								<FormControl>
-									<ToggleGroup
-										type="single"
-										variant="outline"
-										value={String(field.value)}
-										onValueChange={(value) => {
-											field.onChange(Number(value));
+									<Select
+										style={{ width: 120 }}
+										onChange={(value: string) => {
+											field.onChange(value);
 										}}
-									>
-										<ToggleGroupItem value="1">Enable</ToggleGroupItem>
-										<ToggleGroupItem value="2">Disable</ToggleGroupItem>
-									</ToggleGroup>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="desc"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>desc</FormLabel>
-								<FormControl>
-									<Input {...field} />
+										value={String(field.value)}
+										options={statusType}
+									/>
 								</FormControl>
 							</FormItem>
 						)}

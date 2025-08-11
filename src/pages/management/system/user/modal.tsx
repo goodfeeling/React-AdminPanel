@@ -177,9 +177,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 										<ToggleGroup
 											type="single"
 											variant="outline"
-											value={field.value ? "1" : "0"}
+											value={String(field.value)}
 											onValueChange={(value) => {
-												field.onChange(value === "1");
+												field.onChange(Number(value));
 											}}
 										>
 											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>

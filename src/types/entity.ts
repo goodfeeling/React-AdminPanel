@@ -49,7 +49,7 @@ export interface UserInfo {
 	nick_name: string;
 	header_img: string;
 	phone: string;
-	status?: boolean;
+	status?: number;
 	created_at: string;
 	updated_at: string;
 	current_role?: Role;
@@ -62,7 +62,7 @@ export interface UpdateUser {
 	nick_name: string;
 	header_img: string;
 	phone: string;
-	status?: boolean;
+	status?: number;
 }
 
 export interface Role {
@@ -70,7 +70,7 @@ export interface Role {
 	parent_id: number;
 	name: string;
 	label: string;
-	status: boolean;
+	status: number;
 	order?: number;
 	description?: string;
 	created_at: string;
@@ -143,6 +143,7 @@ export interface Dictionary {
 	type: string;
 	status: number;
 	desc: string;
+	is_generate_file: number;
 	created_at: string;
 	updated_at: string;
 	details: DictionaryDetail[];
@@ -206,7 +207,7 @@ export interface MenuGroup {
 	id: number;
 	name: string;
 	path: string;
-	status: boolean;
+	status: number;
 	sort: number;
 	created_at: string;
 	updated_at: string;
@@ -248,4 +249,29 @@ export type STSToken = {
 	bucket_name: string;
 	region: string;
 	refresh_token: string;
+};
+
+export type ScheduledTask = {
+	id: number;
+	task_name: string;
+	task_description: string;
+	cron_expression: string;
+	task_type: string;
+	task_params: { [key: string]: string };
+	status: number;
+	last_execute_time: string;
+	next_execute_time: string;
+	created_at: string;
+	updated_at: string;
+};
+
+export type TaskExecutionLog = {
+	id: number;
+	task_id: number;
+	execute_time: string;
+	execute_result: string;
+	execute_duration: number;
+	error_message: string;
+	created_at: string;
+	updated_at: string;
 };

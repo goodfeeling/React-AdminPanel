@@ -1,44 +1,86 @@
 import { Icon } from "@/components/icon";
+
 import useDictionaryByType from "@/hooks/dict";
 import {
-	useBatchRemoveOperationMutation,
-	useOperationActions,
-	useOperationManageCondition,
-	useOperationQuery,
-	useRemoveOperationMutation,
-} from "@/store/operationManageStore";
+	useBatchRemoveScheduledTaskMutation,
+	useRemoveScheduledTaskMutation,
+	useScheduledTaskManageCondition,
+	useScheduledTaskManegeActions,
+	useScheduledTaskQuery,
+	useUpdateOrCreateScheduledTaskMutation,
+} from "@/store/scheduleManageStore";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useState } from "react";
 import { useForm } from "react-hook-form";
 import { toast } from "sonner";
-import type { ColumnsType, Operation } from "#/entity";
+import type { ColumnsType, ScheduledTask } from "#/entity";
+import ScheduledTaskModal, { type ScheduledTaskModalProps } from "./modal";
 
-type SearchFormFieldType = {
-	method: string;
-	path: string;
-	status: number;
+const defaultScheduledTaskValue: ScheduledTask = {
+	id: 0,
+	task_name: "",
+	task_description: "",
+	cron_expression: "",
+	task_type: "",
+	task_params: {},
+	status: 0,
+	last_execute_time: "",
+	next_execute_time: "",
+	created_at: "",
+	updated_at: "",
 };
 
-const searchDefaultValue = { path: "", method: "", status: 0 };
+type SearchFormFieldType = {
+	task_name?: string;
+	status?: string;
+	task_type?: string;
+};
+
+const searchDefaultValue = {
+	task_name: "",
+	status: "",
+	task_type: "",
+};
 
 const App: React.FC = () => {
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: searchDefaultValue,
 	});
-	const removeMutation = useRemoveOperationMutation();
-	const batchRemoveMutation = useBatchRemoveOperationMutation();
-	const { data, isLoading } = useOperationQuery();
-	const condition = useOperationManageCondition();
-	const { setCondition } = useOperationActions();
-	const apiMethod = useDictionaryByType("api_method");
-	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
-	const handleTableChange: TableProps<Operation>["onChange"] = (pagination, filters, sorter) => {
+	const updateOrCreateMutation = useUpdateOrCreateScheduledTaskMutation();
+	const removeMutation = useRemoveScheduledTaskMutation();
+	const batchRemoveMutation = useBatchRemoveScheduledTaskMutation();
+	const { data, isLoading } = useScheduledTaskQuery();
+	const condition = useScheduledTaskManageCondition();
+	const { setCondition } = useScheduledTaskManegeActions();
+	const taskTypes = useDictionaryByType("task_type");
+	const statusType = useDictionaryByType("status");
+	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
+	const [apiModalProps, setScheduledTaskModalProps] = useState<ScheduledTaskModalProps>({
+		formValue: { ...defaultScheduledTaskValue },
+		title: "New",
+		show: false,
+		onOk: async (values: ScheduledTask) => {
+			updateOrCreateMutation.mutate(values, {
+				onSuccess: () => {
+					toast.success("success!");
+					setScheduledTaskModalProps((prev) => ({ ...prev, show: false }));
+				},
+			});
+			return true;
+		},
+		onCancel: () => {
+			setScheduledTaskModalProps((prev) => ({ ...prev, show: false }));
+		},
+	});
+
+	const handleTableChange: TableProps<ScheduledTask>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
 			...condition,
 			pagination,
@@ -48,6 +90,26 @@ const App: React.FC = () => {
 		});
 	};
 
+	const onCreate = () => {
+		setScheduledTaskModalProps((prev) => ({
+			...prev,
+			show: true,
+			...defaultScheduledTaskValue,
+			title: "New",
+			formValue: { ...defaultScheduledTaskValue },
+		}));
+	};
+
+	const onEdit = (formValue: ScheduledTask) => {
+		setScheduledTaskModalProps((prev) => ({
+			...prev,
+			show: true,
+			title: "Edit",
+			formValue,
+		}));
+	};
+
+	// single delete
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
@@ -59,6 +121,7 @@ const App: React.FC = () => {
 		});
 	};
 
+	// batch delete
 	const handleDeleteSelection = async () => {
 		batchRemoveMutation.mutate(selectedRowKeys as number[], {
 			onSuccess: () => {
@@ -70,21 +133,22 @@ const App: React.FC = () => {
 		});
 	};
 
-	const columns: ColumnsType<Operation> = [
+	const columns: ColumnsType<ScheduledTask> = [
 		{
 			title: "ID",
 			dataIndex: "id",
 			key: "id",
 		},
 		{
-			title: "IP 地址",
-			dataIndex: "ip",
-			key: "ip",
-		},
-		{
-			title: "请求路径",
+			title: "路径",
 			dataIndex: "path",
 			key: "path",
+			ellipsis: true,
+		},
+		{
+			title: "所属组",
+			dataIndex: "api_group",
+			key: "api_group",
 		},
 		{
 			title: "请求方法",
@@ -92,35 +156,9 @@ const App: React.FC = () => {
 			key: "method",
 		},
 		{
-			title: "状态码",
-			dataIndex: "status",
-			key: "status",
-		},
-		{
-			title: "延迟 (ms)",
-			dataIndex: "latency",
-			key: "latency",
-		},
-		{
-			title: "用户代理",
-			dataIndex: "agent",
-			key: "agent",
-		},
-		{
-			title: "错误信息",
-			dataIndex: "error_message",
-			key: "error_message",
-		},
-		{
-			title: "请求体",
-			dataIndex: "body",
-			key: "body",
-			ellipsis: true,
-		},
-		{
-			title: "响应内容",
-			dataIndex: "resp",
-			key: "resp",
+			title: "描述",
+			dataIndex: "description",
+			key: "description",
 			ellipsis: true,
 		},
 		{
@@ -141,6 +179,16 @@ const App: React.FC = () => {
 			width: 100,
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onEdit(record)}
+						style={{ minWidth: "70px" }}
+						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+					>
+						<Icon icon="solar:pen-bold-duotone" size={18} />
+						<span className="text-xs">修改</span>
+					</Button>
 					<Popconfirm
 						title="Delete the task"
 						description="Are you sure to delete this task?"
@@ -184,11 +232,13 @@ const App: React.FC = () => {
 		});
 	};
 
+	// 选择改变
 	const onSelectChange = (newSelectedRowKeys: React.Key[]) => {
+		console.log("selectedRowKeys changed: ", newSelectedRowKeys);
 		setSelectedRowKeys(newSelectedRowKeys);
 	};
 
-	const rowSelection: TableRowSelection<Operation> = {
+	const rowSelection: TableRowSelection<ScheduledTask> = {
 		selectedRowKeys,
 		onChange: onSelectChange,
 		selections: [
@@ -226,8 +276,6 @@ const App: React.FC = () => {
 		],
 	};
 
-	const hasSelected = selectedRowKeys.length > 0;
-
 	return (
 		<div className="flex flex-col gap-4">
 			<Card>
@@ -236,45 +284,52 @@ const App: React.FC = () => {
 						<div className="flex items-center gap-4">
 							<FormField
 								control={searchForm.control}
-								name="method"
+								name="task_name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Method</FormLabel>
-										<Select
-											style={{ width: 150 }}
-											onChange={(value: string) => {
-												field.onChange(Number(value));
-											}}
-											value={String(field.value)}
-											options={apiMethod}
-										/>
-									</FormItem>
-								)}
-							/>
-							<FormField
-								control={searchForm.control}
-								name="path"
-								render={({ field }) => (
-									<FormItem>
-										<FormLabel>Path</FormLabel>
+										<FormLabel>TaskName</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
 									</FormItem>
 								)}
 							/>
+							<FormField
+								control={searchForm.control}
+								name="task_type"
+								render={({ field }) => (
+									<FormItem>
+										<FormLabel>TaskType</FormLabel>
+										<Select
+											style={{ width: 150 }}
+											onChange={(value: string) => {
+												field.onChange(value);
+											}}
+											value={field.value}
+											options={taskTypes}
+										/>
+									</FormItem>
+								)}
+							/>
+
 							<FormField
 								control={searchForm.control}
 								name="status"
 								render={({ field }) => (
 									<FormItem>
 										<FormLabel>Status</FormLabel>
-										<FormControl>
-											<Input {...field} />
-										</FormControl>
+										<Select
+											style={{ width: 120 }}
+											onChange={(value: string) => {
+												field.onChange(value);
+											}}
+											value={field.value}
+											options={statusType}
+										/>
 									</FormItem>
 								)}
 							/>
+
 							<div className="flex ml-auto">
 								<Button variant="outline" onClick={() => onReset()}>
 									<Icon icon="solar:restart-line-duotone" size={18} />
@@ -289,17 +344,27 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title="Log List">
+			<Card title="ScheduledTask List">
 				<CardHeader>
-					<div className="flex items-center justify-between">
-						<Button variant="destructive" onClick={() => handleDeleteSelection()} disabled={!hasSelected}>
+					<div className="flex items-start justify-start">
+						<Button onClick={() => onCreate()} variant="default">
+							<Icon icon="solar:add-circle-outline" size={18} />
+							New
+						</Button>
+						<Button
+							onClick={() => handleDeleteSelection()}
+							variant="ghost"
+							className="ml-2"
+							disabled={!(selectedRowKeys.length > 0)}
+						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							Delete
 						</Button>
 					</div>
 				</CardHeader>
+
 				<CardContent>
-					<Table<Operation>
+					<Table<ScheduledTask>
 						rowKey={(record) => record.id}
 						rowSelection={rowSelection}
 						scroll={{ x: "max-content" }}
@@ -317,6 +382,7 @@ const App: React.FC = () => {
 						onChange={handleTableChange}
 					/>
 				</CardContent>
+				<ScheduledTaskModal {...apiModalProps} />
 			</Card>
 		</div>
 	);

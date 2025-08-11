@@ -17,7 +17,7 @@ export const useUpdateOrCreateRoleMutation = () => {
 	return useMutation({
 		mutationFn: async (data: Role) => {
 			if (data.id) {
-				const { parent_id = 0, name = "", label = "", order = 0, description = "", status = false } = data;
+				const { parent_id = 0, name = "", label = "", order = 0, description = "", status = 0 } = data;
 				await roleService.updateRole(data.id, {
 					parent_id,
 					name,

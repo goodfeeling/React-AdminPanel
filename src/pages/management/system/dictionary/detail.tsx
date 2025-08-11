@@ -31,7 +31,7 @@ const DictionaryDetailList = ({
 		extend: "",
 		status: 2,
 		sort: 0,
-		type: "string",
+		type: "",
 		sys_dictionary_Id: selectedDictId,
 		created_at: "",
 		updated_at: "",
@@ -56,6 +56,7 @@ const DictionaryDetailList = ({
 					setDictionaryModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
+			return true;
 		},
 		onCancel: () => {
 			setDictionaryModalProps((prev) => ({ ...prev, show: false }));
@@ -168,7 +169,11 @@ const DictionaryDetailList = ({
 			key: "status",
 			ellipsis: true,
 			render: (_, record) => {
-				return <Badge variant={record.status ? "success" : "error"}>{record.status ? "Enable" : "Disabled"}</Badge>;
+				return (
+					<Badge variant={record.status === 1 ? "success" : "error"}>
+						{record.status === 1 ? "Enable" : "Disabled"}
+					</Badge>
+				);
 			},
 		},
 		{

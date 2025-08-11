@@ -1,4 +1,3 @@
-import Logo from "@/assets/images/logo.png";
 import { QueryClientProvider } from "@tanstack/react-query";
 import { QueryClient } from "@tanstack/react-query";
 import { Analytics as VercelAnalytics } from "@vercel/analytics/react";
@@ -14,9 +13,10 @@ import { useEffect } from "react";
 import { AliveScope } from "react-activation";
 import { useNavigate } from "react-router";
 import { setNavigateFunction, setUpdateToken } from "./api/apiClient";
+import { useMapByType } from "./hooks";
 function App({ children }: { children: React.ReactNode }) {
 	const navigate = useNavigate();
-
+	const siteConfig = useMapByType("site_config");
 	// token update to apiClient
 	const tokenUpdater = () => {
 		const { setUserToken } = useUserActions();
@@ -35,8 +35,8 @@ function App({ children }: { children: React.ReactNode }) {
 					<AliveScope>
 						<VercelAnalytics />
 						<Helmet>
-							<title>My Admin</title>
-							<link rel="icon" href={Logo} />
+							<title>{siteConfig.site_name}</title>
+							<link rel="icon" href={siteConfig.site_logo} />
 						</Helmet>
 						<Toast />
 						<RouteLoadingProgress />

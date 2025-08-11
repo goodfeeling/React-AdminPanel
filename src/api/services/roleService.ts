@@ -6,7 +6,7 @@ export interface UpdateRole {
 	parent_id: number;
 	name: string;
 	label: string;
-	status: boolean;
+	status: number;
 	order: number;
 	description: string;
 }

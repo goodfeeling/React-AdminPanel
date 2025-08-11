@@ -20,7 +20,7 @@ const defaultValue: Role = {
 	label: "",
 	order: 0,
 	description: "",
-	status: false,
+	status: 0,
 	created_at: "",
 	updated_at: "",
 	default_router: "",
