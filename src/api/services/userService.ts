@@ -1,7 +1,6 @@
 import apiClient from "../apiClient";
 
 import type { PageList, PasswordEditReq, UpdateUser, UserInfo } from "#/entity";
-import refreshClient from "../refreshClient";
 
 export interface SignInReq {
 	user_name: string;
@@ -36,18 +35,13 @@ const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.Sig
 const signup = (data: SignUpReq) => apiClient.post<SignInRes>({ url: UserApi.SignUp, data });
 const logout = () => apiClient.get({ url: UserApi.Logout });
 
-const refreshToken = async (refreshToken: string) => {
-	try {
-		const response = await refreshClient.post(UserApi.Refresh, {
+const refreshToken = async (refreshToken: string) =>
+	apiClient.post({
+		url: UserApi.Refresh,
+		data: {
 			refreshToken,
-		});
-
-		return response.data; // 假设返回新的 accessToken 和 refreshToken
-	} catch (error) {
-		console.error("Token refresh failed:", error);
-		throw error;
-	}
-};
+		},
+	});
 const findById = (id: string) => apiClient.get<UserInfo[]>({ url: `${UserApi.User}/${id}` });
 
 const updateUser = (id: number, userInfo: UpdateUser) =>

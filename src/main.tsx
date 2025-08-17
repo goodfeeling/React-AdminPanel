@@ -2,7 +2,7 @@ import "./global.css";
 import "./theme/theme.css";
 import "./locales/i18n";
 
-import { Suspense, useState, useEffect } from "react";
+import { Suspense, useEffect, useState } from "react";
 import ReactDOM from "react-dom/client";
 import { ErrorBoundary } from "react-error-boundary";
 import { Navigate, Outlet, RouterProvider, createHashRouter } from "react-router";

@@ -7,6 +7,7 @@ export enum ResultEnum {
 	SUCCESS = 0,
 	ERROR = -1,
 	TIMEOUT = 401,
+	TOKEN_ERROR = 3001,
 }
 
 export enum StorageEnum {
@@ -69,4 +70,8 @@ export enum HtmlDataAttribute {
 export enum SortDirection {
 	SortASC = "asc",
 	SortDesc = "desc",
+}
+
+export enum PagePath {
+	Login = "/auth/login",
 }

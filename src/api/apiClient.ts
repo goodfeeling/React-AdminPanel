@@ -2,10 +2,9 @@ import axios, { type AxiosRequestConfig, type AxiosError, type AxiosResponse } f
 
 import { t } from "@/locales/i18n";
 import userStore from "@/store/userStore";
-import type { UserToken } from "@/types/entity";
 import { toast } from "sonner";
 import type { Result } from "#/api";
-import { ResultEnum } from "#/enum";
+import { PagePath, ResultEnum } from "#/enum";
 import userService from "./services/userService";
 
 // 创建 axios 实例
@@ -14,8 +13,6 @@ const axiosInstance = axios.create({
 	timeout: 50000,
 	headers: { "Content-Type": "application/json;charset=utf-8" },
 });
-
-const LOGIN_PATHNAME = "/auth/login";
 
 let isRefreshing = false;
 let failedQueue: Array<{
@@ -31,20 +28,6 @@ const processQueue = (error: any, token: string | null = null) => {
 		}
 	}
 	failedQueue = [];
-};
-
-// 定义一个全局变量来存储 navigate 函数
-let navigateFunction: (path: string) => void;
-
-// 提供一个方法来设置 navigate 函数
-export const setNavigateFunction = (navigate: (path: string) => void) => {
-	navigateFunction = navigate;
-};
-
-let updateTokenFn: ((token: UserToken) => void) | null = null;
-
-export const setUpdateToken = (fn: (token: UserToken) => void) => {
-	updateTokenFn = fn;
 };
 
 // 请求拦截
@@ -140,17 +123,11 @@ axiosInstance.interceptors.response.use(
 
 // clear user token
 function clearUserTokenToLoginPage() {
-	if (updateTokenFn) {
-		updateTokenFn({
-			accessToken: "",
-			refreshToken: "",
-			expirationAccessDateTime: "",
-			expirationRefreshDateTime: "",
-		});
-	}
-	if (navigateFunction) {
-		navigateFunction(LOGIN_PATHNAME); // 使用全局 navigate 函数跳转到登录页面
-	}
+	// 清空localStorage中的用户相关数据
+	localStorage.removeItem("stsToken");
+	localStorage.removeItem("userStore");
+	localStorage.removeItem("menu");
+	window.location.replace(`#${PagePath.Login}`);
 }
 
 class APIClient {
