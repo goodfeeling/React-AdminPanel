@@ -16,13 +16,15 @@ export type ScheduledTaskModalProps = {
 };
 
 export default function ScheduledTaskModal({ title, show, formValue, onOk, onCancel }: ScheduledTaskModalProps) {
-	const statusType = useDictionaryByType("status");
 	const taskTypes = useDictionaryByType("task_type");
+	const apiMethod = useDictionaryByType("api_method");
 	const form = useForm<ScheduledTask>({
 		defaultValues: formValue,
 	});
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
+
+	const taskType = form.watch("task_type");
 
 	useEffect(() => {
 		form.reset(formValue);
@@ -44,6 +46,163 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 	const handleCancel = () => {
 		setOpen(false);
 		onCancel();
+	};
+
+	// 根据task_type渲染不同的参数输入界面
+	const renderTaskParams = () => {
+		switch (taskType) {
+			case "http_call":
+				return (
+					<div className="space-y-4">
+						<FormField
+							control={form.control}
+							name="task_params.url"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>URL</FormLabel>
+									<FormControl>
+										<Input {...field} placeholder="http://example.com/api/health" />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="task_params.method"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Method</FormLabel>
+									<FormControl>
+										<Select {...field} style={{ width: "100%" }} options={apiMethod} />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="task_params.timeout"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Timeout (seconds)</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											{...field}
+											value={field.value || ""}
+											onChange={(e) => field.onChange(Number(e.target.value))}
+											placeholder="30"
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				);
+
+			case "function":
+				return (
+					<div className="space-y-4">
+						<FormField
+							control={form.control}
+							name="task_params.function_name"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Function Name</FormLabel>
+									<FormControl>
+										<Input {...field} placeholder="task function name" />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="task_params.days_to_keep"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Days to Keep</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											{...field}
+											value={field.value || ""}
+											onChange={(e) => field.onChange(Number(e.target.value))}
+											placeholder="30"
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				);
+			// 添加脚本任务类型
+			case "script_exec":
+				return (
+					<div className="space-y-4">
+						<FormField
+							control={form.control}
+							name="task_params.script_path"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Script Path</FormLabel>
+									<FormControl>
+										<Input {...field} placeholder="/path/to/your/script.sh" />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="task_params.arguments"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Arguments (optional)</FormLabel>
+									<FormControl>
+										<Input {...field} placeholder="arg1 arg2 arg3" />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="task_params.timeout"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>Timeout (seconds)</FormLabel>
+									<FormControl>
+										<Input
+											type="number"
+											{...field}
+											value={field.value || ""}
+											onChange={(e) => field.onChange(Number(e.target.value))}
+											placeholder="60"
+										/>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+					</div>
+				);
+			default:
+				return (
+					<FormField
+						control={form.control}
+						name="task_params"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>task_params</FormLabel>
+								<FormControl>
+									<Input.TextArea
+										rows={4}
+										onChange={(e) => field.onChange(JSON.parse(e.target.value || "{}"))}
+										value={JSON.stringify(field.value, null, 2)}
+										placeholder='{"key": "value"}'
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
+				);
+		}
 	};
 
 	return (
@@ -88,7 +247,9 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							</FormItem>
 						)}
 					/>
+
 					<AdvancedCronField />
+
 					<FormField
 						control={form.control}
 						name="task_type"
@@ -100,6 +261,8 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										style={{ width: 150 }}
 										onChange={(value: string) => {
 											field.onChange(value);
+											// 重置task_params当task_type改变时
+											form.setValue("task_params", {});
 										}}
 										value={String(field.value)}
 										options={taskTypes}
@@ -108,43 +271,8 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							</FormItem>
 						)}
 					/>
-					<FormField
-						control={form.control}
-						name="task_params"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>task_params</FormLabel>
-								<FormControl>
-									{
-										<Input.TextArea
-											rows={4}
-											onChange={(e) => field.onChange(e.target.value)}
-											value={JSON.stringify(field.value)}
-										/>
-									}
-								</FormControl>
-							</FormItem>
-						)}
-					/>
-					<FormField
-						control={form.control}
-						name="status"
-						render={({ field }) => (
-							<FormItem>
-								<FormLabel>status</FormLabel>
-								<FormControl>
-									<Select
-										style={{ width: 120 }}
-										onChange={(value: string) => {
-											field.onChange(value);
-										}}
-										value={String(field.value)}
-										options={statusType}
-									/>
-								</FormControl>
-							</FormItem>
-						)}
-					/>
+
+					{renderTaskParams()}
 				</form>
 			</Form>
 		</Modal>

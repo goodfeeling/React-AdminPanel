@@ -13,6 +13,7 @@ import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 
+import { Badge } from "@/ui/badge";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
@@ -29,7 +30,7 @@ const defaultScheduledTaskValue: ScheduledTask = {
 	cron_expression: "",
 	task_type: "",
 	task_params: {},
-	status: 0,
+	status: 1,
 	last_execute_time: "",
 	next_execute_time: "",
 	created_at: "",
@@ -140,34 +141,51 @@ const App: React.FC = () => {
 			key: "id",
 		},
 		{
-			title: "路径",
-			dataIndex: "path",
-			key: "path",
+			title: "task_name",
+			dataIndex: "task_name",
+			key: "task_name",
 			ellipsis: true,
 		},
 		{
-			title: "所属组",
-			dataIndex: "api_group",
-			key: "api_group",
+			title: "cron_expression",
+			dataIndex: "cron_expression",
+			key: "cron_expression",
 		},
 		{
-			title: "请求方法",
-			dataIndex: "method",
-			key: "method",
+			title: "task_type",
+			dataIndex: "task_type",
+			key: "task_type",
+			render: (task_type) => {
+				const taskType = taskTypes.find((item) => item.value === task_type);
+				return taskType?.label || task_type;
+			},
 		},
 		{
-			title: "描述",
-			dataIndex: "description",
-			key: "description",
-			ellipsis: true,
+			title: "status",
+			dataIndex: "status",
+			key: "status",
+			render: (status) => {
+				return <Badge variant={status ? "success" : "error"}>{status ? "Enable" : "Disabled"}</Badge>;
+			},
+		},
+
+		{
+			title: "last_execute_time",
+			dataIndex: "last_execute_time",
+			key: "last_execute_time",
 		},
 		{
-			title: "创建时间",
+			title: "next_execute_time",
+			dataIndex: "next_execute_time",
+			key: "next_execute_time",
+		},
+		{
+			title: "createdTime",
 			dataIndex: "created_at",
 			key: "created_at",
 		},
 		{
-			title: "更新时间",
+			title: "updateTime",
 			dataIndex: "updated_at",
 			key: "updated_at",
 		},
@@ -188,6 +206,26 @@ const App: React.FC = () => {
 					>
 						<Icon icon="solar:pen-bold-duotone" size={18} />
 						<span className="text-xs">修改</span>
+					</Button>
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onEdit(record)}
+						style={{ minWidth: "70px" }}
+						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+					>
+						<Icon icon="solar:pen-bold-duotone" size={18} />
+						<span className="text-xs">启动</span>
+					</Button>
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onEdit(record)}
+						style={{ minWidth: "70px" }}
+						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+					>
+						<Icon icon="solar:pen-bold-duotone" size={18} />
+						<span className="text-xs">停止</span>
 					</Button>
 					<Popconfirm
 						title="Delete the task"

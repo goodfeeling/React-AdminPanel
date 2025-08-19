@@ -44,7 +44,7 @@ const AdvancedCronField = () => {
 			name="cron_expression"
 			render={({ field, fieldState }) => (
 				<FormItem>
-					<FormLabel>Cron表达式</FormLabel>
+					<FormLabel>CronExpress</FormLabel>
 					<FormControl>
 						<div className="space-y-4">
 							<div className="flex gap-2">
@@ -57,7 +57,7 @@ const AdvancedCronField = () => {
 							{showBuilder && (
 								<Card>
 									<CardHeader>
-										<CardTitle className="text-lg">Cron表达式构建器</CardTitle>
+										<CardTitle className="text-lg">CronExpressBuilder</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<div className="grid grid-cols-2 md:grid-cols-6 gap-4">

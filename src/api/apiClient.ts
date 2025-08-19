@@ -92,8 +92,8 @@ axiosInstance.interceptors.response.use(
 
 			try {
 				const response = await userService.refreshToken(userToken?.refreshToken);
-				const { security } = response.data;
-				const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } = security;
+				const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } =
+					response.security;
 				actions.setUserToken({
 					accessToken: jwtAccessToken,
 					refreshToken: jwtRefreshToken,
