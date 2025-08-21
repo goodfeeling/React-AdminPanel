@@ -76,6 +76,7 @@ export const useRemoveScheduledTaskMutation = () => {
 		},
 	});
 };
+
 // 批量删除
 export const useBatchRemoveScheduledTaskMutation = () => {
 	const queryClient = useQueryClient();
@@ -94,7 +95,63 @@ export const useBatchRemoveScheduledTaskMutation = () => {
 	});
 };
 
-export const useScheduledTaskQuery = () => {
+// 启动任务
+export const useEnableTaskMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (id: number) => {
+			await scheduleService.enableTask(id);
+		},
+		onSuccess: () => {
+			// 成功后使相关查询失效，触发重新获取
+			queryClient.invalidateQueries({ queryKey: ["scheduleManageList"] });
+		},
+		onError: (err) => {
+			console.error("Enable API failed:", err);
+		},
+	});
+};
+
+// 关闭任务
+export const useDisableTaskMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async (id: number) => {
+			await scheduleService.disableTask(id);
+		},
+		onSuccess: () => {
+			// 成功后使相关查询失效，触发重新获取
+			queryClient.invalidateQueries({ queryKey: ["scheduleManageList"] });
+		},
+		onError: (err) => {
+			console.error("Disable API failed:", err);
+		},
+	});
+};
+
+// 重启任务
+export const useReloadTaskMutation = () => {
+	const queryClient = useQueryClient();
+
+	return useMutation({
+		mutationFn: async () => {
+			await scheduleService.reloadTask();
+		},
+		onSuccess: () => {
+			// 成功后使相关查询失效，触发重新获取
+			queryClient.invalidateQueries({ queryKey: ["scheduleManageList"] });
+		},
+		onError: (err) => {
+			console.error("Reload API failed:", err);
+		},
+	});
+};
+
+export const useScheduledTaskQuery = (options?: {
+	enablePolling?: boolean;
+}) => {
 	const tableParams = useScheduledTaskManageStore.getState().condition;
 	return useQuery({
 		queryKey: [
@@ -110,24 +167,22 @@ export const useScheduledTaskQuery = () => {
 			const params = toURLSearchParams(
 				getRandomUserParams(tableParams, (result, searchParams) => {
 					if (searchParams) {
-						if (searchParams.path) {
-							result.path_like = searchParams.path;
-						}
-						if (searchParams.description) {
-							result.description_like = searchParams.description;
+						if (searchParams.task_name) {
+							result.taskName_like = searchParams.task_name;
 						}
 
-						if (searchParams.method) {
-							result.method_match = searchParams.method;
+						if (searchParams.task_type) {
+							result.taskType_like = searchParams.task_type;
 						}
-						if (searchParams.api_group) {
-							result.apiGroup_match = searchParams.api_group;
+						if (searchParams.status) {
+							result.status_match = searchParams.status;
 						}
 					}
 				}),
 			);
 			return scheduleService.searchPageList(params.toString());
 		},
+		refetchInterval: options?.enablePolling ? 5000 : false,
 	});
 };
 

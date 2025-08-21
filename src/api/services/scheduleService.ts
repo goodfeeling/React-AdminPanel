@@ -38,6 +38,18 @@ const deleteBatch = (ids: number[]) =>
 		url: `${ScheduledTaskClient.DeleteBatch}`,
 		data: { ids },
 	});
+const enableTask = (id: number) =>
+	schedule_taskClient.post<string>({
+		url: `${ScheduledTaskClient.ScheduledTask}/enable/${id}`,
+	});
+const disableTask = (id: number) =>
+	schedule_taskClient.post<string>({
+		url: `${ScheduledTaskClient.ScheduledTask}/disable/${id}`,
+	});
+const reloadTask = () =>
+	schedule_taskClient.post<string>({
+		url: `${ScheduledTaskClient.ScheduledTask}/reload`,
+	});
 
 export default {
 	updateScheduledTask,
@@ -46,4 +58,7 @@ export default {
 	deleteScheduledTask,
 	getScheduledTasks,
 	deleteBatch,
+	enableTask,
+	disableTask,
+	reloadTask,
 };

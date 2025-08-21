@@ -45,7 +45,7 @@ type SearchFormFieldType = {
 
 const searchDefaultValue = {
 	user_name: "",
-	status: "",
+	status: undefined,
 };
 
 const App: React.FC = () => {
@@ -312,12 +312,12 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>Status</FormLabel>
 										<Select
-											style={{ width: 120 }}
 											onChange={(value: string) => {
 												field.onChange(value);
 											}}
-											value={String(field.value)}
+											value={field.value}
 											options={statusType}
+											placeholder="Select status"
 										/>
 									</FormItem>
 								)}

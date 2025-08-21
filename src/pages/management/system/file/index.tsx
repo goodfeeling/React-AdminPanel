@@ -40,8 +40,8 @@ type SearchFormFieldType = {
 };
 
 const searchDefaultValue = {
-	file_origin_name: "",
-	storage_engine: "",
+	file_origin_name: undefined,
+	storage_engine: undefined,
 };
 
 const App: React.FC = () => {
@@ -288,8 +288,9 @@ const App: React.FC = () => {
 												onChange={(value: string) => {
 													field.onChange(value);
 												}}
-												value={String(field.value)}
+												value={field.value}
 												options={storageEngine}
+												placeholder="select storage engine"
 											/>
 										</FormControl>
 									</FormItem>

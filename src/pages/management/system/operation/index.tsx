@@ -24,7 +24,7 @@ type SearchFormFieldType = {
 	status: number;
 };
 
-const searchDefaultValue = { path: "", method: "", status: 0 };
+const searchDefaultValue = { path: undefined, method: undefined, status: 0 };
 
 const App: React.FC = () => {
 	const searchForm = useForm<SearchFormFieldType>({
@@ -241,12 +241,12 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>Method</FormLabel>
 										<Select
-											style={{ width: 150 }}
 											onChange={(value: string) => {
 												field.onChange(Number(value));
 											}}
-											value={String(field.value)}
+											value={field.value}
 											options={apiMethod}
+											placeholder="select method"
 										/>
 									</FormItem>
 								)}

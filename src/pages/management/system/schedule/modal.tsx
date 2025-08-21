@@ -18,6 +18,8 @@ export type ScheduledTaskModalProps = {
 export default function ScheduledTaskModal({ title, show, formValue, onOk, onCancel }: ScheduledTaskModalProps) {
 	const taskTypes = useDictionaryByType("task_type");
 	const apiMethod = useDictionaryByType("api_method");
+	const taskExecType = useDictionaryByType("task_exec");
+
 	const form = useForm<ScheduledTask>({
 		defaultValues: formValue,
 	});
@@ -250,6 +252,25 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 
 					<AdvancedCronField />
 
+					<FormField
+						control={form.control}
+						name="exec_type"
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>execType</FormLabel>
+								<FormControl>
+									<Select
+										style={{ width: 150 }}
+										onChange={(value: string) => {
+											field.onChange(value);
+										}}
+										value={field.value}
+										options={taskExecType}
+									/>
+								</FormControl>
+							</FormItem>
+						)}
+					/>
 					<FormField
 						control={form.control}
 						name="task_type"

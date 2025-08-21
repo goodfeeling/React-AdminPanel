@@ -3,6 +3,9 @@ import { Icon } from "@/components/icon";
 import useDictionaryByType from "@/hooks/dict";
 import {
 	useBatchRemoveScheduledTaskMutation,
+	useDisableTaskMutation,
+	useEnableTaskMutation,
+	useReloadTaskMutation,
 	useRemoveScheduledTaskMutation,
 	useScheduledTaskManageCondition,
 	useScheduledTaskManegeActions,
@@ -31,6 +34,7 @@ const defaultScheduledTaskValue: ScheduledTask = {
 	task_type: "",
 	task_params: {},
 	status: 1,
+	exec_type: "",
 	last_execute_time: "",
 	next_execute_time: "",
 	created_at: "",
@@ -44,9 +48,9 @@ type SearchFormFieldType = {
 };
 
 const searchDefaultValue = {
-	task_name: "",
-	status: "",
-	task_type: "",
+	task_name: undefined,
+	status: undefined,
+	task_type: undefined,
 };
 
 const App: React.FC = () => {
@@ -57,11 +61,20 @@ const App: React.FC = () => {
 	const updateOrCreateMutation = useUpdateOrCreateScheduledTaskMutation();
 	const removeMutation = useRemoveScheduledTaskMutation();
 	const batchRemoveMutation = useBatchRemoveScheduledTaskMutation();
-	const { data, isLoading } = useScheduledTaskQuery();
+	const enableTaskMutation = useEnableTaskMutation();
+	const disableTaskMutation = useDisableTaskMutation();
+	const reloadTaskMutation = useReloadTaskMutation();
+
+	// load data
+	const { data, isLoading } = useScheduledTaskQuery({ enablePolling: true });
 	const condition = useScheduledTaskManageCondition();
 	const { setCondition } = useScheduledTaskManegeActions();
+
+	// enum type
 	const taskTypes = useDictionaryByType("task_type");
-	const statusType = useDictionaryByType("status");
+	const statusType = useDictionaryByType("task_status");
+	const statusTypeMap = new Map<string, string>(statusType.map((item) => [item.value, item.label]));
+
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setScheduledTaskModalProps] = useState<ScheduledTaskModalProps>({
 		formValue: { ...defaultScheduledTaskValue },
@@ -164,8 +177,9 @@ const App: React.FC = () => {
 			title: "status",
 			dataIndex: "status",
 			key: "status",
-			render: (status) => {
-				return <Badge variant={status ? "success" : "error"}>{status ? "Enable" : "Disabled"}</Badge>;
+			render: (status: number) => {
+				const statusResult = statusTypeMap.get(status.toString())?.toLowerCase();
+				return <Badge variant={(statusResult as any) ?? "default"}>{statusResult}</Badge>;
 			},
 		},
 
@@ -200,8 +214,30 @@ const App: React.FC = () => {
 					<Button
 						variant="link"
 						size="icon"
-						onClick={() => onEdit(record)}
+						onClick={() => onEnableTask(record)}
 						style={{ minWidth: "70px" }}
+						disabled={record.status === 0}
+						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+					>
+						<Icon icon="solar:rewind-back-line-duotone" size={18} />
+						<span className="text-xs">启动</span>
+					</Button>
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onDisableTask(record)}
+						disabled={record.status === 1}
+						style={{ minWidth: "50px" }}
+						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+					>
+						<Icon icon="solar:stop-circle-outline" size={18} />
+						<span className="text-xs">关闭</span>
+					</Button>
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onEdit(record)}
+						style={{ minWidth: "50px" }}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
 						<Icon icon="solar:pen-bold-duotone" size={18} />
@@ -214,18 +250,8 @@ const App: React.FC = () => {
 						style={{ minWidth: "70px" }}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">启动</span>
-					</Button>
-					<Button
-						variant="link"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">停止</span>
+						<Icon icon="solar:menu-dots-circle-linear" size={18} />
+						<span className="text-xs">日志</span>
 					</Button>
 					<Popconfirm
 						title="Delete the task"
@@ -266,6 +292,42 @@ const App: React.FC = () => {
 			pagination: {
 				...condition.pagination,
 				current: 1,
+			},
+		});
+	};
+
+	// running task
+	const onEnableTask = async (formValue: ScheduledTask) => {
+		enableTaskMutation.mutate(formValue.id, {
+			onSuccess: () => {
+				toast.success("启动成功");
+			},
+			onError: () => {
+				toast.error("启动失败");
+			},
+		});
+	};
+
+	// stop task
+	const onDisableTask = (formValue: ScheduledTask) => {
+		disableTaskMutation.mutate(formValue.id, {
+			onSuccess: () => {
+				toast.success("关闭成功");
+			},
+			onError: () => {
+				toast.error("关闭失败");
+			},
+		});
+	};
+
+	// reload task
+	const onReloadTask = () => {
+		reloadTaskMutation.mutate(undefined, {
+			onSuccess: () => {
+				toast.success("启动成功");
+			},
+			onError: () => {
+				toast.error("启动失败");
 			},
 		});
 	};
@@ -339,12 +401,12 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>TaskType</FormLabel>
 										<Select
-											style={{ width: 150 }}
 											onChange={(value: string) => {
 												field.onChange(value);
 											}}
 											value={field.value}
 											options={taskTypes}
+											placeholder="select task type"
 										/>
 									</FormItem>
 								)}
@@ -357,12 +419,12 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>Status</FormLabel>
 										<Select
-											style={{ width: 120 }}
 											onChange={(value: string) => {
 												field.onChange(value);
 											}}
 											value={field.value}
 											options={statusType}
+											placeholder="Select status"
 										/>
 									</FormItem>
 								)}
@@ -397,6 +459,10 @@ const App: React.FC = () => {
 						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							Delete
+						</Button>
+						<Button onClick={() => onReloadTask()} variant="default">
+							<Icon icon="solar:refresh-bold" size={18} />
+							ReloadAllTask
 						</Button>
 					</div>
 				</CardHeader>

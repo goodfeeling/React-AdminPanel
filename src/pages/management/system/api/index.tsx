@@ -9,13 +9,12 @@ import {
 	useSynchronizeApiMutation,
 	useUpdateOrCreateApiMutation,
 } from "@/store/apiManageStore";
-import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
+
 import type { TableProps } from "antd";
-import { Card, Input, Popconfirm, Table } from "antd";
+import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -43,8 +42,8 @@ type SearchFormFieldType = {
 const searchDefaultValue = {
 	path: "",
 	description: "",
-	api_group: "",
-	method: "",
+	api_group: undefined,
+	method: undefined,
 };
 
 const App: React.FC = () => {
@@ -329,24 +328,13 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>Method</FormLabel>
 										<Select
-											onValueChange={(value) => {
+											onChange={(value: string) => {
 												field.onChange(value);
 											}}
 											value={field.value}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												{apiMethod.map((item) => {
-													return (
-														<SelectItem value={item.value} key={item.id}>
-															<Badge variant="success">{item.label}</Badge>
-														</SelectItem>
-													);
-												})}
-											</SelectContent>
-										</Select>
+											options={apiMethod}
+											placeholder="Select method"
+										/>
 									</FormItem>
 								)}
 							/>
@@ -357,24 +345,13 @@ const App: React.FC = () => {
 									<FormItem>
 										<FormLabel>ApiGroup</FormLabel>
 										<Select
-											onValueChange={(value) => {
+											onChange={(value: string) => {
 												field.onChange(value);
 											}}
 											value={field.value}
-										>
-											<SelectTrigger>
-												<SelectValue placeholder="Select Status" />
-											</SelectTrigger>
-											<SelectContent>
-												{apiGroup.map((item) => {
-													return (
-														<SelectItem value={item.value} key={item.id}>
-															<Badge variant="success">{item.label}</Badge>
-														</SelectItem>
-													);
-												})}
-											</SelectContent>
-										</Select>
+											options={apiGroup}
+											placeholder="Select ApiGroup"
+										/>
 									</FormItem>
 								)}
 							/>

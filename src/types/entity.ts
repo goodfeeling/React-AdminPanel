@@ -259,6 +259,7 @@ export type ScheduledTask = {
 	task_type: string;
 	task_params: { [key: string]: string };
 	status: number;
+	exec_type: string;
 	last_execute_time: string;
 	next_execute_time: string;
 	created_at: string;
