@@ -56,11 +56,8 @@ export function convertMenuTreeUserGroupToMenus(data: MenuTreeUserGroup[]): Menu
 			hidden: false,
 			component: `${group.path}/index`, // 如果有默认组件名，也可以传
 			sort: 0,
-			active_name: group.name,
 			keep_alive: 0,
-			default_menu: 0,
 			icon: "", // 你可以从 group.name 推图标
-			close_tab: 0,
 			menu_group_id: 0,
 			created_at: new Date().toISOString(),
 			updated_at: new Date().toISOString(),

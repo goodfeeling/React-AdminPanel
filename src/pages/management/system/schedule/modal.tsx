@@ -182,6 +182,18 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 								</FormItem>
 							)}
 						/>
+						<FormField
+							control={form.control}
+							name="task_params.work_dir"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>WorkDir (optional)</FormLabel>
+									<FormControl>
+										<Input {...field} placeholder="/home/user" />
+									</FormControl>
+								</FormItem>
+							)}
+						/>
 					</div>
 				);
 			default:
@@ -282,7 +294,6 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										style={{ width: 150 }}
 										onChange={(value: string) => {
 											field.onChange(value);
-											// 重置task_params当task_type改变时
 											form.setValue("task_params", {});
 										}}
 										value={String(field.value)}

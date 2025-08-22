@@ -36,6 +36,7 @@ export function buildFileTree(paths: string[]): TreeNode | null {
 			const isLast = index === segments.length - 1;
 			if (!segment) continue;
 			pathArr = [...pathArr, i];
+
 			if (segment !== "pages") {
 				if (pathStr === "") {
 					pathStr = `${segment}`;
@@ -43,14 +44,12 @@ export function buildFileTree(paths: string[]): TreeNode | null {
 					pathStr = `${pathStr}/${segment}`;
 				}
 			}
+
 			let existingChild = currentNode.children?.find((child) => child.title === segment);
+
 			if (!existingChild) {
-				let title = segment;
-				if (isLast) {
-					title = pathStr;
-				}
 				existingChild = {
-					title: title,
+					title: segment,
 					value: pathStr,
 					key: pathStr,
 					path: pathArr,

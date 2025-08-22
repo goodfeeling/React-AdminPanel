@@ -171,12 +171,9 @@ export interface Menu {
 	hidden: boolean;
 	component: string;
 	sort: number;
-	active_name: string;
 	keep_alive: number;
-	default_menu: number;
 	title: string;
 	icon: string;
-	close_tab: number;
 	menu_group_id: number;
 	created_at: string;
 	updated_at: string;

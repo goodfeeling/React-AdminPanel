@@ -75,6 +75,7 @@ const App: React.FC = () => {
 	const statusType = useDictionaryByType("task_status");
 	const statusTypeMap = new Map<string, string>(statusType.map((item) => [item.value, item.label]));
 
+	const [processingTaskIds, setProcessingTaskIds] = useState<Set<number>>(new Set());
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setScheduledTaskModalProps] = useState<ScheduledTaskModalProps>({
 		formValue: { ...defaultScheduledTaskValue },
@@ -216,22 +217,40 @@ const App: React.FC = () => {
 						size="icon"
 						onClick={() => onEnableTask(record)}
 						style={{ minWidth: "70px" }}
-						disabled={record.status === 0}
+						disabled={record.status === 0 || record.status === 2 || processingTaskIds.has(record.id)}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
-						<Icon icon="solar:rewind-back-line-duotone" size={18} />
-						<span className="text-xs">启动</span>
+						{processingTaskIds.has(record.id) && record.status !== 2 ? (
+							<>
+								<Icon icon="svg-spinners:bars-rotate-fade" size={18} />
+								<span className="text-xs">处理中</span>
+							</>
+						) : (
+							<>
+								<Icon icon="solar:rewind-back-line-duotone" size={18} />
+								<span className="text-xs">启动</span>
+							</>
+						)}
 					</Button>
 					<Button
 						variant="link"
 						size="icon"
 						onClick={() => onDisableTask(record)}
-						disabled={record.status === 1}
+						disabled={record.status === 1 || processingTaskIds.has(record.id)}
 						style={{ minWidth: "50px" }}
 						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
 					>
-						<Icon icon="solar:stop-circle-outline" size={18} />
-						<span className="text-xs">关闭</span>
+						{processingTaskIds.has(record.id) && record.status !== 1 ? (
+							<>
+								<Icon icon="svg-spinners:bars-rotate-fade" size={18} />
+								<span className="text-xs">处理中</span>
+							</>
+						) : (
+							<>
+								<Icon icon="solar:stop-circle-outline" size={18} />
+								<span className="text-xs">关闭</span>
+							</>
+						)}
 					</Button>
 					<Button
 						variant="link"
@@ -298,24 +317,50 @@ const App: React.FC = () => {
 
 	// running task
 	const onEnableTask = async (formValue: ScheduledTask) => {
+		setProcessingTaskIds((prev) => new Set(prev).add(formValue.id));
 		enableTaskMutation.mutate(formValue.id, {
 			onSuccess: () => {
 				toast.success("启动成功");
+				setProcessingTaskIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(formValue.id);
+					return newSet;
+				});
 			},
 			onError: () => {
 				toast.error("启动失败");
+				setProcessingTaskIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(formValue.id);
+					return newSet;
+				});
 			},
 		});
 	};
 
 	// stop task
 	const onDisableTask = (formValue: ScheduledTask) => {
+		// 添加任务到处理中集合
+		setProcessingTaskIds((prev) => new Set(prev).add(formValue.id));
+
 		disableTaskMutation.mutate(formValue.id, {
 			onSuccess: () => {
 				toast.success("关闭成功");
+				// 从处理中集合移除任务
+				setProcessingTaskIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(formValue.id);
+					return newSet;
+				});
 			},
 			onError: () => {
 				toast.error("关闭失败");
+				// 从处理中集合移除任务
+				setProcessingTaskIds((prev) => {
+					const newSet = new Set(prev);
+					newSet.delete(formValue.id);
+					return newSet;
+				});
 			},
 		});
 	};
@@ -484,6 +529,9 @@ const App: React.FC = () => {
 						dataSource={data?.list}
 						loading={isLoading}
 						onChange={handleTableChange}
+						onRow={(record) => ({
+							className: processingTaskIds.has(record.id) ? "opacity-75" : "",
+						})}
 					/>
 				</CardContent>
 				<ScheduledTaskModal {...apiModalProps} />

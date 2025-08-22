@@ -5,7 +5,7 @@ import { Input } from "@/ui/input";
 
 import useDirTree from "@/hooks/dirTree";
 import useLangTree from "@/hooks/langTree";
-import { Button, Modal, Switch, TreeSelect } from "antd";
+import { Button, Cascader, Modal, Switch, TreeSelect } from "antd";
 import type { TFunction } from "i18next";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -39,10 +39,13 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const dirTree = useDirTree();
+	const [isManualInput, setIsManualInput] = useState(true);
+	const [isManualTitleInput, setIsManualTitleInput] = useState(true);
 	const langTree = useLangTree(i18n.store.data[i18n.language].translation);
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
+	console.log(langTree);
 
 	useEffect(() => {
 		setOpen(show);
@@ -76,10 +79,20 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 		onCancel();
 	};
 
+	const handleValue = (value: any) => {
+		if (Array.isArray(value)) {
+			return value;
+		}
+		if (typeof value === "string") {
+			return value.split("/");
+		}
+		return undefined;
+	};
+
 	return (
 		<>
 			<Modal
-				width={800}
+				width={600}
 				open={open}
 				title={title}
 				onOk={handleOk}
@@ -95,28 +108,60 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 				]}
 			>
 				<Form {...form}>
-					<div className="grid grid-cols-2 gap-4">
+					<form className="space-y-4">
 						<FormField
 							control={form.control}
 							name="component"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>文件路径</FormLabel>
+									<FormLabel className="flex items-center justify-between">
+										<span>文件路径</span>
+										<Button
+											type="link"
+											size="small"
+											onClick={() => {
+												setIsManualInput(!isManualInput);
+												// 切换模式时清空字段值
+												field.onChange(undefined);
+											}}
+										>
+											{isManualInput ? "切换到便捷选择" : "切换到手动输入"}
+										</Button>
+									</FormLabel>
 									<FormControl>
-										<TreeSelect
-											showSearch
-											style={{ width: "100%" }}
-											value={field.value}
-											styles={{
-												popup: { root: { maxHeight: 400, overflow: "auto" } },
-											}}
-											placeholder="Please select"
-											allowClear
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-											treeData={dirTree}
-										/>
+										{isManualInput ? (
+											<Input
+												{...field}
+												placeholder="请输入文件路径，如: /dashboard/workplace"
+												value={field.value || ""}
+											/>
+										) : (
+											<div className="flex gap-2">
+												<Cascader
+													style={{ flex: 1 }}
+													fieldNames={{
+														label: "title",
+														children: "children",
+													}}
+													value={handleValue(field.value)}
+													options={dirTree}
+													onChange={(value) => {
+														// 将数组形式的路径值转换为字符串
+														if (Array.isArray(value)) {
+															field.onChange(value[value.length - 1]);
+														} else {
+															field.onChange(value);
+														}
+													}}
+													placeholder="请选择文件路径"
+													popupMenuColumnStyle={{
+														width: "200px",
+														whiteSpace: "normal",
+													}}
+													showSearch
+												/>
+											</div>
+										)}
 									</FormControl>
 								</FormItem>
 							)}
@@ -126,25 +171,51 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							name="title"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>展示名称</FormLabel>
+									<FormLabel className="flex items-center justify-between">
+										<span>展示名称</span>
+										<Button
+											type="link"
+											size="small"
+											onClick={() => {
+												setIsManualTitleInput(!isManualTitleInput);
+												// 切换模式时清空字段值
+												field.onChange(undefined);
+											}}
+										>
+											{isManualTitleInput ? "切换到便捷选择" : "切换到手动输入"}
+										</Button>
+									</FormLabel>
 									<FormControl>
-										<TreeSelect
-											showSearch
-											value={field.value}
-											styles={{
-												popup: { root: { maxHeight: 400, overflow: "auto" } },
-											}}
-											placeholder="Please select"
-											allowClear
-											onChange={(value) => {
-												field.onChange(value);
-											}}
-											treeData={langTree}
-										/>
+										{isManualTitleInput ? (
+											<Input {...field} placeholder="请输入展示名称，如: 菜单管理" value={field.value || ""} />
+										) : (
+											<div className="flex gap-2">
+												<Cascader
+													style={{ flex: 1 }}
+													value={handleValue(field.value)}
+													options={langTree}
+													onChange={(value) => {
+														// 将数组形式的路径值转换为字符串
+														if (Array.isArray(value)) {
+															field.onChange(value[value.length - 1]);
+														} else {
+															field.onChange(value);
+														}
+													}}
+													placeholder="请选择文件路径"
+													popupMenuColumnStyle={{
+														width: "200px",
+														whiteSpace: "normal",
+													}}
+													showSearch
+												/>
+											</div>
+										)}
 									</FormControl>
 								</FormItem>
 							)}
 						/>
+
 						<FormField
 							control={form.control}
 							name="name"
@@ -178,6 +249,23 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 									<FormControl>
 										<div className="w-fit">
 											<Switch checked={field.value} onChange={(value) => field.onChange(value)} />
+										</div>
+									</FormControl>
+								</FormItem>
+							)}
+						/>
+						<FormField
+							control={form.control}
+							name="keep_alive"
+							render={({ field }) => (
+								<FormItem>
+									<FormLabel>KeepAlive</FormLabel>
+									<FormControl>
+										<div className="w-fit">
+											<Switch
+												checked={field.value === 1}
+												onChange={(value) => field.onChange(value === true ? 1 : 0)}
+											/>
 										</div>
 									</FormControl>
 								</FormItem>
@@ -239,71 +327,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 								</FormItem>
 							)}
 						/>
-
-						<FormField
-							control={form.control}
-							name="active_name"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>高亮</FormLabel>
-									<FormControl>
-										<Input {...field} />
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="keep_alive"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>KeepAlive</FormLabel>
-									<FormControl>
-										<div className="w-fit">
-											<Switch
-												checked={field.value === 1}
-												onChange={(value) => field.onChange(value === true ? 1 : 0)}
-											/>
-										</div>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="close_tab"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>CloseTab</FormLabel>
-									<FormControl>
-										<div className="w-fit">
-											<Switch
-												checked={field.value === 1}
-												onChange={(value) => field.onChange(value === true ? 1 : 0)}
-											/>
-										</div>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-						<FormField
-							control={form.control}
-							name="default_menu"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>是否为基础页面</FormLabel>
-									<FormControl>
-										<div className="w-fit">
-											<Switch
-												checked={field.value === 1}
-												onChange={(value) => field.onChange(value === true ? 1 : 0)}
-											/>
-										</div>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
-					</div>
+					</form>
 				</Form>
 			</Modal>
 		</>

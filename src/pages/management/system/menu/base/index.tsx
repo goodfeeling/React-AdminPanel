@@ -22,12 +22,9 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		hidden: false,
 		component: "",
 		sort: 0,
-		active_name: "",
 		keep_alive: 0,
-		default_menu: 0,
 		title: "",
 		icon: "",
-		close_tab: 0,
 		menu_group_id: selectedId ? selectedId : 0,
 		created_at: "",
 		updated_at: "",
@@ -162,7 +159,12 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			title: "图标",
 			dataIndex: "icon",
 			render: (_, record) => {
-				return <Icon icon={record.icon} size={18} />;
+				return (
+					<div>
+						<Icon icon={record.icon} size={18} />
+						<span> {record.icon}</span>
+					</div>
+				);
 			},
 		},
 		{

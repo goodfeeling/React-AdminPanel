@@ -1,10 +1,9 @@
 import useLangTree from "@/hooks/langTree";
 import { BasicStatus } from "@/types/enum";
-import { Button } from "@/ui/button";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Modal, TreeSelect } from "antd";
+import { Button, Cascader, Modal } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -24,6 +23,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 		defaultValues: formValue,
 	});
 	const [open, setOpen] = useState(false);
+	const [isManualTitleInput, setIsManualTitleInput] = useState(true);
 	const langTree = useLangTree(i18n.store.data[i18n.language].translation);
 	useEffect(() => {
 		setOpen(show);
@@ -45,6 +45,16 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 		setOpen(false);
 		onCancel();
 	};
+	const handleValue = (value: any) => {
+		if (Array.isArray(value)) {
+			return value;
+		}
+		if (typeof value === "string") {
+			return value.split("/");
+		}
+		return undefined;
+	};
+
 	return (
 		<Modal
 			width={400}
@@ -69,21 +79,46 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						name="name"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Name</FormLabel>
+								<FormLabel className="flex items-center justify-between">
+									<span>Name</span>
+									<Button
+										type="link"
+										size="small"
+										onClick={() => {
+											setIsManualTitleInput(!isManualTitleInput);
+											// 切换模式时清空字段值
+											field.onChange(undefined);
+										}}
+									>
+										{isManualTitleInput ? "切换到便捷选择" : "切换到手动输入"}
+									</Button>
+								</FormLabel>
 								<FormControl>
-									<TreeSelect
-										showSearch
-										value={field.value}
-										styles={{
-											popup: { root: { maxHeight: 400, overflow: "auto" } },
-										}}
-										placeholder="Please select"
-										allowClear
-										onChange={(value) => {
-											field.onChange(value);
-										}}
-										treeData={langTree}
-									/>
+									{isManualTitleInput ? (
+										<Input {...field} placeholder="请输入展示名称，如: 菜单管理" value={field.value || ""} />
+									) : (
+										<div className="flex gap-2">
+											<Cascader
+												style={{ flex: 1 }}
+												value={handleValue(field.value)}
+												options={langTree}
+												onChange={(value) => {
+													// 将数组形式的路径值转换为字符串
+													if (Array.isArray(value)) {
+														field.onChange(value[value.length - 1]);
+													} else {
+														field.onChange(value);
+													}
+												}}
+												placeholder="请选择文件路径"
+												popupMenuColumnStyle={{
+													width: "200px",
+													whiteSpace: "normal",
+												}}
+												showSearch
+											/>
+										</div>
+									)}
 								</FormControl>
 							</FormItem>
 						)}
