@@ -279,12 +279,12 @@ export type Config = {
 	config_key: string;
 	config_value: string;
 	config_type: string;
-	description: string;
 	module: string;
 	is_enable: number;
 	created_at: string;
 	updated_at: string;
 	env_type: string;
+	select_options: DictionaryDetail[];
 };
 
 export type GroupConfig = {

@@ -1,7 +1,7 @@
 import Logo from "@/components/logo";
 import { NavMini, NavVertical } from "@/components/nav";
 import type { NavProps } from "@/components/nav/types";
-import { useMapByType } from "@/hooks/dict";
+import { useMapBySystemConfig } from "@/hooks";
 import { useSettings } from "@/store/settingStore";
 import { ThemeLayout } from "@/types/enum";
 import { ScrollArea } from "@/ui/scroll-area";
@@ -14,7 +14,8 @@ type Props = {
 
 export function NavVerticalLayout({ data, className }: Props) {
 	const { themeLayout } = useSettings();
-	const siteConfig = useMapByType("site_config");
+	const siteConfig = useMapBySystemConfig();
+
 	return (
 		<nav
 			data-slot="slash-layout-nav"

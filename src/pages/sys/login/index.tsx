@@ -1,6 +1,6 @@
 import LocalePicker from "@/components/locale-picker";
 import Logo from "@/components/logo";
-import { useMapByType } from "@/hooks";
+import { useMapBySystemConfig } from "@/hooks";
 import SettingButton from "@/layouts/components/setting-button";
 import { useUserInfo, useUserToken } from "@/store/userStore";
 import { Navigate } from "react-router";
@@ -13,7 +13,7 @@ import ResetForm from "./reset-form";
 
 function LoginPage() {
 	const token = useUserToken();
-	const siteConfig = useMapByType("site_config");
+	const siteConfig = useMapBySystemConfig();
 	const { current_role: currentRole } = useUserInfo();
 	if (token.accessToken) {
 		return <Navigate to={currentRole?.default_router ?? "/"} replace />;

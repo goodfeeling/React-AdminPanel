@@ -8,10 +8,16 @@ import Toast from "./components/toast";
 import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
+import { useEffect } from "react";
 import { AliveScope } from "react-activation";
-import { useMapByType } from "./hooks";
+import { useSystemConfig, useSystemConfigActions } from "./store/configSystemStore";
 function App({ children }: { children: React.ReactNode }) {
-	const siteConfig = useMapByType("site_config");
+	const { fetchConfig } = useSystemConfigActions();
+
+	useEffect(() => {
+		fetchConfig();
+	}, [fetchConfig]);
+	const systemConfig = useSystemConfig();
 
 	return (
 		<HelmetProvider>
@@ -20,8 +26,8 @@ function App({ children }: { children: React.ReactNode }) {
 					<AliveScope>
 						<VercelAnalytics />
 						<Helmet>
-							<title>{siteConfig.site_name}</title>
-							<link rel="icon" href={siteConfig.site_logo} />
+							<title>{systemConfig.get("site_name")}</title>
+							<link rel="icon" href={systemConfig.get("site_logo")} />
 						</Helmet>
 						<Toast />
 						<RouteLoadingProgress />

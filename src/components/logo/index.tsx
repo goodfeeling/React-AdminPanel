@@ -1,4 +1,4 @@
-import { useMapByType } from "@/hooks";
+import { useMapBySystemConfig } from "@/hooks";
 import { useTheme } from "@/theme/hooks";
 import { cn } from "@/utils";
 import { NavLink } from "react-router";
@@ -10,8 +10,7 @@ interface Props {
 }
 function Logo({ size = 50, className }: Props) {
 	const { themeTokens } = useTheme();
-	const siteConfig = useMapByType("site_config");
-
+	const siteConfig = useMapBySystemConfig();
 	if (
 		siteConfig.site_logo?.endsWith(".svg") ||
 		siteConfig.site_logo?.endsWith(".png") ||

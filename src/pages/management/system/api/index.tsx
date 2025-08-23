@@ -75,6 +75,7 @@ const App: React.FC = () => {
 					setApiModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
+			return true;
 		},
 		onCancel: () => {
 			setApiModalProps((prev) => ({ ...prev, show: false }));

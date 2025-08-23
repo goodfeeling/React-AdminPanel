@@ -10,7 +10,7 @@ interface Props extends UploadProps {
 export function UploadBox({ placeholder, ...other }: Props) {
 	return (
 		<StyledUploadBox>
-			<Dragger {...other} showUploadList={false}>
+			<Dragger {...other}>
 				<div className="opacity-60 hover:opacity-50">
 					{placeholder || (
 						<div className="mx-auto flex h-16 w-16 items-center justify-center">

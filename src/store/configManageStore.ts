@@ -15,8 +15,14 @@ const useConfigManageStore = create<ConfigManageState>()(() => ({
 export const useUpdateOrCreateConfigMutation = () => {
 	const queryClient = useQueryClient();
 	return useMutation({
-		mutationFn: async (data: Config[]) => {
-			await configService.updateConfig(data);
+		mutationFn: async ({
+			data,
+			module,
+		}: {
+			data: Config[];
+			module: string;
+		}) => {
+			await configService.updateConfig(data, module);
 			return { ...data };
 		},
 		onSuccess: () => {
