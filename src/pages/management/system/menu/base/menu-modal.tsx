@@ -1,5 +1,5 @@
 import type { Menu, MenuTree } from "@/types/entity";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { IconPicker } from "@/ui/icon-picker";
 import { Input } from "@/ui/input";
 
@@ -66,12 +66,13 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	}, [formValue, treeRawData, form, t]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -96,6 +97,15 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 				open={open}
 				title={title}
 				onOk={handleOk}
+				styles={{
+					body: {
+						maxHeight: "80vh",
+						overflowY: "auto",
+					},
+				}}
+				classNames={{
+					body: "themed-scrollbar",
+				}}
 				onCancel={handleCancel}
 				centered
 				footer={[
@@ -112,6 +122,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="component"
+							rules={{ required: "component is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
@@ -163,12 +174,14 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											</div>
 										)}
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="title"
+							rules={{ required: "title is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
@@ -212,6 +225,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											</div>
 										)}
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -219,24 +233,28 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="name"
+							rules={{ required: "name is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>路由Name</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="path"
+							rules={{ required: "path is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>路由Path</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -274,6 +292,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="parent_id"
+							rules={{ required: "parent_id is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>父节点ID</FormLabel>
@@ -293,6 +312,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 											treeData={treeData}
 										/>
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>

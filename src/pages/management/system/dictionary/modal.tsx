@@ -1,4 +1,4 @@
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
@@ -30,12 +30,13 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	}, [show]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -48,6 +49,15 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}
+			styles={{
+				body: {
+					maxHeight: "80vh",
+					overflowY: "auto",
+				},
+			}}
+			classNames={{
+				body: "themed-scrollbar",
+			}}
 			centered
 			footer={[
 				<Button key="back" onClick={handleCancel}>
@@ -63,24 +73,28 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="name"
+						rules={{ required: "name is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>name</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
 						name="type"
+						rules={{ required: "type is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>type</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

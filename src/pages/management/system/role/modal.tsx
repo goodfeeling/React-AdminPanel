@@ -1,5 +1,5 @@
 import type { Role, RoleTree } from "@/types/entity";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 import { Button, Modal, TreeSelect } from "antd";
@@ -52,12 +52,13 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 	}, [formValue, treeRawData, form]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -87,12 +88,14 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 						<FormField
 							control={form.control}
 							name="name"
+							rules={{ required: "name is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Name</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -125,12 +128,14 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 						<FormField
 							control={form.control}
 							name="label"
+							rules={{ required: "label is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>label</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>

@@ -1,4 +1,4 @@
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 
 import useDictionaryByType from "@/hooks/dict";
 import AdvancedCronField from "@/pages/components/cron";
@@ -37,12 +37,13 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 	}, [show]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -59,24 +60,28 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						<FormField
 							control={form.control}
 							name="task_params.url"
+							rules={{ required: "url is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>URL</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="http://example.com/api/health" />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="task_params.method"
+							rules={{ required: "method is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Method</FormLabel>
 									<FormControl>
 										<Select {...field} style={{ width: "100%" }} options={apiMethod} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -90,7 +95,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										<Input
 											type="number"
 											{...field}
-											value={field.value || ""}
+											value={field.value || "30"}
 											onChange={(e) => field.onChange(Number(e.target.value))}
 											placeholder="30"
 										/>
@@ -107,12 +112,14 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						<FormField
 							control={form.control}
 							name="task_params.function_name"
+							rules={{ required: "function_name is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Function Name</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="task function name" />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -126,7 +133,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										<Input
 											type="number"
 											{...field}
-											value={field.value || ""}
+											value={field.value || "30"}
 											onChange={(e) => field.onChange(Number(e.target.value))}
 											placeholder="30"
 										/>
@@ -143,24 +150,28 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						<FormField
 							control={form.control}
 							name="task_params.script_path"
+							rules={{ required: "script_path is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Script Path</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="/path/to/your/script.sh" />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="task_params.arguments"
+							rules={{ required: "arguments is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Arguments (optional)</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="arg1 arg2 arg3" />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -185,12 +196,14 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						<FormField
 							control={form.control}
 							name="task_params.work_dir"
+							rules={{ required: "work_dir is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>WorkDir (optional)</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="/home/user" />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -221,11 +234,21 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 
 	return (
 		<Modal
+			width={600}
 			open={open}
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}
 			centered
+			styles={{
+				body: {
+					maxHeight: "80vh",
+					overflowY: "auto",
+				},
+			}}
+			classNames={{
+				body: "themed-scrollbar",
+			}}
 			footer={[
 				<Button key="back" onClick={handleCancel}>
 					Return
@@ -240,12 +263,14 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 					<FormField
 						control={form.control}
 						name="task_name"
+						rules={{ required: "task_name is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>task_name</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
@@ -267,6 +292,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 					<FormField
 						control={form.control}
 						name="exec_type"
+						rules={{ required: "exec_type is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>execType</FormLabel>
@@ -280,12 +306,14 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										options={taskExecType}
 									/>
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
 						name="task_type"
+						rules={{ required: "task_type is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>task_type</FormLabel>
@@ -300,6 +328,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 										options={taskTypes}
 									/>
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

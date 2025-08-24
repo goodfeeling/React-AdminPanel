@@ -1,6 +1,6 @@
 import useLangTree from "@/hooks/langTree";
 import { BasicStatus } from "@/types/enum";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 import { Button, Cascader, Modal } from "antd";
@@ -33,13 +33,10 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 		form.reset(formValue);
 	}, [formValue, form]);
 
-	const onSubmit = (values: MenuGroup) => {
-		onOk(values);
-	};
-
 	const handleOk = async () => {
-		const values = form.getValues();
-		await onOk(values);
+		form.handleSubmit(async (values) => {
+			await onOk(values);
+		})();
 	};
 	const handleCancel = () => {
 		setOpen(false);
@@ -73,10 +70,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 			]}
 		>
 			<Form {...form}>
-				<form onSubmit={form.handleSubmit(onSubmit)} className="space-y-4">
+				<form className="space-y-4">
 					<FormField
 						control={form.control}
 						name="name"
+						rules={{ required: "name is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel className="flex items-center justify-between">
@@ -120,18 +118,21 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 										</div>
 									)}
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
 						name="path"
+						rules={{ required: "path is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Path</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

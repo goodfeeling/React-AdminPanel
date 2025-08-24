@@ -1,4 +1,4 @@
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
 import { Button, Modal, Select } from "antd";
@@ -32,12 +32,13 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 	}, [show]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -66,12 +67,14 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 					<FormField
 						control={form.control}
 						name="path"
+						rules={{ required: "path is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Path</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
@@ -79,6 +82,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 					<FormField
 						control={form.control}
 						name="method"
+						rules={{ required: "method is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>Method</FormLabel>
@@ -91,12 +95,14 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 									value={field.value}
 									options={apiMethod}
 								/>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
 						name="api_group"
+						rules={{ required: "api_group is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>ApiGroup</FormLabel>
@@ -109,6 +115,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 									value={field.value}
 									options={apiGroup}
 								/>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

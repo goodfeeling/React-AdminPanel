@@ -4,7 +4,7 @@ import { UploadAvatar } from "@/components/upload";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import useUserStore from "@/store/userStore";
 import type { UserInfo } from "@/types/entity";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
 import { Button, Modal } from "antd";
@@ -38,12 +38,13 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 	}, [formValue, form]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -59,6 +60,15 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 				onOk={handleOk}
 				onCancel={handleCancel}
 				centered
+				styles={{
+					body: {
+						maxHeight: "80vh",
+						overflowY: "auto",
+					},
+				}}
+				classNames={{
+					body: "themed-scrollbar",
+				}}
 				footer={[
 					<Button key="back" onClick={handleCancel}>
 						Return
@@ -73,6 +83,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="header_img"
+							rules={{ required: "Avatar is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Avatar</FormLabel>
@@ -88,18 +99,21 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 											}}
 										/>
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
 						<FormField
 							control={form.control}
 							name="user_name"
+							rules={{ required: "user_name is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>UserName</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -107,12 +121,14 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="email"
+							rules={{ required: "email is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Email</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -120,12 +136,14 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="nick_name"
+							rules={{ required: "nick_name is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>NickName</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>
@@ -158,12 +176,14 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="phone"
+							rules={{ required: "phone is required" }}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>Phone</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
+									<FormMessage />
 								</FormItem>
 							)}
 						/>

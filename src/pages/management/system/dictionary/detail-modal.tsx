@@ -2,7 +2,7 @@ import { UploadApi } from "@/api/services/uploadService";
 import { Upload } from "@/components/upload";
 import useUserStore from "@/store/userStore";
 import { Card, CardContent } from "@/ui/card";
-import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
 import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
@@ -50,13 +50,14 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	}, [show]);
 
 	const handleOk = async () => {
-		const values = form.getValues();
-		values.sort = Number(values.sort);
-		setLoading(true);
-		const res = await onOk(values);
-		if (res) {
-			setLoading(false);
-		}
+		form.handleSubmit(async (values) => {
+			values.sort = Number(values.sort);
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
+		})();
 	};
 
 	const handleCancel = () => {
@@ -76,6 +77,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					overflowY: "auto",
 				},
 			}}
+			classNames={{
+				body: "themed-scrollbar",
+			}}
 			footer={[
 				<Button key="back" onClick={handleCancel}>
 					Return
@@ -90,17 +94,20 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="label"
+						rules={{ required: "label is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>label</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
+						rules={{ required: "type is required" }}
 						name="type"
 						render={({ field }) => (
 							<FormItem>
@@ -121,11 +128,13 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 										]}
 									/>
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>
 					<FormField
 						control={form.control}
+						rules={{ required: "value is required" }}
 						name="value"
 						render={({ field }) => {
 							let result: ReactNode;
@@ -189,6 +198,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 								<FormItem>
 									<FormLabel>value</FormLabel>
 									<FormControl>{result}</FormControl>
+									<FormMessage />
 								</FormItem>
 							);
 						}}
@@ -196,12 +206,14 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="extend"
+						rules={{ required: "extend is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>extend</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
+								<FormMessage />
 							</FormItem>
 						)}
 					/>

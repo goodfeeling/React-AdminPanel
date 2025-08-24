@@ -30,6 +30,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
+						rules={[{ required: true, message: `Please input ${config.config_key}` }]}
 					>
 						<Input />
 					</Form.Item>
@@ -41,6 +42,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
+						rules={[{ required: true, message: `Please input ${config.config_key}` }]}
 					>
 						<InputNumber style={{ width: "100%" }} />
 					</Form.Item>
@@ -52,6 +54,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
+						rules={[{ required: true, message: `Please Select ${config.config_key}` }]}
 					>
 						<Select style={{ width: 150 }} options={config.select_options} />
 					</Form.Item>
@@ -64,6 +67,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						valuePropName="checked"
 						initialValue={config.config_value === "true"}
 						key={config.config_key}
+						rules={[{ required: true, message: `Please Select ${config.config_key}` }]}
 					>
 						<Switch />
 					</Form.Item>
@@ -75,6 +79,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
+						rules={[{ required: true, message: `Please Upload ${config.config_key}` }]}
 					>
 						<Upload
 							maxCount={1}
