@@ -1,8 +1,7 @@
 import type { Role, RoleTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Button, Modal, TreeSelect } from "antd";
+import { Button, Modal, Radio, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { BasicStatus } from "#/enum";
@@ -171,17 +170,15 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 								<FormItem>
 									<FormLabel>Status</FormLabel>
 									<FormControl>
-										<ToggleGroup
-											type="single"
-											variant="outline"
-											value={String(field.value)}
-											onValueChange={(value) => {
-												field.onChange(value);
+										<Radio.Group
+											onChange={(e) => {
+												field.onChange(Number(e.target.value));
 											}}
+											value={String(field.value)}
 										>
-											<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
-											<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
-										</ToggleGroup>
+											<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
+											<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+										</Radio.Group>
 									</FormControl>
 								</FormItem>
 							)}

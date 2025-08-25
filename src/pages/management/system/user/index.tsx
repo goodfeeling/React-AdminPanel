@@ -31,7 +31,7 @@ const defaultUserValue: UserInfo = {
 	nick_name: "",
 	header_img: "",
 	phone: "",
-	status: 0,
+	status: 2,
 	created_at: "",
 	updated_at: "",
 	roles: [],

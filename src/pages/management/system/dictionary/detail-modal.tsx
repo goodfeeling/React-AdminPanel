@@ -5,8 +5,8 @@ import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Button, Modal, Select, Switch } from "antd";
+import { BasicStatus } from "@/types/enum";
+import { Button, Modal, Radio, Select, Switch } from "antd";
 import type { UploadFile } from "antd/lib";
 import { type ReactNode, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -206,14 +206,12 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="extend"
-						rules={{ required: "extend is required" }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>extend</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
-								<FormMessage />
 							</FormItem>
 						)}
 					/>
@@ -225,17 +223,15 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 							<FormItem>
 								<FormLabel>Status</FormLabel>
 								<FormControl>
-									<ToggleGroup
-										type="single"
-										variant="outline"
-										value={String(field.value)}
-										onValueChange={(value) => {
-											field.onChange(Number(value));
+									<Radio.Group
+										onChange={(e) => {
+											field.onChange(Number(e.target.value));
 										}}
+										value={String(field.value)}
 									>
-										<ToggleGroupItem value="1">Enable</ToggleGroupItem>
-										<ToggleGroupItem value="2">Disable</ToggleGroupItem>
-									</ToggleGroup>
+										<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
+										<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+									</Radio.Group>
 								</FormControl>
 							</FormItem>
 						)}

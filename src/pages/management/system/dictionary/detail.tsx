@@ -31,7 +31,7 @@ const DictionaryDetailList = ({
 		extend: "",
 		status: 2,
 		sort: 0,
-		type: "",
+		type: "string",
 		sys_dictionary_Id: selectedDictId,
 		created_at: "",
 		updated_at: "",

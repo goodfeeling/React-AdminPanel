@@ -27,7 +27,7 @@ const MenuGroupList = ({
 		name: "",
 		path: "",
 		sort: 0,
-		status: 0,
+		status: 2,
 		created_at: "",
 		updated_at: "",
 	};

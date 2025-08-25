@@ -2,8 +2,7 @@ import useLangTree from "@/hooks/langTree";
 import { BasicStatus } from "@/types/enum";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
-import { ToggleGroup, ToggleGroupItem } from "@/ui/toggle-group";
-import { Button, Cascader, Modal } from "antd";
+import { Button, Cascader, Modal, Radio } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
@@ -155,17 +154,15 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 							<FormItem>
 								<FormLabel>Status</FormLabel>
 								<FormControl>
-									<ToggleGroup
-										type="single"
-										variant="outline"
-										value={String(field.value)}
-										onValueChange={(value) => {
-											field.onChange(value);
+									<Radio.Group
+										onChange={(e) => {
+											field.onChange(Number(e.target.value));
 										}}
+										value={String(field.value)}
 									>
-										<ToggleGroupItem value={String(BasicStatus.ENABLE)}>Enable</ToggleGroupItem>
-										<ToggleGroupItem value={String(BasicStatus.DISABLE)}>Disable</ToggleGroupItem>
-									</ToggleGroup>
+										<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
+										<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+									</Radio.Group>
 								</FormControl>
 							</FormItem>
 						)}
