@@ -154,6 +154,7 @@
 			"started": "启动",
 			"stopped": "停止",
 			"log": "日志",
+			"cron_express_builder": "Cron生成器",
 			"hide_builder": "隐藏生成器",
 			"show_builder": "显示生成器",
 			"apply_expression": "应用表达式",
@@ -167,7 +168,14 @@
 			"confirm_reset_password": "确定重置密码吗？",
 			"reset_prompt": "重置提示",
 			"upload_success": "文件上传成功",
-			"upload_error": "文件上传失败"
+			"upload_error": "文件上传失败",
+			"cron_prompt_one": "Cron表达式格式: 秒 分 时 日 月 周",
+			"cron_prompt_two": "例如: '0 0 12 * * ?' 表示每天中午12点触发",
+			"cron_prompt_three": "通配符说明: * (每), ? (不指定), / (间隔), - (范围), , (多个值)",
+			"cron_placeholder": "请输入cron表达式，例如: 0 0 12 * * ?",
+			"file_path_placeholder": "请输入文件路径，例如:  /dashboard/workplace",
+			"title_placeholder": "请输入标题，例如: MenuManage",
+			"is_required": "是必填的"
 		},
 		"page": {
 			"total": "共",

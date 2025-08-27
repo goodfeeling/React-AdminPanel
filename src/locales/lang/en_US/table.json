@@ -154,6 +154,7 @@
 			"started": "Started",
 			"stopped": "Stopped",
 			"log": "Log",
+			"cron_express_builder": "CronExpressBuilder",
 			"hide_builder": "HideBuilder",
 			"show_builder": "ShowBuilder",
 			"apply_expression": "ApplyExpression",
@@ -167,7 +168,14 @@
 			"confirm_reset_password": "Are you sure you want to reset the password?",
 			"reset_prompt": "Reset the password",
 			"upload_success": "File upload successful",
-			"upload_error": "File upload failed"
+			"upload_error": "File upload failed",
+			"cron_prompt_one": "Cron Expression Format: Second Minute Hour Day Month Week",
+			"cron_prompt_two": "Example: 0 0 12 * * ?  (12:00:00 PM, Every day)",
+			"cron_prompt_three": "Description of Wildcards: * (Every), ? (Not Specified), / (Interval), - (Range), , (Multiple Values)",
+			"cron_placeholder": "Please enter the cron expression, e.g.: 0 0 12 * * ?",
+			"file_path_placeholder": "Please enter the file path, e.g.: /dashboard/workplace",
+			"title_placeholder": "Please enter the title, e.g.: MenuManage",
+			"is_required": "is_required"
 		},
 		"page": {
 			"total": "Total",

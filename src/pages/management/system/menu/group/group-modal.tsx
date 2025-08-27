@@ -1,3 +1,4 @@
+import { useTranslationRule } from "@/hooks";
 import useDictionaryByType from "@/hooks/dict";
 import useLangTree from "@/hooks/langTree";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
@@ -81,7 +82,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 					<FormField
 						control={form.control}
 						name="name"
-						rules={{ required: "name is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.menu_group.name")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel className="flex items-center justify-between">
@@ -91,7 +94,6 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 										size="small"
 										onClick={() => {
 											setIsManualTitleInput(!isManualTitleInput);
-											// 切换模式时清空字段值
 											field.onChange(undefined);
 										}}
 									>
@@ -102,7 +104,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 								</FormLabel>
 								<FormControl>
 									{isManualTitleInput ? (
-										<Input {...field} placeholder="Please enter the name, e.g.: MenuManage" value={field.value || ""} />
+										<Input
+											{...field}
+											placeholder={t("table.handle_message.title_placeholder")}
+											value={field.value || ""}
+										/>
 									) : (
 										<div className="flex gap-2">
 											<Cascader
@@ -134,7 +140,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 					<FormField
 						control={form.control}
 						name="path"
-						rules={{ required: "path is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.menu_group.path")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.menu_group.path")}</FormLabel>

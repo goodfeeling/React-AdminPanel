@@ -1,6 +1,7 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
+import { useTranslationRule } from "@/hooks";
 import { Button, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -69,7 +70,9 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 					<FormField
 						control={form.control}
 						name="path"
-						rules={{ required: "path is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.api.path")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel> {t("table.columns.api.path")}</FormLabel>
@@ -84,7 +87,9 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 					<FormField
 						control={form.control}
 						name="method"
-						rules={{ required: "method is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.api.method")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.api.method")}</FormLabel>
@@ -104,7 +109,9 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 					<FormField
 						control={form.control}
 						name="api_group"
-						rules={{ required: "api_group is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.api.api_group")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.api.api_group")}</FormLabel>

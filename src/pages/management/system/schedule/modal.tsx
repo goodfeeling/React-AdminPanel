@@ -1,5 +1,6 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 
+import { useTranslationRule } from "@/hooks";
 import useDictionaryByType from "@/hooks/dict";
 import AdvancedCronField from "@/pages/components/cron";
 import { Button, Input, Modal, Select } from "antd";
@@ -265,7 +266,9 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 					<FormField
 						control={form.control}
 						name="task_name"
-						rules={{ required: "task_name is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.schedule.task_name")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.schedule.task_name")}</FormLabel>
@@ -294,7 +297,9 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 					<FormField
 						control={form.control}
 						name="exec_type"
-						rules={{ required: "exec_type is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.schedule.exec_type")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.schedule.exec_type")}</FormLabel>
@@ -315,7 +320,9 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 					<FormField
 						control={form.control}
 						name="task_type"
-						rules={{ required: "task_type is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.schedule.task_type")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.schedule.task_type")}</FormLabel>

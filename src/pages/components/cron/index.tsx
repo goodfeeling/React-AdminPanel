@@ -1,6 +1,7 @@
+import { useTranslationRule } from "@/hooks";
 import { Button } from "@/ui/button";
 import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
-import { FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
+import { FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
@@ -11,7 +12,6 @@ const AdvancedCronField = () => {
 	const { control, setValue } = useFormContext<ScheduledTask>();
 	const [showBuilder, setShowBuilder] = useState(false);
 	const { t } = useTranslation();
-	// Cron各部分的选项
 	// const seconds = Array.from({ length: 60 }, (_, i) => i.toString());
 	// const minutes = Array.from({ length: 60 }, (_, i) => i.toString());
 	// const hours = Array.from({ length: 24 }, (_, i) => i.toString());
@@ -19,7 +19,6 @@ const AdvancedCronField = () => {
 	// const months = Array.from({ length: 13 }, (_, i) => (i === 0 ? "*" : i.toString()));
 	// const weeks = ["*", "MON", "TUE", "WED", "THU", "FRI", "SAT", "SUN"];
 
-	// 简化的 cron 构建器状态
 	const [cronParts, setCronParts] = useState({
 		second: "0",
 		minute: "0",
@@ -43,13 +42,16 @@ const AdvancedCronField = () => {
 		<FormField
 			control={control}
 			name="cron_expression"
+			rules={{
+				required: useTranslationRule(t("table.columns.schedule.cron_expression")),
+			}}
 			render={({ field, fieldState }) => (
 				<FormItem>
 					<FormLabel>{t("table.columns.schedule.cron_expression")}</FormLabel>
 					<FormControl>
 						<div className="space-y-4">
 							<div className="flex gap-2">
-								<Input {...field} placeholder="请输入cron表达式，例如: 0 0 12 * * ?" />
+								<Input {...field} placeholder={t("table.handle_message.cron_placeholder")} />
 								<Button type="button" variant="outline" onClick={() => setShowBuilder(!showBuilder)}>
 									{showBuilder ? t("table.button.hide_builder") : t("table.button.show_builder")}
 								</Button>
@@ -58,7 +60,7 @@ const AdvancedCronField = () => {
 							{showBuilder && (
 								<Card>
 									<CardHeader>
-										<CardTitle className="text-lg">CronExpressBuilder</CardTitle>
+										<CardTitle className="text-lg">{t("table.button.cron_express_builder")}</CardTitle>
 									</CardHeader>
 									<CardContent className="space-y-4">
 										<div className="grid grid-cols-2 md:grid-cols-6 gap-4">
@@ -153,12 +155,12 @@ const AdvancedCronField = () => {
 								</Card>
 							)}
 
-							{fieldState.error ? <p className="text-sm text-red-500">{fieldState.error.message}</p> : null}
+							{fieldState.error ? <FormMessage /> : null}
 
 							<div className="text-sm text-muted-foreground space-y-1">
-								<p>Cron表达式格式: 秒 分 时 日 月 周</p>
-								<p>例如: "0 0 12 * * ?" 表示每天中午12点触发</p>
-								<p>通配符说明: * (每), ? (不指定), / (间隔), - (范围), , (多个值)</p>
+								<p>{t("table.handle_message.cron_prompt_one")}</p>
+								<p>{t("table.handle_message.cron_prompt_two")}</p>
+								<p>{t("table.handle_message.cron_prompt_three")}</p>
 							</div>
 						</div>
 					</FormControl>

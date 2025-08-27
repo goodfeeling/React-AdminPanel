@@ -3,6 +3,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { IconPicker } from "@/ui/icon-picker";
 import { Input } from "@/ui/input";
 
+import { useTranslationRule } from "@/hooks";
 import useDirTree from "@/hooks/dirTree";
 import useLangTree from "@/hooks/langTree";
 import { Button, Cascader, Modal, Switch, TreeSelect } from "antd";
@@ -124,7 +125,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="component"
-							rules={{ required: "component is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.menu.component")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
@@ -146,7 +149,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 										{isManualInput ? (
 											<Input
 												{...field}
-												placeholder="Please enter the file path, e.g.: /dashboard/workplace"
+												placeholder={t("table.handle_message.file_path_placeholder")}
 												value={field.value || ""}
 											/>
 										) : (
@@ -183,7 +186,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="title"
-							rules={{ required: "title is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.menu.title")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
@@ -205,7 +210,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 										{isManualTitleInput ? (
 											<Input
 												{...field}
-												placeholder="Please enter the title, e.g.: MenuManage"
+												placeholder={t("table.handle_message.title_placeholder")}
 												value={field.value || ""}
 											/>
 										) : (
@@ -239,7 +244,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="name"
-							rules={{ required: "name is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.menu.name")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.menu.name")}</FormLabel>
@@ -253,7 +260,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="path"
-							rules={{ required: "path is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.menu.path")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.menu.path")}</FormLabel>
@@ -298,7 +307,9 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 						<FormField
 							control={form.control}
 							name="parent_id"
-							rules={{ required: "parent_id is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.menu.parent_id")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.menu.parent_id")}</FormLabel>

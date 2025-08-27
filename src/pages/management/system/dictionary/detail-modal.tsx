@@ -5,6 +5,7 @@ import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
+import { useTranslationRule } from "@/hooks";
 import useDictionaryByType from "@/hooks/dict";
 import { Button, Modal, Radio, Select, Switch } from "antd";
 import type { UploadFile } from "antd/lib";
@@ -97,7 +98,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="label"
-						rules={{ required: "label is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.dictionary_detail.label")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.dictionary_detail.label")}</FormLabel>
@@ -110,7 +113,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					/>
 					<FormField
 						control={form.control}
-						rules={{ required: "type is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.dictionary_detail.type")),
+						}}
 						name="type"
 						render={({ field }) => (
 							<FormItem>
@@ -137,7 +142,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					/>
 					<FormField
 						control={form.control}
-						rules={{ required: "value is required" }}
+						rules={{
+							required: useTranslationRule(t("table.columns.dictionary_detail.value")),
+						}}
 						name="value"
 						render={({ field }) => {
 							let result: ReactNode;
@@ -199,7 +206,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 							}
 							return (
 								<FormItem>
-									<FormLabel> {t("table.columns.dictionary_detail.value")}</FormLabel>
+									<FormLabel>{t("table.columns.dictionary_detail.value")}</FormLabel>
 									<FormControl>{result}</FormControl>
 									<FormMessage />
 								</FormItem>

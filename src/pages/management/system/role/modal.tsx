@@ -1,3 +1,4 @@
+import { useTranslationRule } from "@/hooks";
 import useDictionaryByType from "@/hooks/dict";
 import type { Role, RoleTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
@@ -90,7 +91,9 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 						<FormField
 							control={form.control}
 							name="name"
-							rules={{ required: "name is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.role.name")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.role.name")}</FormLabel>
@@ -130,7 +133,9 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 						<FormField
 							control={form.control}
 							name="label"
-							rules={{ required: "label is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.role.label")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.role.label")}</FormLabel>

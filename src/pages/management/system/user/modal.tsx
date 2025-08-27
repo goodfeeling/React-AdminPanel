@@ -1,6 +1,7 @@
 import { UploadApi } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
+import { useTranslationRule } from "@/hooks";
 import useDictionaryByType from "@/hooks/dict";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import useUserStore from "@/store/userStore";
@@ -85,7 +86,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="header_img"
-							rules={{ required: "Avatar is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.user.avatar")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.user.avatar")}</FormLabel>
@@ -108,7 +111,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="user_name"
-							rules={{ required: "user_name is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.user.user_name")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.user.user_name")}</FormLabel>
@@ -123,7 +128,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="email"
-							rules={{ required: "email is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.user.email")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.user.email")}</FormLabel>
@@ -138,7 +145,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="nick_name"
-							rules={{ required: "nick_name is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.user.nick_name")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.user.nick_name")}</FormLabel>
@@ -178,7 +187,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 						<FormField
 							control={form.control}
 							name="phone"
-							rules={{ required: "phone is required" }}
+							rules={{
+								required: useTranslationRule(t("table.columns.user.phone")),
+							}}
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel>{t("table.columns.user.phone")}</FormLabel>

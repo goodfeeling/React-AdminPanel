@@ -7,6 +7,7 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { Dictionary } from "#/entity";
+import { useTranslationRule } from "@/hooks";
 
 export type DictionaryModalProps = {
 	formValue: Dictionary;
@@ -76,7 +77,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="name"
-						rules={{ required: "name is required" }}
+						rules={{ required: useTranslationRule(t("table.columns.dictionary.name")) }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.dictionary.name")}</FormLabel>
@@ -90,7 +91,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="type"
-						rules={{ required: "type is required" }}
+						rules={{ required: useTranslationRule(t("table.columns.dictionary.type")) }}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.dictionary.type")}</FormLabel>

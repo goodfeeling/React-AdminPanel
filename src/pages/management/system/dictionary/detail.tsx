@@ -275,7 +275,12 @@ const DictionaryDetailList = ({
 						<Icon icon="solar:add-circle-outline" size={18} />
 						{t("table.button.add")}
 					</Button>
-					<Button onClick={() => handleDeleteSelection()} variant="ghost" className="ml-2" disabled={!hasSelected}>
+					<Button
+						onClick={() => handleDeleteSelection()}
+						variant="destructive"
+						className="ml-2"
+						disabled={!hasSelected}
+					>
 						<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 						{t("table.button.delete")}
 					</Button>
