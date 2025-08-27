@@ -334,7 +334,7 @@ const App: React.FC = () => {
 											}}
 											value={field.value}
 											options={apiMethod}
-											placeholder="Select method"
+											placeholder={`${t("table.handle_message.select")}${t("table.columns.api.method")}`}
 										/>
 									</FormItem>
 								)}
@@ -351,7 +351,7 @@ const App: React.FC = () => {
 											}}
 											value={field.value}
 											options={apiGroup}
-											placeholder="Select ApiGroup"
+											placeholder={`${t("table.handle_message.select")}${t("table.columns.api.api_group")}`}
 										/>
 									</FormItem>
 								)}

@@ -293,7 +293,7 @@ const App: React.FC = () => {
 												}}
 												value={field.value}
 												options={storageEngine}
-												placeholder="select storage engine"
+												placeholder={`${t("table.handle_message.select")}${t("table.columns.file.storage_engine")}`}
 											/>
 										</FormControl>
 									</FormItem>

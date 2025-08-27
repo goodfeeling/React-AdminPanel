@@ -155,13 +155,12 @@ const AdvancedCronField = () => {
 								</Card>
 							)}
 
-							{fieldState.error ? <FormMessage /> : null}
-
 							<div className="text-sm text-muted-foreground space-y-1">
 								<p>{t("table.handle_message.cron_prompt_one")}</p>
 								<p>{t("table.handle_message.cron_prompt_two")}</p>
 								<p>{t("table.handle_message.cron_prompt_three")}</p>
 							</div>
+							{fieldState.error ? <FormMessage /> : null}
 						</div>
 					</FormControl>
 				</FormItem>

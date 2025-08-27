@@ -175,7 +175,8 @@
 			"cron_placeholder": "请输入cron表达式，例如: 0 0 12 * * ?",
 			"file_path_placeholder": "请输入文件路径，例如:  /dashboard/workplace",
 			"title_placeholder": "请输入标题，例如: MenuManage",
-			"is_required": "是必填的"
+			"is_required": "是必填的",
+			"select": "请选择"
 		},
 		"page": {
 			"total": "共",

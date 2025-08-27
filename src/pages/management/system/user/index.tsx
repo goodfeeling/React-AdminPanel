@@ -328,7 +328,7 @@ const App: React.FC = () => {
 											}}
 											value={field.value}
 											options={statusType}
-											placeholder="Select status"
+											placeholder={`${t("table.handle_message.select")}${t("table.columns.user.status")}`}
 										/>
 									</FormItem>
 								)}

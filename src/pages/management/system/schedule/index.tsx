@@ -450,7 +450,7 @@ const App: React.FC = () => {
 											}}
 											value={field.value}
 											options={taskTypes}
-											placeholder="select task type"
+											placeholder={`${t("table.handle_message.select")}${t("table.columns.schedule.task_type")}`}
 										/>
 									</FormItem>
 								)}
@@ -468,7 +468,7 @@ const App: React.FC = () => {
 											}}
 											value={field.value}
 											options={statusType}
-											placeholder="Select status"
+											placeholder={`${t("table.handle_message.select")}${t("table.columns.schedule.status")}`}
 										/>
 									</FormItem>
 								)}

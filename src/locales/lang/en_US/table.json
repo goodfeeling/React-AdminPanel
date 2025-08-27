@@ -175,7 +175,8 @@
 			"cron_placeholder": "Please enter the cron expression, e.g.: 0 0 12 * * ?",
 			"file_path_placeholder": "Please enter the file path, e.g.: /dashboard/workplace",
 			"title_placeholder": "Please enter the title, e.g.: MenuManage",
-			"is_required": "is_required"
+			"is_required": "is_required",
+			"select": "Select"
 		},
 		"page": {
 			"total": "Total",
