@@ -103,6 +103,7 @@ const TreeList = ({
 	setSelectMenuBtn,
 	setDefaultRouter,
 }: TreeListProps) => {
+	const { t } = useTranslation();
 	const { updateMenus, updateRouterPath } = useRoleSettingActions();
 	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
 
@@ -156,7 +157,7 @@ const TreeList = ({
 					<span className="flex justify-between items-center w-full">
 						<span>{node.title}</span>
 						{defaultRouter === node.origin?.path ? (
-							<Tag color="blue">首页</Tag>
+							<Tag color="blue">{t("table.button.home_page")}</Tag>
 						) : (
 							<Button
 								variant="link"
@@ -165,7 +166,7 @@ const TreeList = ({
 									updateDefaultRouter(node);
 								}}
 							>
-								设为首页
+								{t("table.button.set_home_page")}
 							</Button>
 						)}
 						<Button
@@ -176,7 +177,7 @@ const TreeList = ({
 							}}
 							hidden={!hasBtn}
 						>
-							配置权限按钮
+							{t("table.button.set_role_button")}
 						</Button>
 					</span>
 				);

@@ -1,5 +1,5 @@
+import useDictionaryByType from "@/hooks/dict";
 import useLangTree from "@/hooks/langTree";
-import { BasicStatus } from "@/types/enum";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { Button, Cascader, Modal, Radio } from "antd";
@@ -12,18 +12,22 @@ export type MenuGroupModalProps = {
 	formValue: MenuGroup;
 	title: string;
 	show: boolean;
-	onOk: (values: MenuGroup) => void;
+	onOk: (values: MenuGroup) => Promise<boolean>;
 	onCancel: VoidFunction;
 };
 
 export default function UserModal({ title, show, formValue, onOk, onCancel }: MenuGroupModalProps) {
-	const { i18n } = useTranslation();
+	const { t, i18n } = useTranslation();
+	const status = useDictionaryByType("status");
+
 	const form = useForm<MenuGroup>({
 		defaultValues: formValue,
 	});
+	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [isManualTitleInput, setIsManualTitleInput] = useState(true);
 	const langTree = useLangTree(i18n.store.data[i18n.language].translation);
+
 	useEffect(() => {
 		setOpen(show);
 	}, [show]);
@@ -34,7 +38,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
-			await onOk(values);
+			setLoading(true);
+			const res = await onOk(values);
+			if (res) {
+				setLoading(false);
+			}
 		})();
 	};
 	const handleCancel = () => {
@@ -61,10 +69,10 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 			centered
 			footer={[
 				<Button key="back" onClick={handleCancel}>
-					Return
+					{t("table.button.return")}
 				</Button>,
-				<Button key="submit" onClick={handleOk}>
-					Submit
+				<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
+					{t("table.button.submit")}
 				</Button>,
 			]}
 		>
@@ -77,7 +85,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel className="flex items-center justify-between">
-									<span>Name</span>
+									<span>{t("table.columns.menu_group.name")}</span>
 									<Button
 										type="link"
 										size="small"
@@ -87,12 +95,14 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 											field.onChange(undefined);
 										}}
 									>
-										{isManualTitleInput ? "切换到便捷选择" : "切换到手动输入"}
+										{isManualTitleInput
+											? t("table.button.switch_convenient_selection")
+											: t("table.button.switch_manual_input")}
 									</Button>
 								</FormLabel>
 								<FormControl>
 									{isManualTitleInput ? (
-										<Input {...field} placeholder="请输入展示名称，如: 菜单管理" value={field.value || ""} />
+										<Input {...field} placeholder="Please enter the name, e.g.: MenuManage" value={field.value || ""} />
 									) : (
 										<div className="flex gap-2">
 											<Cascader
@@ -107,7 +117,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 														field.onChange(value);
 													}
 												}}
-												placeholder="请选择文件路径"
+												placeholder="please select name"
 												popupMenuColumnStyle={{
 													width: "200px",
 													whiteSpace: "normal",
@@ -127,7 +137,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						rules={{ required: "path is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Path</FormLabel>
+								<FormLabel>{t("table.columns.menu_group.path")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -140,7 +150,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						name="sort"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Sort</FormLabel>
+								<FormLabel>{t("table.columns.menu_group.sort")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -152,7 +162,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 						name="status"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Status</FormLabel>
+								<FormLabel>{t("table.columns.menu_group.status")}</FormLabel>
 								<FormControl>
 									<Radio.Group
 										onChange={(e) => {
@@ -160,8 +170,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 										}}
 										value={String(field.value)}
 									>
-										<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
-										<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+										{status.map((item) => (
+											<Radio.Button key={item.value} value={String(item.value)}>
+												{item.label}
+											</Radio.Button>
+										))}
 									</Radio.Group>
 								</FormControl>
 							</FormItem>

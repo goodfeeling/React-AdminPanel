@@ -1,6 +1,7 @@
 import { UploadApi } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
+import useDictionaryByType from "@/hooks/dict";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import useUserStore from "@/store/userStore";
 import type { UserInfo } from "@/types/entity";
@@ -9,7 +10,7 @@ import { Input } from "@/ui/input";
 import { Button, Modal, Radio } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BasicStatus } from "#/enum";
+import { useTranslation } from "react-i18next";
 
 export type UserModalProps = {
 	formValue: UserInfo;
@@ -21,6 +22,8 @@ export type UserModalProps = {
 };
 
 const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: UserModalProps) => {
+	const { t } = useTranslation();
+	const status = useDictionaryByType("status");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const { userToken } = useUserStore.getState();
@@ -70,10 +73,10 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 				}}
 				footer={[
 					<Button key="back" onClick={handleCancel}>
-						Return
+						{t("table.button.return")}
 					</Button>,
 					<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-						Submit
+						{t("table.button.submit")}
 					</Button>,
 				]}
 			>
@@ -85,7 +88,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							rules={{ required: "Avatar is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Avatar</FormLabel>
+									<FormLabel>{t("table.columns.user.avatar")}</FormLabel>
 									<FormControl>
 										<UploadAvatar
 											defaultAvatar={field.value}
@@ -108,7 +111,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							rules={{ required: "user_name is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>UserName</FormLabel>
+									<FormLabel>{t("table.columns.user.user_name")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -123,7 +126,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							rules={{ required: "email is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Email</FormLabel>
+									<FormLabel>{t("table.columns.user.email")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -138,7 +141,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							rules={{ required: "nick_name is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>NickName</FormLabel>
+									<FormLabel>{t("table.columns.user.nick_name")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -152,7 +155,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							name="roles"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>角色</FormLabel>
+									<FormLabel>{t("table.columns.user.roles")}</FormLabel>
 									<FormControl>
 										<RoleSelect
 											roles={field.value ?? []}
@@ -161,9 +164,9 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 											onChange={async (values) => {
 												try {
 													await userService.bindRole(form.getValues().id, values);
-													console.log("更新成功");
+													console.log("update success");
 												} catch (error) {
-													console.error("更新失败:", error);
+													console.error("update error:", error);
 												}
 											}}
 										/>
@@ -178,7 +181,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							rules={{ required: "phone is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Phone</FormLabel>
+									<FormLabel>{t("table.columns.user.phone")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -191,7 +194,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 							name="status"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Status</FormLabel>
+									<FormLabel>{t("table.columns.user.status")}</FormLabel>
 									<FormControl>
 										<Radio.Group
 											onChange={(e) => {
@@ -199,8 +202,11 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 											}}
 											value={String(field.value)}
 										>
-											<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
-											<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+											{status.map((item) => (
+												<Radio.Button key={item.value} value={String(item.value)}>
+													{item.label}
+												</Radio.Button>
+											))}
 										</Radio.Group>
 									</FormControl>
 								</FormItem>

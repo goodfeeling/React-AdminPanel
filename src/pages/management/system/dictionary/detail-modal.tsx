@@ -5,11 +5,12 @@ import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
-import { BasicStatus } from "@/types/enum";
+import useDictionaryByType from "@/hooks/dict";
 import { Button, Modal, Radio, Select, Switch } from "antd";
 import type { UploadFile } from "antd/lib";
 import { type ReactNode, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { DictionaryDetail } from "#/entity";
 
 export type DictionaryDetailModalProps = {
@@ -24,6 +25,8 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const form = useForm<DictionaryDetail>({
 		defaultValues: formValue,
 	});
+	const status = useDictionaryByType("status");
+	const { t } = useTranslation();
 	const { userToken } = useUserStore.getState();
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -82,10 +85,10 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 			}}
 			footer={[
 				<Button key="back" onClick={handleCancel}>
-					Return
+					{t("table.button.return")}
 				</Button>,
 				<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-					Submit
+					{t("table.button.submit")}
 				</Button>,
 			]}
 		>
@@ -97,7 +100,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						rules={{ required: "label is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>label</FormLabel>
+								<FormLabel>{t("table.columns.dictionary_detail.label")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -111,7 +114,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="type"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>type</FormLabel>
+								<FormLabel>{t("table.columns.dictionary_detail.type")}</FormLabel>
 								<FormControl>
 									<Select
 										style={{ width: 120 }}
@@ -196,7 +199,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 							}
 							return (
 								<FormItem>
-									<FormLabel>value</FormLabel>
+									<FormLabel> {t("table.columns.dictionary_detail.value")}</FormLabel>
 									<FormControl>{result}</FormControl>
 									<FormMessage />
 								</FormItem>
@@ -208,7 +211,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="extend"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>extend</FormLabel>
+								<FormLabel>{t("table.columns.dictionary_detail.extend")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -221,7 +224,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="status"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Status</FormLabel>
+								<FormLabel>{t("table.columns.dictionary_detail.status")}</FormLabel>
 								<FormControl>
 									<Radio.Group
 										onChange={(e) => {
@@ -229,8 +232,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 										}}
 										value={String(field.value)}
 									>
-										<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
-										<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+										{status.map((item) => (
+											<Radio.Button key={item.value} value={String(item.value)}>
+												{item.label}
+											</Radio.Button>
+										))}
 									</Radio.Group>
 								</FormControl>
 							</FormItem>
@@ -242,7 +248,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="sort"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>sort</FormLabel>
+								<FormLabel>{t("table.columns.dictionary_detail.sort")}</FormLabel>
 								<FormControl>
 									<Input type="number" {...field} />
 								</FormControl>

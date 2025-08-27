@@ -40,15 +40,16 @@ const MenuGroupList = ({
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [apiModalProps, setDictionaryModalProps] = useState<MenuGroupModalProps>({
 		formValue: { ...defaultValue },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		onOk: async (values: MenuGroup) => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
-					toast.success("success!");
+					toast.success(t("table.handle_message.success"));
 					setDictionaryModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
+			return true;
 		},
 		onCancel: () => {
 			setDictionaryModalProps((prev) => ({ ...prev, show: false }));
@@ -78,7 +79,7 @@ const MenuGroupList = ({
 			...prev,
 			show: true,
 			...defaultValue,
-			title: "New",
+			title: t("table.button.add"),
 			formValue: { ...defaultValue },
 		}));
 	};
@@ -87,7 +88,7 @@ const MenuGroupList = ({
 		setDictionaryModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -95,17 +96,17 @@ const MenuGroupList = ({
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
 
 	const columns: ColumnsType<MenuGroup> = [
 		{
-			title: "名称",
+			title: t("table.columns.menu_group.name"),
 			dataIndex: "name",
 			key: "name",
 			ellipsis: true,
@@ -114,10 +115,10 @@ const MenuGroupList = ({
 			},
 		},
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
-			width: 100,
+			width: 120,
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button
@@ -130,11 +131,11 @@ const MenuGroupList = ({
 					</Button>
 
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
 						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
 						<Button variant="link" size="icon">
 							<Icon icon="mingcute:delete-2-fill" size={18} />
@@ -158,7 +159,7 @@ const MenuGroupList = ({
 				<div className="flex items-start justify-start">
 					<Button onClick={() => onCreate()} variant="default">
 						<Icon icon="solar:add-circle-outline" size={18} />
-						New
+						{t("table.button.add")}
 					</Button>
 				</div>
 			</CardHeader>
@@ -172,7 +173,7 @@ const MenuGroupList = ({
 						current: data?.page || 1,
 						pageSize: data?.page_size || 10,
 						total: data?.total || 0,
-						showTotal: (total) => `共 ${total} 条`,
+						showTotal: (total) => `${t("table.page.total")} ${total} ${t("table.page.items")}`,
 						showSizeChanger: true,
 						pageSizeOptions: ["10", "20", "50", "100"],
 					}}

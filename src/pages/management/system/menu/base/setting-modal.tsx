@@ -10,6 +10,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@
 import type { GetRef, InputRef, TableProps } from "antd";
 import { Form, Input, InputNumber, Table } from "antd";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { MenuBtn, MenuParameter } from "#/entity";
 export type SettingType = {
 	id: number;
@@ -67,6 +68,7 @@ interface EditableCellMenuBtnProps {
 }
 
 function ParameterPage({ MenuId }: { MenuId: number }) {
+	const { t } = useTranslation();
 	const { updateOrCreateMenu, deleteMenu, fetchMenu } = useMenuParameterActions();
 	const menuParameterData = useMenuParameter();
 
@@ -181,30 +183,30 @@ function ParameterPage({ MenuId }: { MenuId: number }) {
 		cellType?: CellType;
 	})[] = [
 		{
-			title: "类型",
+			title: t("table.columns.menu_parameter.type"),
 			dataIndex: "type",
 			width: "30%",
 			editable: true,
 			cellType: "select",
 		},
 		{
-			title: "key",
+			title: t("table.columns.menu_parameter.key"),
 			dataIndex: "key",
 			editable: true,
 		},
 		{
-			title: "value",
+			title: t("table.columns.menu_parameter.value"),
 			dataIndex: "value",
 			editable: true,
 		},
 		{
-			title: "operation",
+			title: t("table.columns.common.operation"),
 			dataIndex: "operation",
 			render: (_, record) =>
 				dataSource.length >= 1 ? (
 					<Button variant="linkwarning" size="icon" onClick={() => handleDelete(record.id)}>
 						<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
-						<span>删除</span>
+						<span>{t("table.button.delete")}</span>
 					</Button>
 				) : null,
 		},
@@ -251,18 +253,18 @@ function ParameterPage({ MenuId }: { MenuId: number }) {
 				dataIndex: col.dataIndex,
 				title: col.title,
 				handleSave,
-				cellType: col.cellType || "input", // 默认使用 'input'
+				cellType: col.cellType || "input",
 			}),
 		};
 	});
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>菜单参数设置</CardTitle>
+				<CardTitle>{t("sys.menu.system.menu_btn")}</CardTitle>
 				<div className="flex items-start justify-start">
 					<Button onClick={handleAdd} type="button">
 						<Icon icon="solar:add-circle-outline" size={18} />
-						Add a row
+						{t("table.button.add_a_row")}
 					</Button>
 				</div>
 			</CardHeader>
@@ -289,6 +291,7 @@ interface EditableCellMenuParameterProps {
 	handleSave: (record: MenuParameter) => void;
 }
 function BtnPage({ MenuId }: { MenuId: number }) {
+	const { t } = useTranslation();
 	const { updateOrCreateMenu, deleteMenu, fetchMenu } = useMenuBtnActions();
 	const menuBtnData = useMenuBtn();
 
@@ -368,24 +371,24 @@ function BtnPage({ MenuId }: { MenuId: number }) {
 		cellType?: CellType;
 	})[] = [
 		{
-			title: "name",
+			title: t("table.columns.menu_btn.name"),
 			dataIndex: "name",
 			width: "30%",
 			editable: true,
 		},
 		{
-			title: "desc",
+			title: t("table.columns.menu_btn.desc"),
 			dataIndex: "desc",
 			editable: true,
 		},
 		{
-			title: "operation",
+			title: t("table.columns.common.operation"),
 			dataIndex: "operation",
 			render: (_, record) =>
 				dataSource.length >= 1 ? (
 					<Button variant="linkwarning" size="icon" onClick={() => handleDelete(record.id)}>
 						<Icon icon="mingcute:delete-2-fill" size={18} className="text-error!" />
-						<span>删除</span>
+						<span>{t("table.button.delete")}</span>
 					</Button>
 				) : null,
 		},
@@ -436,11 +439,11 @@ function BtnPage({ MenuId }: { MenuId: number }) {
 	return (
 		<Card>
 			<CardHeader>
-				<CardTitle>可控按钮设置</CardTitle>
+				<CardTitle>{t("sys.menu.system.menu_btn")}</CardTitle>
 				<div className="flex items-start justify-start">
 					<Button onClick={handleAdd} variant="default">
 						<Icon icon="solar:add-circle-outline" size={18} />
-						Add a row
+						{t("table.button.add_a_row")}
 					</Button>
 				</div>
 			</CardHeader>

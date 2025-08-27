@@ -10,6 +10,7 @@ import type { TFunction } from "i18next";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+
 export type MenuModalProps = {
 	formValue: Menu;
 	treeRawData: Menu[];
@@ -32,6 +33,7 @@ export const buildTree = (tree: Menu[], t: TFunction<"translation", undefined>, 
 		};
 	});
 };
+
 const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: MenuModalProps) => {
 	const { t, i18n } = useTranslation();
 
@@ -57,7 +59,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 		setTreeData([
 			{
 				value: "0",
-				title: "根节点",
+				title: t("table.columns.common.root_node"),
 				key: "0",
 				path: [0],
 				children: buildTree(treeRawData, t, currentId),
@@ -110,10 +112,10 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 				centered
 				footer={[
 					<Button key="back" onClick={handleCancel}>
-						Return
+						{t("table.button.return")}
 					</Button>,
 					<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-						Submit
+						{t("table.button.submit")}
 					</Button>,
 				]}
 			>
@@ -126,24 +128,25 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
-										<span>文件路径</span>
+										<span>{t("table.columns.menu.component")}</span>
 										<Button
 											type="link"
 											size="small"
 											onClick={() => {
 												setIsManualInput(!isManualInput);
-												// 切换模式时清空字段值
 												field.onChange(undefined);
 											}}
 										>
-											{isManualInput ? "切换到便捷选择" : "切换到手动输入"}
+											{isManualInput
+												? t("table.button.switch_convenient_selection")
+												: t("table.button.switch_manual_input")}
 										</Button>
 									</FormLabel>
 									<FormControl>
 										{isManualInput ? (
 											<Input
 												{...field}
-												placeholder="请输入文件路径，如: /dashboard/workplace"
+												placeholder="Please enter the file path, e.g.: /dashboard/workplace"
 												value={field.value || ""}
 											/>
 										) : (
@@ -157,14 +160,13 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 													value={handleValue(field.value)}
 													options={dirTree}
 													onChange={(value) => {
-														// 将数组形式的路径值转换为字符串
 														if (Array.isArray(value)) {
 															field.onChange(value[value.length - 1]);
 														} else {
 															field.onChange(value);
 														}
 													}}
-													placeholder="请选择文件路径"
+													placeholder="please select file path"
 													popupMenuColumnStyle={{
 														width: "200px",
 														whiteSpace: "normal",
@@ -185,22 +187,27 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							render={({ field }) => (
 								<FormItem>
 									<FormLabel className="flex items-center justify-between">
-										<span>展示名称</span>
+										<span>{t("table.columns.menu.title")}</span>
 										<Button
 											type="link"
 											size="small"
 											onClick={() => {
 												setIsManualTitleInput(!isManualTitleInput);
-												// 切换模式时清空字段值
 												field.onChange(undefined);
 											}}
 										>
-											{isManualTitleInput ? "切换到便捷选择" : "切换到手动输入"}
+											{isManualTitleInput
+												? t("table.button.switch_convenient_selection")
+												: t("table.button.switch_manual_input")}
 										</Button>
 									</FormLabel>
 									<FormControl>
 										{isManualTitleInput ? (
-											<Input {...field} placeholder="请输入展示名称，如: 菜单管理" value={field.value || ""} />
+											<Input
+												{...field}
+												placeholder="Please enter the title, e.g.: MenuManage"
+												value={field.value || ""}
+											/>
 										) : (
 											<div className="flex gap-2">
 												<Cascader
@@ -208,14 +215,13 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 													value={handleValue(field.value)}
 													options={langTree}
 													onChange={(value) => {
-														// 将数组形式的路径值转换为字符串
 														if (Array.isArray(value)) {
 															field.onChange(value[value.length - 1]);
 														} else {
 															field.onChange(value);
 														}
 													}}
-													placeholder="请选择文件路径"
+													placeholder="please select title"
 													popupMenuColumnStyle={{
 														width: "200px",
 														whiteSpace: "normal",
@@ -236,7 +242,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							rules={{ required: "name is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>路由Name</FormLabel>
+									<FormLabel>{t("table.columns.menu.name")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -250,7 +256,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							rules={{ required: "path is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>路由Path</FormLabel>
+									<FormLabel>{t("table.columns.menu.path")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -263,7 +269,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							name="hidden"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>是否隐藏</FormLabel>
+									<FormLabel>{t("table.columns.menu.hidden")}</FormLabel>
 									<FormControl>
 										<div className="w-fit">
 											<Switch checked={field.value} onChange={(value) => field.onChange(value)} />
@@ -277,7 +283,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							name="keep_alive"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>KeepAlive</FormLabel>
+									<FormLabel>{t("table.columns.menu.keep_alive")}</FormLabel>
 									<FormControl>
 										<div className="w-fit">
 											<Switch
@@ -295,7 +301,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							rules={{ required: "parent_id is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>父节点ID</FormLabel>
+									<FormLabel>{t("table.columns.menu.parent_id")}</FormLabel>
 									<FormControl>
 										<TreeSelect
 											showSearch
@@ -321,7 +327,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							name="icon"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>图标</FormLabel>
+									<FormLabel>{t("table.columns.menu.icon")}</FormLabel>
 									<FormControl>
 										<IconPicker value={field.value} onChange={field.onChange} />
 									</FormControl>
@@ -333,13 +339,12 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 							name="sort"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>排序标记</FormLabel>
+									<FormLabel>{t("table.columns.menu.sort")}</FormLabel>
 									<FormControl>
 										<Input
 											{...field}
-											type="number" // 设置输入框为数字类型
+											type="number"
 											onChange={(e) => {
-												// 将输入值转换为数字后更新表单字段
 												field.onChange(Number(e.target.value));
 											}}
 										/>

@@ -19,6 +19,7 @@ import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Select, Table } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { ColumnsType, RoleTree, UserInfo } from "#/entity";
 import { buildTree } from "../role/modal";
@@ -49,14 +50,19 @@ const searchDefaultValue = {
 };
 
 const App: React.FC = () => {
+	const { t } = useTranslation();
+
 	const updateOrCreateMutation = useUpdateOrCreateUserMutation();
 	const removeMutation = useRemoveUserMutation();
 	const passwordResetMutation = usePasswordResetMutation();
+
 	const { data, isLoading } = useUserQuery();
 	const condition = useUserManageCondition();
 	const { setCondition } = useUserManageActions();
-	const [treeData, setTreeData] = useState<RoleTree[]>([]);
 	const statusType = useDictionaryByType("status");
+
+	const [treeData, setTreeData] = useState<RoleTree[]>([]);
+
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: searchDefaultValue,
 	});
@@ -69,7 +75,7 @@ const App: React.FC = () => {
 		onOk: async (values: UserInfo): Promise<boolean> => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
-					toast.success("success!");
+					toast.success(t("table.handle_message.success"));
 					setUserModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
@@ -93,10 +99,10 @@ const App: React.FC = () => {
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -104,10 +110,10 @@ const App: React.FC = () => {
 	const onResetPassword = (id: number) => {
 		passwordResetMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("重置成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("操作失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -157,7 +163,7 @@ const App: React.FC = () => {
 			...prev,
 			show: true,
 			...defaultUserValue,
-			title: "New",
+			title: t("table.button.add"),
 			formValue: { ...defaultUserValue },
 		}));
 	};
@@ -166,7 +172,7 @@ const App: React.FC = () => {
 		setUserModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -179,7 +185,7 @@ const App: React.FC = () => {
 			width: "5%",
 		},
 		{
-			title: "用户",
+			title: t("table.columns.user.user_name"),
 			dataIndex: "user_name",
 			width: 300,
 			render: (_, record) => {
@@ -196,15 +202,15 @@ const App: React.FC = () => {
 		},
 
 		{
-			title: "昵称",
+			title: t("table.columns.user.nick_name"),
 			dataIndex: "nick_name",
 		},
 		{
-			title: "手机",
+			title: t("table.columns.user.phone"),
 			dataIndex: "phone",
 		},
 		{
-			title: "状态",
+			title: t("table.columns.user.status"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
@@ -213,7 +219,7 @@ const App: React.FC = () => {
 			},
 		},
 		{
-			title: "角色",
+			title: t("table.columns.user.roles"),
 			dataIndex: "roles",
 			width: 350,
 			render: (roles, record) => {
@@ -225,7 +231,7 @@ const App: React.FC = () => {
 						onChange={async (values) => {
 							try {
 								await userService.bindRole(record.id, values);
-								console.log("更新成功");
+								toast.success(t("table.handle_message.success"));
 							} catch (error) {
 								console.error("更新失败:", error);
 							}
@@ -235,51 +241,56 @@ const App: React.FC = () => {
 			},
 		},
 		{
-			title: "创建时间",
+			title: t("table.columns.common.created_at"),
 			dataIndex: "created_at",
+			key: "created_at",
 		},
 		{
-			title: "更新时间",
+			title: t("table.columns.common.updated_at"),
 			dataIndex: "updated_at",
+			key: "updated_at",
 		},
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
-			width: 100,
+			width: 220,
 			fixed: "right",
 			render: (_, record) => (
-				<div className="flex w-full justify-center text-gray-500">
-					<Button
-						variant="link"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">修改</span>
-					</Button>
-					<Button
-						variant="link"
-						size="icon"
-						onClick={() => onResetPassword(record.id)}
-						style={{ minWidth: "90px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:restart-line-duotone" size={18} />
-						<span className="text-xs">重置密码</span>
+				<div className="grid grid-cols-3 gap-1 text-gray-500">
+					<Button variant="link" size="icon" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
+						<div className="flex items-center">
+							<Icon icon="solar:pen-bold-duotone" size={18} />
+							<span className="ml-1"> {t("table.button.edit")}</span>
+						</div>
 					</Button>
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
-						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						title={t("table.handle_message.reset_prompt")}
+						description={t("table.handle_message.confirm_reset_password")}
+						onConfirm={() => onResetPassword(record.id)}
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} />
-							<span className="text-xs">删除</span>
+						<Button variant="link" size="icon" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="solar:restart-line-duotone" size={18} color="orange" />
+								<span className="ml-1 text-orange-500">{t("table.button.reset_password")}</span>
+							</div>
+						</Button>
+					</Popconfirm>
+
+					<Popconfirm
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
+						onConfirm={() => handleDelete(record.id)}
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
+					>
+						<Button variant="link" size="icon" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
+								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
+							</div>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -298,7 +309,7 @@ const App: React.FC = () => {
 								name="user_name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>UserName</FormLabel>
+										<FormLabel>{t("table.columns.user.user_name")}</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -310,7 +321,7 @@ const App: React.FC = () => {
 								name="status"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>Status</FormLabel>
+										<FormLabel>{t("table.columns.user.status")}</FormLabel>
 										<Select
 											onChange={(value: string) => {
 												field.onChange(value);
@@ -325,23 +336,23 @@ const App: React.FC = () => {
 							<div className="flex ml-auto">
 								<Button variant="outline" onClick={() => onReset()}>
 									<Icon icon="solar:restart-line-duotone" size={18} />
-									Reset
+									{t("table.button.reset")}
 								</Button>
 								<Button variant="default" className="ml-4" onClick={() => onSearch()}>
 									<Icon icon="solar:rounded-magnifer-linear" size={18} />
-									Search
+									{t("table.button.search")}
 								</Button>
 							</div>
 						</div>
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title="User List">
+			<Card title={t("sys.menu.system.user")}>
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<Button onClick={() => onCreate()}>
 							<Icon icon="solar:add-circle-outline" size={18} />
-							New
+							{t("table.button.add")}
 						</Button>
 					</div>
 				</CardHeader>
@@ -355,7 +366,7 @@ const App: React.FC = () => {
 							current: data?.page || 1,
 							pageSize: data?.page_size || 10,
 							total: data?.total || 0,
-							showTotal: (total) => `共 ${total} 条`,
+							showTotal: (total) => `${t("table.page.total")} ${total} ${t("table.page.items")}`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],
 						}}

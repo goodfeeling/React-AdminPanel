@@ -3,6 +3,7 @@ import type { MenuBtn } from "@/types/entity";
 import { Table } from "antd";
 import type { TableColumnsType, TableProps } from "antd";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import type { selectMenuData } from "./index";
 
 type MenuBtnSettingProps = {
@@ -10,17 +11,18 @@ type MenuBtnSettingProps = {
 	roleId: number;
 };
 const MenuBtnSetting = ({ selectMenuBtn, roleId }: MenuBtnSettingProps) => {
+	const { t } = useTranslation();
 	const menuBtnIds = useRoleSettingBtnIds();
 	const { updateRoleBtns } = useRoleSettingActions();
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [menuBtnData, setMenuBtnData] = useState<MenuBtn[]>([]);
 	const columns: TableColumnsType<MenuBtn> = [
 		{
-			title: "名称",
+			title: t("table.columns.menu_btn.name"),
 			dataIndex: "name",
 		},
 		{
-			title: "描述",
+			title: t("table.columns.menu_btn.desc"),
 			dataIndex: "desc",
 		},
 	];

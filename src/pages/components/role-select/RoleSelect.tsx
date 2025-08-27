@@ -22,7 +22,6 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordId, onCh
 		if (onChange) {
 			onChange(values);
 		}
-		console.log(`当前行 ID: ${recordId}，选中的角色 ID:`, values);
 	};
 
 	return (
@@ -33,7 +32,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordId, onCh
 			onChange={handleSelectChange}
 			treeCheckable={true}
 			showCheckedStrategy={TreeSelect.SHOW_ALL}
-			placeholder="请选择角色"
+			placeholder="place select role"
 			style={{ width: "100%" }}
 		/>
 	);

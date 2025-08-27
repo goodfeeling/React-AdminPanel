@@ -5,6 +5,7 @@ import { Button } from "@/ui/button";
 import { Card, Modal, Tabs } from "antd";
 import type { TreeDataNode } from "antd";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import ApiSetting from "./modal-api";
 import MenuSetting from "./modal-menu";
 import MenuBtnSetting from "./modal-menu-btn";
@@ -34,6 +35,7 @@ export type selectMenuData = {
 };
 
 export default function SettingModal({ roleData, title, show, onCancel }: SettingModalProps) {
+	const { t } = useTranslation();
 	const menuGroupIds = useRoleSettingMenuIds();
 	const ApiIds = useRoleSettingApiIds();
 	const { fetch } = useRoleSettingActions();
@@ -71,7 +73,7 @@ export default function SettingModal({ roleData, title, show, onCancel }: Settin
 				items={[
 					{
 						key: "1",
-						label: "角色菜单",
+						label: t("table.button.role_menu"),
 						children: (
 							<div className="max-h-[600px] overflow-y-auto">
 								<MenuSetting
@@ -85,7 +87,7 @@ export default function SettingModal({ roleData, title, show, onCancel }: Settin
 					},
 					{
 						key: "2",
-						label: "角色api",
+						label: t("table.button.role_api"),
 						children: (
 							<div className="max-h-[600px] overflow-y-auto">
 								<ApiSetting id={roleData.id} apiIds={ApiIds} />
@@ -112,7 +114,7 @@ export default function SettingModal({ roleData, title, show, onCancel }: Settin
 						}
 					>
 						<Icon icon="solar:alt-arrow-left-outline" className="text-3xl" />
-						<span className="text-sm">返回</span>
+						<span className="text-sm">{t("table.button.go_back")}</span>
 					</Button>
 				}
 			>

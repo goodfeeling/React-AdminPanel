@@ -15,6 +15,7 @@ import {
 	useRemoveDictionaryMutation,
 	useUpdateOrCreateDictionaryMutation,
 } from "@/store/dictionaryManageStore";
+import { useTranslation } from "react-i18next";
 import DictionaryModal, { type DictionaryModalProps } from "./modal";
 
 const DictionaryList = ({
@@ -33,6 +34,7 @@ const DictionaryList = ({
 		updated_at: "",
 		details: [],
 	};
+	const { t } = useTranslation();
 	const updateOrCreateMutation = useUpdateOrCreateDictionaryMutation();
 	const removeMutation = useRemoveDictionaryMutation();
 	const { data, isLoading } = useDictionaryQuery();
@@ -42,12 +44,12 @@ const DictionaryList = ({
 	const [selectedId, setSelectedId] = useState<number | null>(null);
 	const [apiModalProps, setDictionaryModalProps] = useState<DictionaryModalProps>({
 		formValue: { ...defaultDictionaryValue },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		onOk: async (values: Dictionary) => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
-					toast.success("success!");
+					toast.success(t("table.handle_message.success"));
 					setDictionaryModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
@@ -81,7 +83,7 @@ const DictionaryList = ({
 			...prev,
 			show: true,
 			...defaultDictionaryValue,
-			title: "New",
+			title: t("table.button.add"),
 			formValue: { ...defaultDictionaryValue },
 		}));
 	};
@@ -90,7 +92,7 @@ const DictionaryList = ({
 		setDictionaryModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -98,23 +100,23 @@ const DictionaryList = ({
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
 
 	const columns: ColumnsType<Dictionary> = [
 		{
-			title: "字典名",
+			title: t("table.columns.dictionary.name"),
 			dataIndex: "name",
 			key: "name",
 			ellipsis: true,
 		},
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
 			width: 100,
@@ -147,7 +149,7 @@ const DictionaryList = ({
 	const handleRowClick = (record: Dictionary) => {
 		setSelectedId(record.id);
 		if (onSelect) {
-			onSelect(record.id); // 传递选中的 id
+			onSelect(record.id);
 		}
 	};
 
@@ -157,7 +159,7 @@ const DictionaryList = ({
 				<div className="flex items-start justify-start">
 					<Button onClick={() => onCreate()} variant="default">
 						<Icon icon="solar:add-circle-outline" size={18} />
-						New
+						{t("table.button.add")}
 					</Button>
 				</div>
 			</CardHeader>
@@ -171,7 +173,7 @@ const DictionaryList = ({
 						current: data?.page || 1,
 						pageSize: data?.page_size || 10,
 						total: data?.total || 0,
-						showTotal: (total) => `共 ${total} 条`,
+						showTotal: (total) => `${t("table.page.total")} ${total} ${t("table.page.items")}`,
 						showSizeChanger: true,
 						pageSizeOptions: ["10", "20", "50", "100"],
 					}}

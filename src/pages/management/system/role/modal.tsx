@@ -1,10 +1,11 @@
+import useDictionaryByType from "@/hooks/dict";
 import type { Role, RoleTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { Button, Modal, Radio, TreeSelect } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
-import { BasicStatus } from "#/enum";
+import { useTranslation } from "react-i18next";
 
 export type RoleModalProps = {
 	formValue: Role;
@@ -26,6 +27,8 @@ export function buildTree(tree: Role[]): RoleTree[] {
 	});
 }
 const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: RoleModalProps) => {
+	const { t } = useTranslation();
+	const status = useDictionaryByType("status");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
@@ -42,13 +45,13 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 		setTreeData([
 			{
 				value: "0",
-				title: "根节点",
+				title: t("table.columns.common.root_node"),
 				key: "0",
 				path: [0],
 				children: buildTree(treeRawData),
 			},
 		]);
-	}, [formValue, treeRawData, form]);
+	}, [formValue, treeRawData, form, t]);
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
@@ -75,10 +78,10 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 				centered
 				footer={[
 					<Button key="back" onClick={handleCancel}>
-						Return
+						{t("table.button.return")}
 					</Button>,
 					<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-						Submit
+						{t("table.button.submit")}
 					</Button>,
 				]}
 			>
@@ -90,7 +93,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							rules={{ required: "name is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Name</FormLabel>
+									<FormLabel>{t("table.columns.role.name")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -103,7 +106,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							name="parent_id"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Parent</FormLabel>
+									<FormLabel>{t("table.columns.role.parent_id")}</FormLabel>
 									<FormControl>
 										<TreeSelect
 											showSearch
@@ -130,7 +133,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							rules={{ required: "label is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>label</FormLabel>
+									<FormLabel>{t("table.columns.role.label")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -144,7 +147,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							name="description"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>description</FormLabel>
+									<FormLabel>{t("table.columns.role.description")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -156,7 +159,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							name="order"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>order</FormLabel>
+									<FormLabel>{t("table.columns.role.order")}</FormLabel>
 									<FormControl>
 										<Input {...field} />
 									</FormControl>
@@ -168,7 +171,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 							name="status"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Status</FormLabel>
+									<FormLabel>{t("table.columns.role.status")}</FormLabel>
 									<FormControl>
 										<Radio.Group
 											onChange={(e) => {
@@ -176,8 +179,11 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 											}}
 											value={String(field.value)}
 										>
-											<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
-											<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+											{status.map((item) => (
+												<Radio.Button key={item.value} value={String(item.value)}>
+													{item.label}
+												</Radio.Button>
+											))}
 										</Radio.Group>
 									</FormControl>
 								</FormItem>

@@ -18,6 +18,7 @@ import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { ColumnsType, FileInfo } from "#/entity";
 import FileModal, { type FileModalProps } from "./modal";
@@ -46,7 +47,7 @@ const searchDefaultValue = {
 
 const App: React.FC = () => {
 	const queryClient = useQueryClient();
-
+	const { t } = useTranslation();
 	const searchForm = useForm<SearchFormFieldType>({
 		defaultValues: searchDefaultValue,
 	});
@@ -62,7 +63,7 @@ const App: React.FC = () => {
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setFileModalProps] = useState<FileModalProps>({
 		formValue: { ...defaultFileValue },
-		title: "上传文件",
+		title: t("table.button.upload"),
 		storageEngine: undefined,
 		show: false,
 		onOk: async (values: FileInfo | null) => {
@@ -73,7 +74,7 @@ const App: React.FC = () => {
 					},
 				});
 			} else {
-				// 手动刷新列表
+				// manual refresh
 				queryClient.invalidateQueries({ queryKey: ["fileManageList"] });
 			}
 
@@ -103,7 +104,7 @@ const App: React.FC = () => {
 			...prev,
 			show: true,
 			...defaultFileValue,
-			title: "上传文件",
+			title: t("table.button.upload"),
 			formValue: { ...defaultFileValue },
 		}));
 	};
@@ -111,10 +112,10 @@ const App: React.FC = () => {
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -122,10 +123,10 @@ const App: React.FC = () => {
 	const handleDeleteSelection = async () => {
 		batchRemoveMutation.mutate(selectedRowKeys as number[], {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -137,7 +138,7 @@ const App: React.FC = () => {
 			key: "id",
 		},
 		{
-			title: "文件名",
+			title: t("table.columns.file.file_origin_name"),
 			dataIndex: "file_origin_name",
 			key: "file_origin_name",
 			ellipsis: true,
@@ -153,34 +154,36 @@ const App: React.FC = () => {
 		},
 
 		{
-			title: "存储方式",
+			title: t("table.columns.file.storage_engine"),
 			dataIndex: "storage_engine",
 			key: "storage_engine",
 		},
 		{
-			title: "创建时间",
+			title: t("table.columns.common.created_at"),
 			dataIndex: "created_at",
 			key: "created_at",
 		},
 
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
 			fixed: "right",
 			width: 100,
 			render: (_, record) => (
-				<div className="flex w-full justify-center text-gray-500">
+				<div className="grid grid-cols-1 gap-2 text-gray-500">
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
 						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} />
-							<span className="text-xs">删除</span>
+						<Button variant="link" size="icon" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
+								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
+							</div>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -228,7 +231,7 @@ const App: React.FC = () => {
 			Table.SELECTION_NONE,
 			{
 				key: "odd",
-				text: "Select Odd Row",
+				text: t("table.columns.common.select_odd_row"),
 				onSelect: (changeableRowKeys) => {
 					let newSelectedRowKeys = [];
 					newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
@@ -242,7 +245,7 @@ const App: React.FC = () => {
 			},
 			{
 				key: "even",
-				text: "Select Even Row",
+				text: t("table.columns.common.select_even_row"),
 				onSelect: (changeableRowKeys) => {
 					let newSelectedRowKeys = [];
 					newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
@@ -268,7 +271,7 @@ const App: React.FC = () => {
 								name="file_origin_name"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>fileOriginName</FormLabel>
+										<FormLabel>{t("table.columns.file.file_origin_name")}</FormLabel>
 										<FormControl>
 											<Input {...field} />
 										</FormControl>
@@ -281,7 +284,7 @@ const App: React.FC = () => {
 								name="storage_engine"
 								render={({ field }) => (
 									<FormItem>
-										<FormLabel>storageEngine</FormLabel>
+										<FormLabel>{t("table.columns.file.storage_engine")}</FormLabel>
 										<FormControl>
 											<Select
 												style={{ width: 150 }}
@@ -300,32 +303,32 @@ const App: React.FC = () => {
 							<div className="flex ml-auto">
 								<Button variant="outline" onClick={() => onReset()}>
 									<Icon icon="solar:restart-line-duotone" size={18} />
-									Reset
+									{t("table.button.reset")}
 								</Button>
 								<Button variant="default" className="ml-4" onClick={() => onSearch()}>
 									<Icon icon="solar:rounded-magnifer-linear" size={18} />
-									Search
+									{t("table.button.search")}
 								</Button>
 							</div>
 						</div>
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title="File List">
+			<Card title={t("sys.menu.system.file")}>
 				<CardHeader>
 					<div className="flex items-start justify-start">
 						<Button onClick={() => onCreate()} variant="default">
 							<Icon icon="solar:add-circle-outline" size={18} />
-							Upload
+							{t("table.button.upload")}
 						</Button>
 						<Button
 							onClick={() => handleDeleteSelection()}
-							variant="ghost"
+							variant="destructive"
 							className="ml-2"
 							disabled={!(selectedRowKeys.length > 0)}
 						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
-							Delete
+							{t("table.button.delete")}
 						</Button>
 					</div>
 				</CardHeader>
@@ -340,7 +343,7 @@ const App: React.FC = () => {
 							current: data?.page || condition.pagination?.current || 1,
 							pageSize: data?.page_size || condition.pagination?.pageSize || 10,
 							total: data?.total || condition?.pagination?.total || 0,
-							showTotal: (total) => `共 ${total} 条`,
+							showTotal: (total) => `${t("table.page.total")} ${total} ${t("table.page.items")}`,
 							showSizeChanger: true,
 							pageSizeOptions: ["10", "20", "50", "100"],
 						}}

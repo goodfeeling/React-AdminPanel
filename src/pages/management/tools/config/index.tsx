@@ -5,10 +5,12 @@ import useUserStore from "@/store/userStore";
 import type { Config } from "@/types/entity";
 import { Button, Card, Form, Input, InputNumber, Select, Switch, Tabs } from "antd";
 import { useEffect } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }) => {
 	const [form] = Form.useForm();
+	const { t } = useTranslation();
 	const { userToken } = useUserStore.getState();
 	const updateOrCreateMutation = useUpdateOrCreateConfigMutation();
 
@@ -26,7 +28,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "string":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -38,7 +40,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "number":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -50,7 +52,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "select":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -62,7 +64,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "boolean":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						valuePropName="checked"
 						initialValue={config.config_value === "true"}
@@ -75,7 +77,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "image":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -119,7 +121,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			case "array":
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -130,7 +132,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			default:
 				return (
 					<Form.Item
-						label={config.config_key}
+						label={t(`sys.config.${config.config_key}`)}
 						name={config.config_key}
 						initialValue={config.config_value}
 						key={config.config_key}
@@ -173,7 +175,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			{items.map((item) => renderConfigItem(item))}
 			<Form.Item wrapperCol={{ offset: 6, span: 16 }} style={{ marginTop: "20px", textAlign: "right" }}>
 				<Button type="primary" htmlType="submit">
-					保存
+					{t("sys.config.save")}
 				</Button>
 			</Form.Item>
 		</Form>
@@ -182,6 +184,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 
 const App: React.FC = () => {
 	const { data, isLoading } = useConfigQuery();
+	const { t } = useTranslation();
 	return (
 		<div>
 			<Card>
@@ -192,7 +195,7 @@ const App: React.FC = () => {
 						!isLoading && data
 							? data?.map((item) => {
 									return {
-										label: item.name,
+										label: t(`sys.config.${item.name}`),
 										key: item.name,
 										children: <SubBox items={item.configs} module={item.name} />,
 									};

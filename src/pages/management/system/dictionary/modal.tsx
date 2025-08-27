@@ -1,10 +1,11 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
-import { BasicStatus } from "@/types/enum";
+import useDictionaryByType from "@/hooks/dict";
 import { Button, Modal, Radio, Switch } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { Dictionary } from "#/entity";
 
 export type DictionaryModalProps = {
@@ -19,7 +20,8 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const form = useForm<Dictionary>({
 		defaultValues: formValue,
 	});
-
+	const status = useDictionaryByType("status");
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	useEffect(() => {
@@ -62,10 +64,10 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 			centered
 			footer={[
 				<Button key="back" onClick={handleCancel}>
-					Return
+					{t("table.button.return")}
 				</Button>,
 				<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-					Submit
+					{t("table.button.submit")}
 				</Button>,
 			]}
 		>
@@ -77,7 +79,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						rules={{ required: "name is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>name</FormLabel>
+								<FormLabel>{t("table.columns.dictionary.name")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -91,7 +93,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						rules={{ required: "type is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>type</FormLabel>
+								<FormLabel>{t("table.columns.dictionary.type")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -104,7 +106,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="is_generate_file"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>isGenerateFile</FormLabel>
+								<FormLabel>{t("table.columns.dictionary.is_generate_file")}</FormLabel>
 								<FormControl>
 									<div className="w-fit">
 										<Switch checked={Boolean(field.value)} onChange={(value) => field.onChange(Number(value))} />
@@ -119,7 +121,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="status"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Status</FormLabel>
+								<FormLabel>{t("table.columns.dictionary.status")}</FormLabel>
 								<FormControl>
 									<Radio.Group
 										onChange={(e) => {
@@ -127,8 +129,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 										}}
 										value={String(field.value)}
 									>
-										<Radio.Button value={String(BasicStatus.ENABLE)}>Enable</Radio.Button>
-										<Radio.Button value={String(BasicStatus.DISABLE)}>Disable</Radio.Button>
+										{status.map((item) => (
+											<Radio.Button key={item.value} value={String(item.value)}>
+												{item.label}
+											</Radio.Button>
+										))}
 									</Radio.Group>
 								</FormControl>
 							</FormItem>
@@ -139,7 +144,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 						name="desc"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>desc</FormLabel>
+								<FormLabel>{t("table.columns.dictionary.desc")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>

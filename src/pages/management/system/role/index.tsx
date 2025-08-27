@@ -6,6 +6,7 @@ import { Card, CardContent, CardHeader } from "@/ui/card";
 import type { TableProps } from "antd";
 import { Popconfirm, Table } from "antd";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { Role } from "#/entity";
 import RoleModal, { type RoleModalProps } from "./modal";
@@ -29,6 +30,8 @@ const defaultValue: Role = {
 };
 
 const App: React.FC = () => {
+	const { t } = useTranslation();
+
 	const updateOrCreateMutation = useUpdateOrCreateRoleMutation();
 	const removeMutation = useRemoveRoleMutation();
 	const { data, isLoading } = useRoleQuery();
@@ -37,7 +40,7 @@ const App: React.FC = () => {
 	const [settingModalPros, setSettingModalProps] = useState<SettingModalProps>({
 		id: 0,
 		roleData: { ...defaultValue },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		onCancel: () => {
 			setSettingModalProps((prev) => ({ ...prev, show: false }));
@@ -46,7 +49,7 @@ const App: React.FC = () => {
 
 	const [roleModalProps, setRoleModalProps] = useState<RoleModalProps>({
 		formValue: { ...defaultValue },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		treeRawData: [],
 		onOk: async (values: Role): Promise<boolean> => {
@@ -81,7 +84,7 @@ const App: React.FC = () => {
 			...prev,
 			show: true,
 			...setValue,
-			title: "New",
+			title: t("table.button.add"),
 			formValue: { ...setValue },
 		}));
 	};
@@ -90,7 +93,7 @@ const App: React.FC = () => {
 		setRoleModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -99,7 +102,7 @@ const App: React.FC = () => {
 		setSettingModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "角色设置",
+			title: t("table.button.role_setting"),
 			id: value.id,
 			roleData: value,
 		}));
@@ -108,10 +111,10 @@ const App: React.FC = () => {
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -123,7 +126,7 @@ const App: React.FC = () => {
 
 	const columns: ColumnsType<Role> = [
 		{
-			title: "角色ID",
+			title: t("table.columns.role.role_id"),
 			dataIndex: "expand",
 			render: (_, record) => {
 				const level = record.path.length;
@@ -147,23 +150,23 @@ const App: React.FC = () => {
 			width: 90,
 		},
 		{
-			title: "名称",
+			title: t("table.columns.role.name"),
 			dataIndex: "name",
 		},
 		{
-			title: "标签",
+			title: t("table.columns.role.label"),
 			dataIndex: "label",
 		},
 		{
-			title: "排序",
+			title: t("table.columns.role.order"),
 			dataIndex: "order",
 		},
 		{
-			title: "描述",
+			title: t("table.columns.role.description"),
 			dataIndex: "description",
 		},
 		{
-			title: "状态",
+			title: t("table.columns.role.status"),
 			dataIndex: "status",
 			align: "center",
 			width: 120,
@@ -172,61 +175,61 @@ const App: React.FC = () => {
 			},
 		},
 		{
-			title: "创建时间",
+			title: t("table.columns.common.created_at"),
 			dataIndex: "created_at",
+			key: "created_at",
 		},
 		{
-			title: "更新时间",
+			title: t("table.columns.common.updated_at"),
 			dataIndex: "updated_at",
+			key: "updated_at",
 		},
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
-			width: 300,
+			width: 250,
 			fixed: "right",
 			render: (_, record) => (
-				<div className="flex w-full justify-center text-gray-500">
+				<div className="grid grid-cols-2 gap-2 text-gray-500">
 					<Button
 						variant="link"
 						size="icon"
 						onClick={() => onSetting(record)}
-						style={{ minWidth: "110px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+						className="whitespace-nowrap justify-start"
 					>
 						<Icon icon="solar:settings-bold" size={18} />
-						<span className="text-xs">设置权限</span>
+						<span className="ml-1">{t("table.button.role_setting")}</span>
 					</Button>
 					<Button
 						variant="link"
 						size="icon"
 						onClick={() => onCreate(record)}
-						style={{ minWidth: "80px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
+						className="whitespace-nowrap justify-start"
 					>
-						<Icon icon="solar:add-square-bold" size={18} />
-						<span className="text-xs">新增子角色</span>
+						<div className="flex items-center">
+							<Icon icon="solar:add-square-bold" size={18} />
+							<span className="ml-1">{t("table.button.add_sub_role")}</span>
+						</div>
 					</Button>
-					<Button
-						variant="link"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">修改</span>
+					<Button variant="link" size="icon" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
+						<div className="flex items-center">
+							<Icon icon="solar:pen-bold-duotone" size={18} />
+							<span className="ml-1">{t("table.button.edit")}</span>
+						</div>
 					</Button>
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
 						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} />
-							<span className="text-xs">删除</span>
+						<Button variant="link" size="icon" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
+								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
+							</div>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -235,12 +238,12 @@ const App: React.FC = () => {
 	];
 
 	return (
-		<Card title="Role List">
+		<Card title={t("sys.menu.system.role")}>
 			<CardHeader>
 				<div className="flex items-center justify-between">
 					<Button onClick={() => onCreate(undefined)}>
 						<Icon icon="solar:add-circle-outline" size={18} />
-						New
+						{t("table.button.add")}
 					</Button>
 				</div>
 			</CardHeader>

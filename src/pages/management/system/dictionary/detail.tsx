@@ -16,6 +16,7 @@ import {
 } from "@/store/dictionaryDetailManageStore";
 import { Badge } from "@/ui/badge";
 import { CardContent, CardHeader } from "@/ui/card";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import DictionaryDetailModal, { type DictionaryDetailModalProps } from "./detail-modal";
 
@@ -24,6 +25,7 @@ const DictionaryDetailList = ({
 }: {
 	selectedDictId: number | null;
 }) => {
+	const { t } = useTranslation();
 	const defaultDictionaryValue: DictionaryDetail = {
 		id: 0,
 		label: "",
@@ -47,12 +49,12 @@ const DictionaryDetailList = ({
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setDictionaryModalProps] = useState<DictionaryDetailModalProps>({
 		formValue: { ...defaultDictionaryValue },
-		title: "New Dictionary Detail",
+		title: t("table.button.add"),
 		show: false,
 		onOk: async (values: DictionaryDetail) => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
-					toast.success("success!");
+					toast.success(t("table.handle_message.success"));
 					setDictionaryModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
@@ -95,7 +97,7 @@ const DictionaryDetailList = ({
 			...prev,
 			show: true,
 			...defaultDictionaryValue,
-			title: "New Dictionary Detail",
+			title: t("table.button.add"),
 			formValue: { ...defaultDictionaryValue },
 		}));
 	};
@@ -104,7 +106,7 @@ const DictionaryDetailList = ({
 		setDictionaryModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -112,10 +114,10 @@ const DictionaryDetailList = ({
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -123,10 +125,10 @@ const DictionaryDetailList = ({
 	const handleDeleteSelection = async () => {
 		batchRemoveMutation.mutate(selectedRowKeys as number[], {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -138,13 +140,13 @@ const DictionaryDetailList = ({
 			key: "id",
 		},
 		{
-			title: "展示值",
+			title: t("table.columns.dictionary_detail.label"),
 			dataIndex: "label",
 			key: "label",
 			ellipsis: true,
 		},
 		{
-			title: "字典值",
+			title: t("table.columns.dictionary_detail.value"),
 			dataIndex: "value",
 			key: "value",
 			render: (_, record) => {
@@ -159,12 +161,12 @@ const DictionaryDetailList = ({
 			},
 		},
 		{
-			title: "扩展值",
+			title: t("table.columns.dictionary_detail.extend"),
 			dataIndex: "extend",
 			key: "extend",
 		},
 		{
-			title: "启用状态",
+			title: t("table.columns.dictionary_detail.status"),
 			dataIndex: "status",
 			key: "status",
 			ellipsis: true,
@@ -177,45 +179,42 @@ const DictionaryDetailList = ({
 			},
 		},
 		{
-			title: "排序标记",
-			dataIndex: "sort",
-			key: "sort",
-		},
-		{
-			title: "创建时间",
+			title: t("table.columns.common.created_at"),
 			dataIndex: "created_at",
 			key: "created_at",
 		},
-
 		{
-			title: "操作",
+			title: t("table.columns.common.updated_at"),
+			dataIndex: "updated_at",
+			key: "updated_at",
+		},
+		{
+			title: t("table.columns.common.operation"),
 			dataIndex: "operation",
 			key: "operation",
 			align: "center",
-			width: 100,
+			width: 150,
 			fixed: "right",
 			render: (_, record) => (
-				<div className="flex w-full justify-center text-gray-500">
-					<Button
-						variant="link"
-						size="icon"
-						onClick={() => onEdit(record)}
-						style={{ minWidth: "70px" }}
-						className="flex flex-row  items-center justify-center gap-1 px-2 py-1"
-					>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span className="text-xs">修改</span>
+				<div className="grid grid-cols-2 gap-2 text-gray-500">
+					<Button variant="link" size="icon" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
+						<div className="flex items-center">
+							<Icon icon="solar:pen-bold-duotone" size={18} />
+							<span className="ml-1"> {t("table.button.edit")}</span>
+						</div>
 					</Button>
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
 						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} />
-							<span className="text-xs">删除</span>
+						<Button variant="link" size="icon" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
+								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
+							</div>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -237,7 +236,7 @@ const DictionaryDetailList = ({
 			Table.SELECTION_NONE,
 			{
 				key: "odd",
-				text: "Select Odd Row",
+				text: t("table.columns.common.select_odd_row"),
 				onSelect: (changeableRowKeys) => {
 					let newSelectedRowKeys = [];
 					newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
@@ -251,7 +250,7 @@ const DictionaryDetailList = ({
 			},
 			{
 				key: "even",
-				text: "Select Even Row",
+				text: t("table.columns.common.select_even_row"),
 				onSelect: (changeableRowKeys) => {
 					let newSelectedRowKeys = [];
 					newSelectedRowKeys = changeableRowKeys.filter((_, index) => {
@@ -274,11 +273,11 @@ const DictionaryDetailList = ({
 				<div className="flex items-start justify-start">
 					<Button onClick={() => onCreate()} variant="default">
 						<Icon icon="solar:add-circle-outline" size={18} />
-						New
+						{t("table.button.add")}
 					</Button>
 					<Button onClick={() => handleDeleteSelection()} variant="ghost" className="ml-2" disabled={!hasSelected}>
 						<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
-						Delete
+						{t("table.button.delete")}
 					</Button>
 				</div>
 			</CardHeader>
@@ -293,7 +292,7 @@ const DictionaryDetailList = ({
 						current: data?.page || 1,
 						pageSize: data?.page_size || 10,
 						total: data?.total || 0,
-						showTotal: (total) => `共 ${total} 条`,
+						showTotal: (total) => `${t("table.page.total")} ${total} ${t("table.page.items")}`,
 						showSizeChanger: true,
 						pageSizeOptions: ["10", "20", "50", "100"],
 					}}

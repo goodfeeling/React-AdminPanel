@@ -4,12 +4,13 @@ import { FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 import { Input } from "@/ui/input";
 import { useState } from "react";
 import { useFormContext } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { ScheduledTask } from "#/entity";
 
 const AdvancedCronField = () => {
 	const { control, setValue } = useFormContext<ScheduledTask>();
 	const [showBuilder, setShowBuilder] = useState(false);
-
+	const { t } = useTranslation();
 	// Cron各部分的选项
 	// const seconds = Array.from({ length: 60 }, (_, i) => i.toString());
 	// const minutes = Array.from({ length: 60 }, (_, i) => i.toString());
@@ -44,13 +45,13 @@ const AdvancedCronField = () => {
 			name="cron_expression"
 			render={({ field, fieldState }) => (
 				<FormItem>
-					<FormLabel>CronExpress</FormLabel>
+					<FormLabel>{t("table.columns.schedule.cron_expression")}</FormLabel>
 					<FormControl>
 						<div className="space-y-4">
 							<div className="flex gap-2">
 								<Input {...field} placeholder="请输入cron表达式，例如: 0 0 12 * * ?" />
 								<Button type="button" variant="outline" onClick={() => setShowBuilder(!showBuilder)}>
-									{showBuilder ? "隐藏构建器" : "显示构建器"}
+									{showBuilder ? t("table.button.hide_builder") : t("table.button.show_builder")}
 								</Button>
 							</div>
 
@@ -63,7 +64,7 @@ const AdvancedCronField = () => {
 										<div className="grid grid-cols-2 md:grid-cols-6 gap-4">
 											<div>
 												<FormLabel htmlFor="cron-second" className="text-sm font-medium">
-													秒
+													{t("table.columns.common.second")}
 												</FormLabel>
 
 												<Input
@@ -79,7 +80,7 @@ const AdvancedCronField = () => {
 											</div>
 											<div>
 												<FormLabel htmlFor="cron-minute" className="text-sm font-medium">
-													分
+													{t("table.columns.common.minute")}
 												</FormLabel>
 												<Input
 													value={cronParts.minute}
@@ -94,7 +95,7 @@ const AdvancedCronField = () => {
 											</div>
 											<div>
 												<FormLabel htmlFor="cron-hour" className="text-sm font-medium">
-													时
+													{t("table.columns.common.hour")}
 												</FormLabel>
 												<Input
 													value={cronParts.hour}
@@ -104,7 +105,7 @@ const AdvancedCronField = () => {
 											</div>
 											<div>
 												<FormLabel htmlFor="cron-day" className="text-sm font-medium">
-													日
+													{t("table.columns.common.day")}
 												</FormLabel>
 
 												<Input
@@ -115,7 +116,7 @@ const AdvancedCronField = () => {
 											</div>
 											<div>
 												<FormLabel htmlFor="cron-month" className="text-sm font-medium">
-													月
+													{t("table.columns.common.month")}
 												</FormLabel>
 												<Input
 													value={cronParts.month}
@@ -130,7 +131,7 @@ const AdvancedCronField = () => {
 											</div>
 											<div>
 												<FormLabel htmlFor="cron-week" className="text-sm font-medium">
-													周
+													{t("table.columns.common.week")}
 												</FormLabel>
 												<Input
 													value={cronParts.week}
@@ -141,9 +142,11 @@ const AdvancedCronField = () => {
 										</div>
 
 										<div className="flex justify-between items-center">
-											<div className="text-sm p-2 bg-muted rounded">生成的表达式: {generateCronExpression()}</div>
+											<div className="text-sm p-2 bg-muted rounded">
+												{t("table.button.generated_expression")} : {generateCronExpression()}
+											</div>
 											<Button type="button" onClick={applyCronExpression}>
-												应用表达式
+												{t("table.button.apply_expression")}
 											</Button>
 										</div>
 									</CardContent>

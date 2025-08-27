@@ -117,14 +117,23 @@
 			"scroll": "Scroll",
 			"system": {
 				"index": "System",
-				"organization": "Organization",
+				"admin": "Administrator",
 				"permission": "Permission",
 				"role": "Role",
 				"user": "User",
 				"api": "Api",
 				"dictionary": "Dictionary",
+				"dictionary_group": "DictionaryGroup",
 				"operation": "Operation",
-				"menu": "Menu"
+				"menu": "Menu",
+				"menu_group": "MenuGroup",
+				"file": "File",
+				"tools": "Tools",
+				"schedule": "Schedule",
+				"setting": "Setting",
+				"from_create": "From",
+				"menu_btn": "Menu Button Setting",
+				"menu_parameter": "Menu Parameter Setting"
 			},
 			"toast": "Toast",
 			"token_expired": "Token Expired",
@@ -174,6 +183,15 @@
 			"old_password": "Old Password",
 			"new_password": "New Password",
 			"confirm_new_password": "Confirm New Password"
+		},
+		"config": {
+			"site_name": "SiteName",
+			"site_logo": "SiteLogo",
+			"site_login_bg": "SiteLoginBackground",
+			"file_storage_engine": "FileStorageEngine",
+			"database_driver": "DatabaseDriver",
+			"save": "Save",
+			"system": "System"
 		}
 	}
 }

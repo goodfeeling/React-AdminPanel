@@ -10,6 +10,7 @@ import type { UploadProps } from "antd";
 import { Upload } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 const { Dragger } = Upload;
 export type FileModalProps = {
@@ -31,6 +32,7 @@ const parseUriFromUrl = (fileUrl: string): string => {
 	}
 };
 const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }: FileModalProps) => {
+	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const { uploadFile } = useOssUpload();
 	const isOssLoading = useSTSTokenLoading();
@@ -68,9 +70,9 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 					form.setValue("file_path", uri);
 				}
 				onOk(form.getValues());
-				toast.success(`${file.name} 文件上传成功`);
+				toast.success(`${file.name} ${t("table.handle_message.upload_success")}`);
 			} else {
-				toast.error(`${file.name} 文件上传失败`);
+				toast.error(`${file.name} ${t("table.handle_message.upload_error")}`);
 			}
 			return false; // 阻止默认上传行为
 		}
@@ -92,11 +94,11 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 					console.log(info.file, info.fileList);
 					break;
 				case "done":
-					toast.success(`${info.file.name} file uploaded successfully.`);
+					toast.success(`${info.file.name} ${t("table.handle_message.upload_success")}`);
 					onOk(null);
 					break;
 				case "error":
-					toast.error(`${info.file.name} file upload failed.`);
+					toast.error(`${info.file.name} ${t("table.handle_message.upload_error")}`);
 
 					break;
 				default:
@@ -126,7 +128,7 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 							name="storage_engine"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>存储方式</FormLabel>
+									<FormLabel>{t("table.columns.file.file_origin_name")}</FormLabel>
 									<FormControl>
 										<Select
 											defaultValue="local"

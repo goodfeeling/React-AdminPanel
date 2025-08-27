@@ -13,6 +13,7 @@ import MenuModal, { type MenuModalProps } from "./menu-modal";
 import SettingModal, { type SettingModalProps } from "./setting-modal";
 
 const MenuList = ({ selectedId }: { selectedId: number | null }) => {
+	const { t } = useTranslation();
 	const defaultValue: Menu = {
 		id: 0,
 		menu_level: 0,
@@ -35,18 +36,17 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	const updateOrCreateMutation = useUpdateOrCreateMenuMutation();
 	const removeMutation = useRemoveMenuMutation();
 	const { data, isLoading } = useMenuQuery(selectedId ?? 0);
-	const { t } = useTranslation();
 	const [expandedKeys, setExpandedKeys] = useState<number[]>([]);
 
 	const [menuModalProps, setUserModalProps] = useState<MenuModalProps>({
 		formValue: { ...defaultValue },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		treeRawData: [],
 		onOk: async (values: Menu): Promise<boolean> => {
 			updateOrCreateMutation.mutate(values, {
 				onSuccess: () => {
-					toast.success("success!");
+					toast.success(t("table.handle_message.success"));
 					setUserModalProps((prev) => ({ ...prev, show: false }));
 				},
 			});
@@ -59,7 +59,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 
 	const [settingModalProps, setSettingModalProps] = useState<SettingModalProps>({
 		formValue: { id: 0 },
-		title: "New",
+		title: t("table.button.add"),
 		show: false,
 		onCancel: () => {
 			setSettingModalProps((prev) => ({ ...prev, show: false }));
@@ -86,7 +86,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			...prev,
 			show: true,
 			...setValue,
-			title: "New",
+			title: t("table.button.add"),
 			formValue: { ...setValue },
 		}));
 	};
@@ -95,7 +95,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		setUserModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Edit",
+			title: t("table.button.edit"),
 			formValue,
 		}));
 	};
@@ -104,7 +104,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		setSettingModalProps((prev) => ({
 			...prev,
 			show: true,
-			title: "Setting",
+			title: t("table.button.button_and_parameter"),
 			formValue: { id: formValue.id },
 		}));
 	};
@@ -112,10 +112,10 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	const handleDelete = async (id: number) => {
 		removeMutation.mutate(id, {
 			onSuccess: () => {
-				toast.success("删除成功");
+				toast.success(t("table.handle_message.success"));
 			},
 			onError: () => {
-				toast.error("删除失败");
+				toast.error(t("table.handle_message.error"));
 			},
 		});
 	};
@@ -125,7 +125,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 	};
 	const columns: ColumnsType<Menu> = [
 		{
-			title: "菜单ID",
+			title: t("table.columns.menu.menu_id"),
 			dataIndex: "expand",
 			render: (_, record) => {
 				const level = record.level.length;
@@ -149,14 +149,14 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			width: 90,
 		},
 		{
-			title: "展示名称",
+			title: t("table.columns.menu.title"),
 			dataIndex: "title",
 			render: (_, record) => {
 				return <span>{t(record.title)}</span>;
 			},
 		},
 		{
-			title: "图标",
+			title: t("table.columns.menu.icon"),
 			dataIndex: "icon",
 			render: (_, record) => {
 				return (
@@ -168,71 +168,86 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			},
 		},
 		{
-			title: "路由Name",
+			title: t("table.columns.menu.name"),
 			dataIndex: "name",
 		},
 		{
-			title: "路由Path",
+			title: t("table.columns.menu.path"),
 			dataIndex: "path",
 		},
 		{
-			title: "是否显示隐藏",
+			title: t("table.columns.menu.hidden"),
 			dataIndex: "hidden",
 			render: (_, record) => {
 				return <Badge variant={record.hidden ? "success" : "error"}>{record.hidden ? "Yes" : "No"}</Badge>;
 			},
 		},
 		{
-			title: "父节点",
+			title: t("table.columns.menu.parent_id"),
 			dataIndex: "parent_id",
 		},
 		{
-			title: "排序",
+			title: t("table.columns.menu.sort"),
 			dataIndex: "sort",
 		},
 		{
-			title: "文件路径",
+			title: t("table.columns.menu.component"),
 			dataIndex: "component",
 		},
 		{
-			title: "创建时间",
+			title: t("table.columns.common.created_at"),
 			dataIndex: "created_at",
+			key: "created_at",
 		},
 		{
-			title: "更新时间",
+			title: t("table.columns.common.updated_at"),
 			dataIndex: "updated_at",
+			key: "updated_at",
 		},
 		{
-			title: "操作",
+			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
-			width: 350,
+			width: 300,
 			fixed: "right",
 			render: (_, record) => (
-				<div className="flex w-full justify-between gap-4 text-gray-500">
-					<Button variant="link" size="icon" onClick={() => onCreate(record)} style={{ marginLeft: "10px" }}>
-						<Icon icon="solar:add-square-bold" size={18} />
-						<span>新增子路由</span>
+				<div className="grid grid-cols-2 gap-2 text-gray-500">
+					<Button variant="link" size="sm" onClick={() => onCreate(record)} className="whitespace-nowrap justify-start">
+						<div className="flex items-center">
+							<Icon icon="solar:add-square-bold" size={18} />
+							<span className="ml-1">{t("table.button.add_sub_route")}</span>
+						</div>
+					</Button>
+					<Button variant="link" size="sm" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
+						<div className="flex items-center">
+							<Icon icon="solar:pen-bold-duotone" size={18} />
+							<span className="ml-1">{t("table.button.edit")}</span>
+						</div>
+					</Button>
+					<Button
+						variant="link"
+						size="sm"
+						onClick={() => onSetting(record)}
+						className="whitespace-nowrap justify-start"
+					>
+						<div className="flex items-center">
+							<Icon icon="solar:pen-new-square-outline" size={18} />
+							<span className="ml-1">{t("table.button.button_and_parameter")}</span>
+						</div>
 					</Button>
 
-					<Button variant="link" size="icon" onClick={() => onEdit(record)}>
-						<Icon icon="solar:pen-bold-duotone" size={18} />
-						<span>修改</span>
-					</Button>
-					<Button variant="link" size="icon" onClick={() => onSetting(record)}>
-						<Icon icon="solar:pen-new-square-outline" size={18} />
-						<span>按钮与参数</span>
-					</Button>
 					<Popconfirm
-						title="Delete the task"
-						description="Are you sure to delete this task?"
+						title={t("table.handle_message.delete_prompt")}
+						description={t("table.handle_message.confirm_delete")}
 						onConfirm={() => handleDelete(record.id)}
-						okText="Yes"
-						cancelText="No"
+						okText={t("table.button.yes")}
+						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="icon">
-							<Icon icon="mingcute:delete-2-fill" size={18} />
-							<span>删除</span>
+						<Button variant="link" size="sm" className="whitespace-nowrap justify-start">
+							<div className="flex items-center">
+								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
+								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
+							</div>
 						</Button>
 					</Popconfirm>
 				</div>
@@ -246,7 +261,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 				<div className="flex items-start justify-start">
 					<Button onClick={() => onCreate(undefined)}>
 						<Icon icon="solar:add-circle-outline" size={18} />
-						New
+						{t("table.button.add")}
 					</Button>
 				</div>
 			</CardHeader>

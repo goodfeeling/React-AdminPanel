@@ -4,6 +4,7 @@ import { Input } from "@/ui/input";
 import { Button, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { Api, DictionaryDetail } from "#/entity";
 
 export type ApiModalProps = {
@@ -17,6 +18,7 @@ export type ApiModalProps = {
 };
 
 export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, onOk, onCancel }: ApiModalProps) {
+	const { t } = useTranslation();
 	const form = useForm<Api>({
 		defaultValues: formValue,
 	});
@@ -55,10 +57,10 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 			centered
 			footer={[
 				<Button key="back" onClick={handleCancel}>
-					Return
+					{t("table.button.return")}
 				</Button>,
 				<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-					Submit
+					{t("table.button.submit")}
 				</Button>,
 			]}
 		>
@@ -70,7 +72,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 						rules={{ required: "path is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Path</FormLabel>
+								<FormLabel> {t("table.columns.api.path")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -85,7 +87,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 						rules={{ required: "method is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Method</FormLabel>
+								<FormLabel>{t("table.columns.api.method")}</FormLabel>
 
 								<Select
 									style={{ width: 150 }}
@@ -105,7 +107,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 						rules={{ required: "api_group is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>ApiGroup</FormLabel>
+								<FormLabel>{t("table.columns.api.api_group")}</FormLabel>
 
 								<Select
 									style={{ width: 150 }}
@@ -124,7 +126,7 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 						name="description"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>Description</FormLabel>
+								<FormLabel>{t("table.columns.api.description")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>

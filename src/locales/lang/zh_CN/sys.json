@@ -100,12 +100,22 @@
 			},
 			"system": {
 				"index": "系统",
+				"admin": "超级管理员",
 				"role": "角色管理",
 				"user": "用户管理",
 				"api": "接口管理",
 				"dictionary": "字典管理",
+				"dictionary_group": "字典分组管理",
 				"operation": "操作日志",
-				"menu": "菜单管理"
+				"menu": "菜单管理",
+				"menu_group": "菜单分组",
+				"file": "文件管理",
+				"tools": "系统工具",
+				"schedule": "调度任务",
+				"setting": "系统配置",
+				"from_create": "表单生成器",
+				"menu_btn": "可控按钮设置",
+				"menu_parameter": "菜单参数设置"
 			},
 			"blog": "博客",
 			"components": "组件",
@@ -179,6 +189,15 @@
 			"old_password": "旧密码",
 			"new_password": "新密码",
 			"confirm_new_password": "确认新密码"
+		},
+		"config": {
+			"site_name": "站点名称",
+			"site_logo": "站点LOGO",
+			"site_login_bg": "站点登录背景",
+			"file_storage_engine": "文件存储引擎",
+			"database_driver": "数据库驱动",
+			"save": "保存",
+			"system": "默认设置"
 		}
 	}
 }

@@ -5,6 +5,7 @@ import AdvancedCronField from "@/pages/components/cron";
 import { Button, Input, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
+import { useTranslation } from "react-i18next";
 import type { ScheduledTask } from "#/entity";
 
 export type ScheduledTaskModalProps = {
@@ -16,6 +17,7 @@ export type ScheduledTaskModalProps = {
 };
 
 export default function ScheduledTaskModal({ title, show, formValue, onOk, onCancel }: ScheduledTaskModalProps) {
+	const { t } = useTranslation();
 	const taskTypes = useDictionaryByType("task_type");
 	const apiMethod = useDictionaryByType("api_method");
 	const taskExecType = useDictionaryByType("task_exec");
@@ -77,7 +79,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							rules={{ required: "method is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Method</FormLabel>
+									<FormLabel>{t("table.columns.schedule.method")}</FormLabel>
 									<FormControl>
 										<Select {...field} style={{ width: "100%" }} options={apiMethod} />
 									</FormControl>
@@ -90,7 +92,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							name="task_params.timeout"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Timeout (seconds)</FormLabel>
+									<FormLabel>{t("table.columns.schedule.timeout")}</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
@@ -115,7 +117,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							rules={{ required: "function_name is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Function Name</FormLabel>
+									<FormLabel>{t("table.columns.schedule.function_name")}</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="task function name" />
 									</FormControl>
@@ -128,7 +130,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							name="task_params.days_to_keep"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Days to Keep</FormLabel>
+									<FormLabel>{t("table.columns.schedule.days_to_keep")}</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
@@ -153,7 +155,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							rules={{ required: "script_path is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Script Path</FormLabel>
+									<FormLabel>{t("table.columns.schedule.script_path")}</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="/path/to/your/script.sh" />
 									</FormControl>
@@ -167,7 +169,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							rules={{ required: "arguments is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Arguments (optional)</FormLabel>
+									<FormLabel>{t("table.columns.schedule.arguments")}</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="arg1 arg2 arg3" />
 									</FormControl>
@@ -180,7 +182,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							name="task_params.timeout"
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>Timeout (seconds)</FormLabel>
+									<FormLabel> {t("table.columns.schedule.timeout")}</FormLabel>
 									<FormControl>
 										<Input
 											type="number"
@@ -199,7 +201,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 							rules={{ required: "work_dir is required" }}
 							render={({ field }) => (
 								<FormItem>
-									<FormLabel>WorkDir (optional)</FormLabel>
+									<FormLabel> {t("table.columns.schedule.work_dir")}</FormLabel>
 									<FormControl>
 										<Input {...field} placeholder="/home/user" />
 									</FormControl>
@@ -216,7 +218,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						name="task_params"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>task_params</FormLabel>
+								<FormLabel>{t("table.columns.schedule.task_params")}</FormLabel>
 								<FormControl>
 									<Input.TextArea
 										rows={4}
@@ -251,10 +253,10 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 			}}
 			footer={[
 				<Button key="back" onClick={handleCancel}>
-					Return
+					{t("table.button.return")}
 				</Button>,
 				<Button key="submit" type="primary" loading={loading} onClick={handleOk}>
-					Submit
+					{t("table.button.submit")}
 				</Button>,
 			]}
 		>
@@ -266,7 +268,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						rules={{ required: "task_name is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>task_name</FormLabel>
+								<FormLabel>{t("table.columns.schedule.task_name")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -279,7 +281,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						name="task_description"
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>task_description</FormLabel>
+								<FormLabel>{t("table.columns.schedule.task_description")}</FormLabel>
 								<FormControl>
 									<Input {...field} />
 								</FormControl>
@@ -295,7 +297,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						rules={{ required: "exec_type is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>execType</FormLabel>
+								<FormLabel>{t("table.columns.schedule.exec_type")}</FormLabel>
 								<FormControl>
 									<Select
 										style={{ width: 150 }}
@@ -316,7 +318,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 						rules={{ required: "task_type is required" }}
 						render={({ field }) => (
 							<FormItem>
-								<FormLabel>task_type</FormLabel>
+								<FormLabel>{t("table.columns.schedule.task_type")}</FormLabel>
 								<FormControl>
 									<Select
 										style={{ width: 150 }}

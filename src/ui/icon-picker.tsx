@@ -98,7 +98,9 @@ export const IconPicker = ({ value, onChange }: IconPickerProps) => {
                     }}
                   >
                     <Icon icon={icon} size={16} />
-                    <span className="text-xs">{icon}</span>
+                    <span className="text-xs" style={{ textAlign: "center" }}>
+                      {icon}
+                    </span>
                   </div>
                 ))}
               </div>
