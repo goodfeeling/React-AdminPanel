@@ -1,14 +1,11 @@
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from "@/ui/dialog";
-
 import { Icon } from "@/components/icon";
 import { useMenuBtn, useMenuBtnActions } from "@/store/menuBtnStore";
 import { useMenuParameter, useMenuParameterActions } from "@/store/menuParameterStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import { Card, CardContent, CardHeader, CardTitle } from "@/ui/card";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/ui/select";
 import type { GetRef, InputRef, TableProps } from "antd";
-import { Form, Input, InputNumber, Table } from "antd";
+import { Form, Input, InputNumber, Modal, Table, Tabs } from "antd";
 import { createContext, useContext, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import type { MenuBtn, MenuParameter } from "#/entity";
@@ -23,18 +20,60 @@ export type SettingModalProps = {
 	onCancel: VoidFunction;
 };
 
-export default function UserModal({ title, show, formValue, onCancel }: SettingModalProps) {
+export default function SettingModal({ title, show, formValue, onCancel }: SettingModalProps) {
 	const { id } = formValue;
+	const { t } = useTranslation();
+
+	const [open, setOpen] = useState(false);
+	const handleCancel = () => {
+		setOpen(false);
+		onCancel();
+	};
+	useEffect(() => {
+		setOpen(show);
+	}, [show]);
 	return (
-		<Dialog open={show} onOpenChange={(open) => !open && onCancel()}>
-			<DialogContent className="sm:max-w-5xl max-h-[80vh] overflow-y-auto  scrollbar-hide">
-				<DialogHeader>
-					<DialogTitle>{title}</DialogTitle>
-				</DialogHeader>
-				<BtnPage MenuId={id} />
-				<ParameterPage MenuId={id} />
-			</DialogContent>
-		</Dialog>
+		<Modal
+			width={800}
+			open={open}
+			title={title}
+			styles={{
+				body: {
+					maxHeight: "80vh",
+					overflowY: "auto",
+				},
+			}}
+			classNames={{
+				body: "themed-scrollbar",
+			}}
+			onCancel={handleCancel}
+			centered
+			footer={false}
+		>
+			<Tabs
+				defaultActiveKey="1"
+				items={[
+					{
+						key: "1",
+						label: t("sys.menu.system.menu_btn"),
+						children: (
+							<div className="max-h-[600px] overflow-y-auto">
+								<BtnPage MenuId={id} />
+							</div>
+						),
+					},
+					{
+						key: "2",
+						label: t("sys.menu.system.menu_parameter"),
+						children: (
+							<div className="max-h-[600px] overflow-y-auto">
+								<ParameterPage MenuId={id} />
+							</div>
+						),
+					},
+				]}
+			/>
+		</Modal>
 	);
 }
 
@@ -258,29 +297,23 @@ function ParameterPage({ MenuId }: { MenuId: number }) {
 		};
 	});
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>{t("sys.menu.system.menu_btn")}</CardTitle>
-				<div className="flex items-start justify-start">
-					<Button onClick={handleAdd} type="button">
-						<Icon icon="solar:add-circle-outline" size={18} />
-						{t("table.button.add_a_row")}
-					</Button>
-				</div>
-			</CardHeader>
-
-			<CardContent>
-				<Table<MenuParameter>
-					rowKey={(record) => record.id as number}
-					components={components}
-					rowClassName={() => "editable-row"}
-					bordered
-					dataSource={dataSource}
-					columns={columns as ColumnTypes}
-					pagination={false}
-				/>
-			</CardContent>
-		</Card>
+		<div className="flex flex-col gap-4">
+			<div className="flex items-start justify-start">
+				<Button onClick={handleAdd} type="button">
+					<Icon icon="solar:add-circle-outline" size={18} />
+					{t("table.button.add_a_row")}
+				</Button>
+			</div>
+			<Table<MenuParameter>
+				rowKey={(record) => record.id as number}
+				components={components}
+				rowClassName={() => "editable-row"}
+				bordered
+				dataSource={dataSource}
+				columns={columns as ColumnTypes}
+				pagination={false}
+			/>
+		</div>
 	);
 }
 interface EditableCellMenuParameterProps {
@@ -437,28 +470,22 @@ function BtnPage({ MenuId }: { MenuId: number }) {
 		};
 	});
 	return (
-		<Card>
-			<CardHeader>
-				<CardTitle>{t("sys.menu.system.menu_btn")}</CardTitle>
-				<div className="flex items-start justify-start">
-					<Button onClick={handleAdd} variant="default">
-						<Icon icon="solar:add-circle-outline" size={18} />
-						{t("table.button.add_a_row")}
-					</Button>
-				</div>
-			</CardHeader>
-
-			<CardContent>
-				<Table<MenuBtn>
-					rowKey={(record) => record.id as number}
-					components={components}
-					rowClassName={() => "editable-row"}
-					bordered
-					dataSource={dataSource}
-					columns={columns as ColumnTypes}
-					pagination={false}
-				/>
-			</CardContent>
-		</Card>
+		<div className="flex flex-col gap-4">
+			<div className="flex items-start justify-start">
+				<Button onClick={handleAdd} variant="default">
+					<Icon icon="solar:add-circle-outline" size={18} />
+					{t("table.button.add_a_row")}
+				</Button>
+			</div>
+			<Table<MenuBtn>
+				rowKey={(record) => record.id as number}
+				components={components}
+				rowClassName={() => "editable-row"}
+				bordered
+				dataSource={dataSource}
+				columns={columns as ColumnTypes}
+				pagination={false}
+			/>
+		</div>
 	);
 }

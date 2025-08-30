@@ -293,7 +293,7 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title={t("sys.menu.system.operation")}>
+			<Card title={t("sys.menu.system.operation")} size="small">
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<Button variant="destructive" onClick={() => handleDeleteSelection()} disabled={!hasSelected}>

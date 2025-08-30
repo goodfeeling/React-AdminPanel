@@ -63,6 +63,15 @@ export default function SettingModal({ roleData, title, show, onCancel }: Settin
 					isSet: false,
 				});
 			}}
+			styles={{
+				body: {
+					maxHeight: "80vh",
+					overflowY: "auto",
+				},
+			}}
+			classNames={{
+				body: "themed-scrollbar",
+			}}
 			footer={null}
 			width={800}
 			centered

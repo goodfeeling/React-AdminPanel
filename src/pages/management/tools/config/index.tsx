@@ -187,7 +187,7 @@ const App: React.FC = () => {
 	const { t } = useTranslation();
 	return (
 		<div>
-			<Card>
+			<Card title={t("sys.menu.system.setting")} size="small">
 				<Tabs
 					defaultActiveKey="1"
 					tabPosition={"top"}

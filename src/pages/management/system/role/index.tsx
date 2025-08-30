@@ -1,10 +1,11 @@
 import { Icon } from "@/components/icon";
+import useDictionaryByType from "@/hooks/dict";
 import { useRemoveRoleMutation, useRoleQuery, useUpdateOrCreateRoleMutation } from "@/store/roleManageStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
-import { Card, CardContent, CardHeader } from "@/ui/card";
+import { CardContent, CardHeader } from "@/ui/card";
 import type { TableProps } from "antd";
-import { Popconfirm, Table } from "antd";
+import { Card, Popconfirm, Table } from "antd";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
@@ -31,7 +32,7 @@ const defaultValue: Role = {
 
 const App: React.FC = () => {
 	const { t } = useTranslation();
-
+	const statusType = useDictionaryByType("status");
 	const updateOrCreateMutation = useUpdateOrCreateRoleMutation();
 	const removeMutation = useRemoveRoleMutation();
 	const { data, isLoading } = useRoleQuery();
@@ -171,7 +172,9 @@ const App: React.FC = () => {
 			align: "center",
 			width: 120,
 			render: (status) => {
-				return <Badge variant={status ? "success" : "error"}>{status ? "Enable" : "Disabled"}</Badge>;
+				const statusItem = statusType.find((item) => Number(item.value) === status);
+
+				return <Badge variant={status === 1 ? "success" : "error"}>{statusItem?.label}</Badge>;
 			},
 		},
 		{
@@ -238,7 +241,7 @@ const App: React.FC = () => {
 	];
 
 	return (
-		<Card title={t("sys.menu.system.role")}>
+		<Card title={t("sys.menu.system.role")} size="small">
 			<CardHeader>
 				<div className="flex items-center justify-between">
 					<Button onClick={() => onCreate(undefined)}>

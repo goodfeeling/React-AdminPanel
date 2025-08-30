@@ -12,7 +12,9 @@ import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
+
 const { Dragger } = Upload;
+
 export type FileModalProps = {
 	formValue: FileInfo;
 	title: string;
@@ -74,9 +76,8 @@ const FileNewModal = ({ title, show, formValue, storageEngine, onOk, onCancel }:
 			} else {
 				toast.error(`${file.name} ${t("table.handle_message.upload_error")}`);
 			}
-			return false; // 阻止默认上传行为
+			return false;
 		}
-		// 其他存储引擎使用默认上传方式
 		return true;
 	};
 

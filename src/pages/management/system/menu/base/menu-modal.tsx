@@ -48,7 +48,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
-	console.log(langTree);
 
 	useEffect(() => {
 		setOpen(show);

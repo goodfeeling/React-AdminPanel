@@ -179,7 +179,11 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			title: t("table.columns.menu.hidden"),
 			dataIndex: "hidden",
 			render: (_, record) => {
-				return <Badge variant={record.hidden ? "success" : "error"}>{record.hidden ? "Yes" : "No"}</Badge>;
+				return (
+					<Badge variant={record.hidden ? "success" : "error"}>
+						{record.hidden ? t("table.button.yes") : t("table.button.no")}
+					</Badge>
+				);
 			},
 		},
 		{

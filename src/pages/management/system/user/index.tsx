@@ -69,7 +69,7 @@ const App: React.FC = () => {
 
 	const [userModalProps, setUserModalProps] = useState<UserModalProps>({
 		formValue: { ...defaultUserValue },
-		title: "New",
+		title: t("table.button.add"),
 		treeData: [],
 		show: false,
 		onOk: async (values: UserInfo): Promise<boolean> => {
@@ -215,7 +215,9 @@ const App: React.FC = () => {
 			align: "center",
 			width: 120,
 			render: (status) => {
-				return <Badge variant={status ? "success" : "error"}>{status ? "Enable" : "Disabled"}</Badge>;
+				const statusItem = statusType.find((item) => Number(item.value) === status);
+
+				return <Badge variant={status === 1 ? "success" : "error"}>{statusItem?.label}</Badge>;
 			},
 		},
 		{
@@ -347,7 +349,7 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title={t("sys.menu.system.user")}>
+			<Card title={t("sys.menu.system.user")} size="small">
 				<CardHeader>
 					<div className="flex items-center justify-between">
 						<Button onClick={() => onCreate()}>

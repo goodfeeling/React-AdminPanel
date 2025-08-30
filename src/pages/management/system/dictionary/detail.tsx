@@ -6,6 +6,7 @@ import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import type { ColumnsType, DictionaryDetail } from "#/entity";
 
+import useDictionaryByType from "@/hooks/dict";
 import {
 	useBatchRemoveDictionaryDetailMutation,
 	useDictionaryDetailActions,
@@ -38,7 +39,7 @@ const DictionaryDetailList = ({
 		created_at: "",
 		updated_at: "",
 	};
-
+	const statusType = useDictionaryByType("status");
 	const updateOrCreateMutation = useUpdateOrCreateDictionaryDetailMutation();
 	const removeMutation = useRemoveDictionaryDetailMutation();
 	const batchRemoveMutation = useBatchRemoveDictionaryDetailMutation();
@@ -170,12 +171,10 @@ const DictionaryDetailList = ({
 			dataIndex: "status",
 			key: "status",
 			ellipsis: true,
-			render: (_, record) => {
-				return (
-					<Badge variant={record.status === 1 ? "success" : "error"}>
-						{record.status === 1 ? "Enable" : "Disabled"}
-					</Badge>
-				);
+			render: (status) => {
+				const statusItem = statusType.find((item) => Number(item.value) === status);
+
+				return <Badge variant={status === 1 ? "success" : "error"}>{statusItem?.label}</Badge>;
 			},
 		},
 		{

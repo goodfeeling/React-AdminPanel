@@ -119,7 +119,7 @@ const DictionaryList = ({
 			title: t("table.columns.common.operation"),
 			key: "operation",
 			align: "center",
-			width: 100,
+			width: 120,
 			render: (_, record) => (
 				<div className="flex w-full justify-center text-gray-500">
 					<Button

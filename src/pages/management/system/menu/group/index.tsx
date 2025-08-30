@@ -34,10 +34,12 @@ const MenuGroupList = ({
 	const { t } = useTranslation();
 	const updateOrCreateMutation = useUpdateOrCreateMenuGroupMutation();
 	const removeMutation = useRemoveMenuGroupMutation();
+
 	const { data, isLoading } = useMenuGroupQuery();
 	const condition = useMenuGroupManageCondition();
 	const { setCondition } = useMenuGroupActions();
 	const [selectedId, setSelectedId] = useState<number | null>(null);
+
 	const [apiModalProps, setDictionaryModalProps] = useState<MenuGroupModalProps>({
 		formValue: { ...defaultValue },
 		title: t("table.button.add"),

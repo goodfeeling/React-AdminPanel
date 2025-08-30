@@ -141,7 +141,8 @@
 			"user": {
 				"account": "Account",
 				"index": "User",
-				"profile": "Profile"
+				"profile": "Profile",
+				"switch_role": "SwitchRole"
 			},
 			"workbench": "Workbench"
 		},

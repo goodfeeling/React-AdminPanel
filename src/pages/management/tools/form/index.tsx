@@ -9,8 +9,9 @@ import {
 import { CSS } from "@dnd-kit/utilities";
 import { Button, Card, Checkbox, Col, Form, Input, InputNumber, Radio, Row, Select, Space, Typography } from "antd";
 import { useState } from "react";
+import { useTranslation } from "react-i18next";
 
-const { Title, Text } = Typography;
+const { Text } = Typography;
 const { Option } = Select;
 
 // 定义表单字段类型
@@ -80,6 +81,7 @@ const SortableItem = (props: {
 };
 
 const FormBuilder: React.FC = () => {
+	const { t } = useTranslation();
 	const [formConfig, setFormConfig] = useState<FormConfig>({
 		title: "表单标题",
 		description: "表单描述",
@@ -342,90 +344,92 @@ const FormBuilder: React.FC = () => {
 	};
 
 	return (
-		<div className="p-4">
-			<Title level={3}>表单生成器</Title>
-
-			<Row gutter={16}>
-				{/* 左侧：组件库 */}
-				<Col span={6}>
-					<Card title="组件库" size="small">
-						<Space direction="vertical" style={{ width: "100%" }}>
-							{componentPalette.map((component) => (
-								<Button key={component.type} block onClick={() => addField(component.type as FormField["type"])}>
-									{component.label}
-								</Button>
-							))}
-						</Space>
-					</Card>
-
-					<Card title="表单设置" size="small" className="mt-4">
-						<Form layout="vertical">
-							<Form.Item label="表单标题">
-								<Input
-									value={formConfig.title}
-									onChange={(e) => setFormConfig({ ...formConfig, title: e.target.value })}
-								/>
-							</Form.Item>
-							<Form.Item label="表单描述">
-								<Input.TextArea
-									value={formConfig.description}
-									onChange={(e) =>
-										setFormConfig({
-											...formConfig,
-											description: e.target.value,
-										})
-									}
-									rows={3}
-								/>
-							</Form.Item>
-						</Form>
-					</Card>
-				</Col>
-
-				{/* 中间：表单设计区域 */}
-				<Col span={12}>
-					<Card
-						title="表单设计"
-						size="small"
-						extra={
-							<Space>
-								<Button onClick={saveForm} type="primary">
-									保存表单
-								</Button>
+		<Card title={t("sys.menu.system.from_create")} size="small">
+			<div className="p-4">
+				<Row gutter={16}>
+					{/* 左侧：组件库 */}
+					<Col span={6}>
+						<Card title="组件库" size="small">
+							<Space direction="vertical" style={{ width: "100%" }}>
+								{componentPalette.map((component) => (
+									<Button key={component.type} block onClick={() => addField(component.type as FormField["type"])}>
+										{component.label}
+									</Button>
+								))}
 							</Space>
-						}
-					>
-						<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-							<SortableContext
-								items={formConfig.fields.map((field) => field.id)}
-								strategy={verticalListSortingStrategy}
-							>
-								<div className="min-h-[400px]">
-									{formConfig.fields.length === 0 ? (
-										<div className="text-center text-gray-400 py-12">从左侧拖拽组件到此处，或点击组件添加到表单中</div>
-									) : (
-										formConfig.fields.map((field) => (
-											<SortableItem key={field.id} field={field} onClick={setSelectedField} />
-										))
-									)}
-								</div>
-							</SortableContext>
-						</DndContext>
-					</Card>
+						</Card>
 
-					<Card title="表单预览" size="small" className="mt-4">
-						{renderFormPreview()}
-					</Card>
-				</Col>
+						<Card title="表单设置" size="small" className="mt-4">
+							<Form layout="vertical">
+								<Form.Item label="表单标题">
+									<Input
+										value={formConfig.title}
+										onChange={(e) => setFormConfig({ ...formConfig, title: e.target.value })}
+									/>
+								</Form.Item>
+								<Form.Item label="表单描述">
+									<Input.TextArea
+										value={formConfig.description}
+										onChange={(e) =>
+											setFormConfig({
+												...formConfig,
+												description: e.target.value,
+											})
+										}
+										rows={3}
+									/>
+								</Form.Item>
+							</Form>
+						</Card>
+					</Col>
 
-				{/* 右侧：字段属性编辑器 */}
-				<Col span={6}>
-					<Card title="字段属性" size="small">
-						{renderFieldEditor()}
-					</Card>
-				</Col>
-			</Row>
-		</div>
+					{/* 中间：表单设计区域 */}
+					<Col span={12}>
+						<Card
+							title="表单设计"
+							size="small"
+							extra={
+								<Space>
+									<Button onClick={saveForm} type="primary">
+										保存表单
+									</Button>
+								</Space>
+							}
+						>
+							<DndContext sensors={sensors} collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
+								<SortableContext
+									items={formConfig.fields.map((field) => field.id)}
+									strategy={verticalListSortingStrategy}
+								>
+									<div className="min-h-[400px]">
+										{formConfig.fields.length === 0 ? (
+											<div className="text-center text-gray-400 py-12">
+												从左侧拖拽组件到此处，或点击组件添加到表单中
+											</div>
+										) : (
+											formConfig.fields.map((field) => (
+												<SortableItem key={field.id} field={field} onClick={setSelectedField} />
+											))
+										)}
+									</div>
+								</SortableContext>
+							</DndContext>
+						</Card>
+
+						<Card title="表单预览" size="small" className="mt-4">
+							{renderFormPreview()}
+						</Card>
+					</Col>
+
+					{/* 右侧：字段属性编辑器 */}
+					<Col span={6}>
+						<Card title="字段属性" size="small">
+							{renderFieldEditor()}
+						</Card>
+					</Col>
+				</Row>
+			</div>
+		</Card>
 	);
 };
 

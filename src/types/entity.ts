@@ -291,3 +291,8 @@ export type GroupConfig = {
 	name: string;
 	configs: Config[];
 };
+
+export type WebSocketMessage<T> = {
+	type: string;
+	data: T;
+};

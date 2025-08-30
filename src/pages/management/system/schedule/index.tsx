@@ -25,6 +25,7 @@ import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 import type { ColumnsType, ScheduledTask } from "#/entity";
+import ExecLogModal, { type LogModalProps } from "./log";
 import ScheduledTaskModal, { type ScheduledTaskModalProps } from "./modal";
 
 const defaultScheduledTaskValue: ScheduledTask = {
@@ -79,7 +80,7 @@ const App: React.FC = () => {
 
 	const [processingTaskIds, setProcessingTaskIds] = useState<Set<number>>(new Set());
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
-	const [apiModalProps, setScheduledTaskModalProps] = useState<ScheduledTaskModalProps>({
+	const [scheduleModalProps, setScheduledTaskModalProps] = useState<ScheduledTaskModalProps>({
 		formValue: { ...defaultScheduledTaskValue },
 		title: t("table.button.add"),
 		show: false,
@@ -97,6 +98,14 @@ const App: React.FC = () => {
 		},
 	});
 
+	const [logModalProps, setLogModalProps] = useState<LogModalProps>({
+		title: t("table.button.log"),
+		show: false,
+		id: 0,
+		onCancel: () => {
+			setLogModalProps((prev) => ({ ...prev, show: false }));
+		},
+	});
 	const handleTableChange: TableProps<ScheduledTask>["onChange"] = (pagination, filters, sorter) => {
 		setCondition({
 			...condition,
@@ -149,6 +158,16 @@ const App: React.FC = () => {
 				toast.error(t("table.handle_message.error"));
 			},
 		});
+	};
+	// show log
+	const onShowLog = (id: number) => {
+		console.log(id);
+
+		setLogModalProps((prev) => ({
+			...prev,
+			show: true,
+			id,
+		}));
 	};
 
 	const columns: ColumnsType<ScheduledTask> = [
@@ -212,7 +231,7 @@ const App: React.FC = () => {
 			key: "operation",
 			align: "center",
 			fixed: "right",
-			width: 280,
+			width: 300,
 			render: (_, record) => (
 				<div className="grid grid-cols-3 gap-2 text-gray-500">
 					<Button
@@ -230,7 +249,7 @@ const App: React.FC = () => {
 						) : (
 							<>
 								<Icon icon="solar:rewind-back-line-duotone" size={18} />
-								<span className="ml-1">{t("table.button.started")}</span>
+								<span className="ml-1">{t("table.button.start")}</span>
 							</>
 						)}
 					</Button>
@@ -250,9 +269,22 @@ const App: React.FC = () => {
 							) : (
 								<>
 									<Icon icon="solar:stop-circle-outline" size={18} />
-									<span className="ml-1">{t("table.button.stopped")}</span>
+									<span className="ml-1">{t("table.button.stop")}</span>
 								</>
 							)}
+						</div>
+					</Button>
+					<Button
+						variant="link"
+						size="icon"
+						onClick={() => onShowLog(record.id)}
+						className="whitespace-nowrap justify-start"
+					>
+						<div className="flex items-center">
+							<Icon icon="solar:menu-dots-circle-linear" size={18} />
+							<span className="ml-1">
+								<span className="ml-1"> {t("table.button.log")}</span>
+							</span>
 						</div>
 					</Button>
 					<Button variant="link" size="icon" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
@@ -261,14 +293,7 @@ const App: React.FC = () => {
 							<span className="ml-1"> {t("table.button.edit")}</span>
 						</div>
 					</Button>
-					<Button variant="link" size="icon" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
-						<div className="flex items-center">
-							<Icon icon="solar:menu-dots-circle-linear" size={18} />
-							<span className="ml-1">
-								<span className="ml-1"> {t("table.button.log")}</span>
-							</span>
-						</div>
-					</Button>
+
 					<Popconfirm
 						title={t("table.handle_message.delete_prompt")}
 						description={t("table.handle_message.confirm_delete")}
@@ -488,7 +513,7 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title={t("sys.menu.system.schedule")}>
+			<Card title={t("sys.menu.system.schedule")} size="small">
 				<CardHeader>
 					<div className="flex items-start justify-start">
 						<Button onClick={() => onCreate()} variant="default">
@@ -533,7 +558,8 @@ const App: React.FC = () => {
 						})}
 					/>
 				</CardContent>
-				<ScheduledTaskModal {...apiModalProps} />
+				<ScheduledTaskModal {...scheduleModalProps} />
+				<ExecLogModal {...logModalProps} />
 			</Card>
 		</div>
 	);

@@ -15,10 +15,12 @@ const axiosInstance = axios.create({
 });
 
 let isRefreshing = false;
+
 let failedQueue: Array<{
 	resolve: (value?: any) => void;
 	reject: (error?: any) => void;
 }> = [];
+
 const processQueue = (error: any, token: string | null = null) => {
 	for (const prom of failedQueue) {
 		if (error) {

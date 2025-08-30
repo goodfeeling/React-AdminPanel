@@ -370,7 +370,7 @@ const App: React.FC = () => {
 					</Form>
 				</CardContent>
 			</Card>
-			<Card title={t("sys.menu.system.api")}>
+			<Card title={t("sys.menu.system.api")} size="small">
 				<CardHeader>
 					<div className="flex items-start justify-start">
 						<Button onClick={() => onCreate()} variant="default">
