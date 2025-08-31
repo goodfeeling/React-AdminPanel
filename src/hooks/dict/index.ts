@@ -1,37 +1,31 @@
 import dictionaryService from "@/api/services/dictionaryService";
-import type { DictionaryDetail } from "@/types/entity";
-import { useCallback, useEffect, useState } from "react";
-export default function useDictionaryByType(typeText: string): DictionaryDetail[] {
-	const [data, setData] = useState<DictionaryDetail[]>([]);
+import { useQuery } from "@tanstack/react-query";
 
-	const getData = useCallback(async () => {
-		const response = await dictionaryService.getByType(typeText);
-		setData(response.details);
-	}, [typeText]);
-
-	useEffect(() => {
-		getData();
-	}, [getData]);
-
-	return data;
-}
 type MapByTypeResult = { [key: string]: string };
 
-export function useMapByType(typeText: string): MapByTypeResult {
-	const [data, setData] = useState<MapByTypeResult>({});
+// 添加使用React Query的缓存版本
+export function useDictionaryByTypeWithCache(typeText: string) {
+	return useQuery({
+		queryKey: ["dictionary", typeText],
+		queryFn: () => dictionaryService.getByType(typeText),
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 30,
+		select: (data) => data.details,
+	});
+}
 
-	const getData = useCallback(async () => {
-		const response = await dictionaryService.getByType(typeText);
-		const result = response.details.reduce((acc: MapByTypeResult, cur) => {
-			acc[cur.label] = cur.value;
-			return acc;
-		}, {});
-		setData(result);
-	}, [typeText]);
-
-	useEffect(() => {
-		getData();
-	}, [getData]);
-
-	return data;
+export function useMapByTypeWithCache(typeText: string) {
+	return useQuery({
+		queryKey: ["dictionaryMap", typeText],
+		queryFn: () => dictionaryService.getByType(typeText),
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 30,
+		select: (data) => {
+			const result: MapByTypeResult = {};
+			for (const item of data.details) {
+				result[item.label] = item.value;
+			}
+			return result;
+		},
+	});
 }

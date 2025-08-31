@@ -1,6 +1,6 @@
 // @/components/icon-picker-custom.tsx
 import { Icon } from "@/components/icon";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { useTheme } from "@/theme/hooks";
 import { useEffect, useRef, useState } from "react";
 
@@ -14,14 +14,16 @@ export const IconPicker = ({ value, onChange }: IconPickerProps) => {
   const [search, setSearch] = useState("");
   const containerRef = useRef<HTMLDivElement>(null);
   const { themeTokens } = useTheme();
-  const icons = useDictionaryByType("icons").map((item) => {
-    return item.value;
-  });
+  const { data: icons } = useDictionaryByTypeWithCache("icons");
   // 设置进度条颜色，优先使用传入的颜色，否则使用主题色
   const backgroundColor = themeTokens.color.background.default;
   const filteredIcons = search
-    ? icons.filter((icon) => icon.toLowerCase().includes(search.toLowerCase()))
-    : icons;
+    ? icons
+        ?.filter((icon) =>
+          icon.value.toLowerCase().includes(search.toLowerCase())
+        )
+        .map((icon) => icon.value)
+    : icons?.map((icon) => icon.value);
 
   // 点击外部关闭弹窗
   useEffect(() => {
@@ -82,13 +84,13 @@ export const IconPicker = ({ value, onChange }: IconPickerProps) => {
           />
 
           <div className="mt-2 max-h-60 overflow-y-auto pr-1">
-            {filteredIcons.length === 0 ? (
+            {filteredIcons?.length === 0 ? (
               <div className="py-2 text-center text-sm text-muted-foreground">
                 No icon found.
               </div>
             ) : (
               <div className="grid grid-cols-4 gap-2">
-                {filteredIcons.map((icon) => (
+                {filteredIcons?.map((icon) => (
                   <div
                     key={icon}
                     className="flex cursor-pointer flex-col items-center justify-center rounded p-2 hover:bg-gray-200 dark:hover:bg-gray-800"

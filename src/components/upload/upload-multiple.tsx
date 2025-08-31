@@ -3,44 +3,33 @@ import { useOssUpload } from "@/hooks/ossUpload";
 import { useRemoveFileInfoMutation } from "@/store/fileManageStore";
 import { useSTSTokenLoading } from "@/store/stsTokenStore";
 import useUserStore from "@/store/userStore";
-import type { FileInfo } from "@/types/entity";
 import { LoadingOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { App, Button, Form, Upload } from "antd";
+import { App, Button, Upload } from "antd";
 import type { UploadListType } from "antd/es/upload/interface";
 import type { UploadFile } from "antd/lib";
 import type React from "react";
-import { useState } from "react";
-import { type UseFormReturn, useForm } from "react-hook-form";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 
 interface UploadToolProps {
 	uploadType?: string;
 	onHandleSuccess?: (fileList: any) => void;
-	form: UseFormReturn<FileInfo, any, FileInfo>;
 	listType: UploadListType | undefined;
 	fileList?: UploadFile<any>[] | undefined;
 	showUploadList?: boolean;
 	renderType: "button" | "image";
+	renderImageUrl: string;
 }
-const parseUriFromUrl = (fileUrl: string): string => {
-	try {
-		const url = new URL(fileUrl);
-		return url.pathname.startsWith("/") ? url.pathname.substring(1) : url.pathname;
-	} catch (error) {
-		// 如果不是有效的URL，返回原始字符串或处理错误
-		console.error("Invalid URL:", error);
-		return fileUrl;
-	}
-};
+
 const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 	uploadType,
 	onHandleSuccess,
-	form,
 	listType,
 	showUploadList,
 	fileList,
 	renderType,
+	renderImageUrl,
 }) => {
 	const { t } = useTranslation();
 	const { message } = App.useApp();
@@ -50,6 +39,11 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 	const removeMutation = useRemoveFileInfoMutation();
 	const [imageUrl, setImageUrl] = useState<string>();
 	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		setImageUrl(renderImageUrl);
+	}, [renderImageUrl]);
+
 	const props: UploadProps = {
 		name: "file",
 		listType: listType,
@@ -89,16 +83,10 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 				setLoading(false);
 				if (result.success) {
 					// 上传成功后更新表单数据
-					form.setValue("file_url", result.url ?? "");
-					form.setValue("file_name", result.name ?? "");
-					form.setValue("file_origin_name", file.name);
-					if (result.url) {
-						const uri = parseUriFromUrl(result.url);
-						form.setValue("file_path", uri);
-					}
+
 					setImageUrl(result.url);
 					if (onHandleSuccess) {
-						onHandleSuccess(form.getValues());
+						onHandleSuccess(result);
 					}
 					message.success(`${file.name} ${t("table.handle_message.upload_success")}`);
 				} else {
@@ -127,7 +115,26 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 			return <Button icon={<UploadOutlined />}>Click to Upload</Button>;
 		}
 		return imageUrl ? (
-			<img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
+			<img
+				src={imageUrl}
+				alt="avatar"
+				style={{
+					width: "30%",
+					height: "auto",
+					objectFit: "cover",
+					borderRadius: "8px",
+					boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
+					transition: "all 0.3s ease",
+				}}
+				onMouseEnter={(e) => {
+					e.currentTarget.style.transform = "scale(1.05)";
+					e.currentTarget.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.15)";
+				}}
+				onMouseLeave={(e) => {
+					e.currentTarget.style.transform = "scale(1)";
+					e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
+				}}
+			/>
 		) : (
 			<button style={{ border: 0, background: "none" }} type="button">
 				{loading ? <LoadingOutlined /> : <PlusOutlined />}
@@ -136,33 +143,7 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 		);
 	};
 
-	console.log(imageUrl);
-
 	return <Upload {...props}>{render()}</Upload>;
 };
 
-const Demo = () => {
-	const defaultFileValue: FileInfo = {
-		id: 0,
-		file_name: "",
-		file_md5: "",
-		file_path: "",
-		file_url: "",
-		file_origin_name: "",
-		storage_engine: "",
-		created_at: "",
-		updated_at: "",
-	};
-
-	const form = useForm<FileInfo>({
-		defaultValues: defaultFileValue,
-	});
-	return (
-		<Form labelCol={{ span: 4 }}>
-			<Form.Item label="Photos" name="photos">
-				<UploadTool form={form} listType="text" renderType="image" showUploadList={false} />
-			</Form.Item>
-		</Form>
-	);
-};
-export default Demo;
+export default UploadTool;

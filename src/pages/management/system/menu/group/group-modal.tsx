@@ -1,5 +1,5 @@
 import { useTranslationRule } from "@/hooks";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import useLangTree from "@/hooks/langTree";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
@@ -19,7 +19,7 @@ export type MenuGroupModalProps = {
 
 export default function UserModal({ title, show, formValue, onOk, onCancel }: MenuGroupModalProps) {
 	const { t, i18n } = useTranslation();
-	const status = useDictionaryByType("status");
+	const { data: status } = useDictionaryByTypeWithCache("status");
 
 	const form = useForm<MenuGroup>({
 		defaultValues: formValue,
@@ -178,7 +178,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 										}}
 										value={String(field.value)}
 									>
-										{status.map((item) => (
+										{status?.map((item) => (
 											<Radio.Button key={item.value} value={String(item.value)}>
 												{item.label}
 											</Radio.Button>

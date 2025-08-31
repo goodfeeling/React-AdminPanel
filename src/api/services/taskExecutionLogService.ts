@@ -5,6 +5,7 @@ import type { PageList, TaskExecutionLog } from "#/entity";
 export enum TaskExecutionLogClient {
 	TaskExecutionLog = "/task_execution_log",
 	SearchTaskExecutionLog = "/task_execution_log/search",
+	WsUri = "/ws/scheduleLog",
 }
 
 const searchPageList = (searchStr: string) =>

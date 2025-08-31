@@ -1,23 +1,20 @@
 import configService from "@/api/services/configService";
-import { useCallback, useEffect, useState } from "react";
+import { useQuery } from "@tanstack/react-query";
 
 type MapByTypeResult = { [key: string]: string };
 
-export function useMapBySystemConfig(): MapByTypeResult {
-	const [data, setData] = useState<MapByTypeResult>({});
-
-	const getData = useCallback(async () => {
-		const response = await configService.getConfigBySystem();
-		const result = response.reduce((acc: MapByTypeResult, cur) => {
-			acc[cur.config_key] = cur.config_value;
-			return acc;
-		}, {});
-		setData(result);
-	}, []);
-
-	useEffect(() => {
-		getData();
-	}, [getData]);
-
-	return data;
+export function useMapBySystemConfig() {
+	return useQuery({
+		queryKey: ["sysConfig"],
+		queryFn: () => configService.getConfigBySystem(),
+		staleTime: 1000 * 60 * 5,
+		gcTime: 1000 * 60 * 30,
+		select: (data) => {
+			const result = data.reduce((acc: MapByTypeResult, cur) => {
+				acc[cur.config_key] = cur.config_value;
+				return acc;
+			}, {});
+			return result;
+		},
+	});
 }

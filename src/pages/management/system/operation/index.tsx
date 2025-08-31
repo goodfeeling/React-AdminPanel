@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import {
 	useBatchRemoveOperationMutation,
 	useOperationActions,
@@ -37,7 +37,7 @@ const App: React.FC = () => {
 	const { data, isLoading } = useOperationQuery();
 	const condition = useOperationManageCondition();
 	const { setCondition } = useOperationActions();
-	const apiMethod = useDictionaryByType("api_method");
+	const { data: apiMethod } = useDictionaryByTypeWithCache("api_method");
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 
 	const handleTableChange: TableProps<Operation>["onChange"] = (pagination, filters, sorter) => {

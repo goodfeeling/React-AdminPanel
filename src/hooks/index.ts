@@ -5,3 +5,4 @@ export * from "./langTree/index";
 export * from "./dirTree/index";
 export * from "./config/index";
 export * from "./translationRule/index";
+export * from "./sharedWebSocket/index";

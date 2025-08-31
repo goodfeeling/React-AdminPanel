@@ -6,7 +6,7 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/ui/input";
 
 import { useTranslationRule } from "@/hooks";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { Button, Modal, Radio, Select, Switch } from "antd";
 import type { UploadFile } from "antd/lib";
 import { type ReactNode, useEffect, useState } from "react";
@@ -26,7 +26,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const form = useForm<DictionaryDetail>({
 		defaultValues: formValue,
 	});
-	const status = useDictionaryByType("status");
+	const { data: status } = useDictionaryByTypeWithCache("status");
 	const { t } = useTranslation();
 	const { userToken } = useUserStore.getState();
 	const [open, setOpen] = useState(false);
@@ -239,7 +239,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 										}}
 										value={String(field.value)}
 									>
-										{status.map((item) => (
+										{status?.map((item) => (
 											<Radio.Button key={item.value} value={String(item.value)}>
 												{item.label}
 											</Radio.Button>

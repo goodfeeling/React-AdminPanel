@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { useRemoveRoleMutation, useRoleQuery, useUpdateOrCreateRoleMutation } from "@/store/roleManageStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
@@ -32,7 +32,8 @@ const defaultValue: Role = {
 
 const App: React.FC = () => {
 	const { t } = useTranslation();
-	const statusType = useDictionaryByType("status");
+
+	const { data: statusType } = useDictionaryByTypeWithCache("status");
 	const updateOrCreateMutation = useUpdateOrCreateRoleMutation();
 	const removeMutation = useRemoveRoleMutation();
 	const { data, isLoading } = useRoleQuery();
@@ -172,7 +173,7 @@ const App: React.FC = () => {
 			align: "center",
 			width: 120,
 			render: (status) => {
-				const statusItem = statusType.find((item) => Number(item.value) === status);
+				const statusItem = statusType?.find((item) => Number(item.value) === status);
 
 				return <Badge variant={status === 1 ? "success" : "error"}>{statusItem?.label}</Badge>;
 			},

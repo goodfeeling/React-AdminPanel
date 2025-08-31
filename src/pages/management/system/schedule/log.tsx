@@ -1,5 +1,5 @@
-import taskExecutionLogService from "@/api/services/taskExecutionLogService";
-import { useSharedWebSocket } from "@/hooks/useSharedWebSocket";
+import taskExecutionLogService, { TaskExecutionLogClient } from "@/api/services/taskExecutionLogService";
+import { useSharedWebSocket } from "@/hooks/sharedWebSocket";
 import type { TaskExecutionLog } from "@/types/entity";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
@@ -8,6 +8,7 @@ import { ScrollArea } from "@/ui/scroll-area";
 import { Modal } from "antd";
 import { format } from "date-fns";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type LogModalProps = {
 	title: string;
@@ -17,6 +18,7 @@ export type LogModalProps = {
 };
 
 const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
+	const { t } = useTranslation();
 	const [expandedLogs, setExpandedLogs] = useState<Record<number, boolean>>({});
 	// 存储实时日志
 	const [realTimeLogs, setRealTimeLogs] = useState<TaskExecutionLog[]>([]);
@@ -27,7 +29,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 	const [loading, setLoading] = useState(false);
 	// 控制显示模式：实时模式或历史模式
 	const [viewMode, setViewMode] = useState<"realtime" | "historical">("realtime");
-	const { connected, message, sendMessage } = useSharedWebSocket("/ws/scheduleLog");
+	const { connected, message, sendMessage } = useSharedWebSocket(TaskExecutionLogClient.WsUri);
 
 	// 发送获取数据请求
 	useEffect(() => {
@@ -63,9 +65,9 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 			setTotalLogs(response.total);
 			setLoading(false);
 			// 模拟数据
-			console.log("加载第", page, "页历史日志");
+			console.log("load data with", page, "page history logs");
 		} catch (error) {
-			console.error("加载历史日志失败:", error);
+			console.error("load history log error:", error);
 		} finally {
 			setLoading(false);
 		}
@@ -78,12 +80,10 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 	};
 
 	const handleCancel = () => {
-		// 清空日志
 		setRealTimeLogs([]);
 		setHistoricalLogs([]);
 		setExpandedLogs({});
-		// 调用父组件的 onCancel 回调
-		onCancel?.();
+		onCancel?.(); // 调用父组件的 onCancel 回调
 		setCurrentPage(6);
 	};
 
@@ -119,7 +119,9 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 			title={
 				<div className="flex items-center gap-2">
 					<CardTitle>{title}</CardTitle>
-					<Badge variant={connected ? "default" : "destructive"}>{connected ? "已连接" : "未连接"}</Badge>
+					<Badge variant={connected ? "default" : "destructive"}>
+						{connected ? t("table.handle_message.connected") : t("table.handle_message.disconnected")}
+					</Badge>
 				</div>
 			}
 			onCancel={handleCancel}
@@ -135,7 +137,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 						size="sm"
 						onClick={() => setViewMode("realtime")}
 					>
-						实时日志
+						{t("table.handle_message.realtime")}
 					</Button>
 					<Button
 						key="historical-button"
@@ -143,10 +145,14 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 						size="sm"
 						onClick={() => setViewMode("historical")}
 					>
-						历史日志
+						{t("table.handle_message.historical")}
 					</Button>
 				</div>
-				{viewMode === "historical" && <div className="text-sm text-muted-foreground">共 {totalLogs} 条日志</div>}
+				{viewMode === "historical" && (
+					<div className="text-sm text-muted-foreground">
+						{`${t("table.page.total")} ${totalLogs} ${t("table.page.items")}`}
+					</div>
+				)}
 			</div>
 
 			<ScrollArea className="h-[calc(100vh-220px)]">
@@ -155,11 +161,11 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 						<div className="text-center py-8 text-muted-foreground" key="no-logs">
 							{viewMode === "realtime"
 								? connected
-									? "等待日志数据..."
-									: "正在连接到日志服务..."
+									? t("table.handle_message.waiting_load_data")
+									: t("table.handle_message.connecting")
 								: loading
-									? "加载中..."
-									: "暂无历史日志"}
+									? t("table.handle_message.loading")
+									: t("table.handle_message.no_history_log")}
 						</div>
 					) : (
 						<>
@@ -170,18 +176,19 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 										<div className="flex justify-between items-start">
 											<div>
 												<div className="text-sm text-muted-foreground mt-1">
-													执行时间: {format(new Date(log.execute_time), "yyyy-MM-dd HH:mm:ss")}
+													{t("table.columns.task_log.execute_time")}:{" "}
+													{format(new Date(log.execute_time), "yyyy-MM-dd HH:mm:ss")}
 												</div>
 											</div>
 											<Badge variant={getStatusVariant(log.execute_result)}>{log.execute_result}</Badge>
 										</div>
 										<div className="mt-3 text-sm">
-											<div className="font-medium">执行结果:</div>
+											<div className="font-medium">{t("table.columns.task_log.execute_result")}:</div>
 											<div className="mt-1 whitespace-pre-wrap">{log.execute_result}</div>
 										</div>
 										{log.error_message && (
 											<div className="mt-2 text-sm text-destructive">
-												<div className="font-medium">错误信息:</div>
+												<div className="font-medium">{t("table.columns.task_log.error_message")}:</div>
 												<div className="mt-1 whitespace-pre-wrap">
 													{isErrorMessageLong && !expandedLogs[log.id] ? (
 														<>
@@ -193,7 +200,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 																className="ml-2 h-auto p-0 text-gray-500"
 																onClick={() => toggleExpand(log.id)}
 															>
-																展开查看更多
+																{t("table.handle_message.show_more")}
 															</Button>
 														</>
 													) : (
@@ -207,7 +214,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 																	className="ml-2 h-auto p-0 text-gray-500"
 																	onClick={() => toggleExpand(log.id)}
 																>
-																	收起
+																	{t("table.handle_message.show_less")}
 																</Button>
 															)}
 														</>
@@ -216,8 +223,13 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 											</div>
 										)}
 										<div className="mt-3 text-xs text-muted-foreground flex justify-between">
-											<span>执行耗时: {log.execute_duration}ms</span>
-											<span>记录时间: {format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}</span>
+											<span>
+												{t("table.columns.task_log.execute_duration")}: {log.execute_duration}ms
+											</span>
+											<span>
+												{t("table.columns.task_log.created_at")}:{" "}
+												{format(new Date(log.created_at), "yyyy-MM-dd HH:mm:ss")}
+											</span>
 										</div>
 									</Card>
 								);
@@ -240,10 +252,10 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 												loadHistoricalLogs(newPage);
 											}}
 										>
-											上一页
+											{t("table.handle_message.previous")}
 										</Button>
 										<span className="self-center text-sm" key="page-info">
-											第 {currentPage} 页
+											{`${t("table.handle_message.page")}  ${currentPage}`}
 										</span>
 										<Button
 											key="next-button"
@@ -256,7 +268,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 												loadHistoricalLogs(newPage);
 											}}
 										>
-											下一页
+											{t("table.handle_message.next")}
 										</Button>
 									</div>
 								</div>

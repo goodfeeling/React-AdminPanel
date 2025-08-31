@@ -1,7 +1,7 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 
 import { useTranslationRule } from "@/hooks";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import AdvancedCronField from "@/pages/components/cron";
 import { Button, Input, Modal, Select } from "antd";
 import { useEffect, useState } from "react";
@@ -19,9 +19,9 @@ export type ScheduledTaskModalProps = {
 
 export default function ScheduledTaskModal({ title, show, formValue, onOk, onCancel }: ScheduledTaskModalProps) {
 	const { t } = useTranslation();
-	const taskTypes = useDictionaryByType("task_type");
-	const apiMethod = useDictionaryByType("api_method");
-	const taskExecType = useDictionaryByType("task_exec");
+	const { data: taskTypes } = useDictionaryByTypeWithCache("task_type");
+	const { data: apiMethod } = useDictionaryByTypeWithCache("api_method");
+	const { data: taskExecType } = useDictionaryByTypeWithCache("task_exec");
 
 	const form = useForm<ScheduledTask>({
 		defaultValues: formValue,

@@ -20,6 +20,7 @@ export enum StorageEnum {
 	Role = "role",
 	STSToken = "stsToken",
 	SysConfig = "sysConfig",
+	UserStore = "userStore",
 }
 
 export enum ThemeMode {

@@ -1,5 +1,5 @@
 import { useTranslationRule } from "@/hooks";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import type { Role, RoleTree } from "@/types/entity";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
@@ -29,7 +29,7 @@ export function buildTree(tree: Role[]): RoleTree[] {
 }
 const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: RoleModalProps) => {
 	const { t } = useTranslation();
-	const status = useDictionaryByType("status");
+	const { data: status } = useDictionaryByTypeWithCache("status");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
@@ -184,7 +184,7 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 											}}
 											value={String(field.value)}
 										>
-											{status.map((item) => (
+											{status?.map((item) => (
 												<Radio.Button key={item.value} value={String(item.value)}>
 													{item.label}
 												</Radio.Button>

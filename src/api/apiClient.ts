@@ -4,8 +4,8 @@ import { t } from "@/locales/i18n";
 import userStore from "@/store/userStore";
 import { toast } from "sonner";
 import type { Result } from "#/api";
-import { PagePath, ResultEnum } from "#/enum";
-import userService from "./services/userService";
+import { PagePath, ResultEnum, StorageEnum } from "#/enum";
+import userService, { UserApi } from "./services/userService";
 
 // 创建 axios 实例
 const axiosInstance = axios.create({
@@ -50,6 +50,8 @@ axiosInstance.interceptors.request.use(
 // 响应拦截
 axiosInstance.interceptors.response.use(
 	(res: AxiosResponse<Result>) => {
+		console.log(res.request.responseURL);
+
 		if (!res.data) throw new Error(t("sys.api.apiRequestFailed"));
 
 		const { status = 0, data, message = "" } = res.data;
@@ -67,6 +69,16 @@ axiosInstance.interceptors.response.use(
 		const originalRequest = error.config as AxiosRequestConfig & {
 			_retry?: boolean;
 		};
+
+		// token invalid or expire
+		if (
+			error.response?.status === 401 &&
+			error.response.data.error === "Invalid token" &&
+			error.request.responseURL.includes(UserApi.Refresh)
+		) {
+			clearUserTokenToLoginPage();
+			return Promise.reject(new Error(error.response.data.error));
+		}
 
 		// 检查是否是 401 错误，并且不是重试请求
 		if (error.response?.status === 401 && !originalRequest._retry) {
@@ -94,6 +106,7 @@ axiosInstance.interceptors.response.use(
 
 			try {
 				const response = await userService.refreshToken(userToken?.refreshToken);
+
 				const { jwtAccessToken, jwtRefreshToken, expirationAccessDateTime, expirationRefreshDateTime } =
 					response.security;
 				actions.setUserToken({
@@ -125,10 +138,10 @@ axiosInstance.interceptors.response.use(
 
 // clear user token
 function clearUserTokenToLoginPage() {
-	// 清空localStorage中的用户相关数据
-	localStorage.removeItem("stsToken");
-	localStorage.removeItem("userStore");
-	localStorage.removeItem("menu");
+	// clear localStorage in user store
+	localStorage.removeItem(StorageEnum.STSToken);
+	localStorage.removeItem(StorageEnum.UserStore);
+	localStorage.removeItem(StorageEnum.Menu);
 	window.location.replace(`#${PagePath.Login}`);
 }
 

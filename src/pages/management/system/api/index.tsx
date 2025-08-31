@@ -1,5 +1,5 @@
 import { Icon } from "@/components/icon";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import {
 	useApiActions,
 	useApiManageCondition,
@@ -60,8 +60,8 @@ const App: React.FC = () => {
 	const { data, isLoading } = useApiQuery();
 	const condition = useApiManageCondition();
 	const { setCondition } = useApiActions();
-	const apiGroup = useDictionaryByType("api_group");
-	const apiMethod = useDictionaryByType("api_method");
+	const { data: apiGroup } = useDictionaryByTypeWithCache("api_group");
+	const { data: apiMethod } = useDictionaryByTypeWithCache("api_method");
 
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setApiModalProps] = useState<ApiModalProps>({

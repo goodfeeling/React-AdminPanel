@@ -1,5 +1,4 @@
 import { webSocketManager } from "@/utils/webSocketManager";
-// src/hooks/useSharedWebSocket.ts
 import { useCallback, useEffect, useState } from "react";
 
 export const useSharedWebSocket = (uri: string) => {

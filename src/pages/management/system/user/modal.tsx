@@ -2,7 +2,7 @@ import { UploadApi } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
 import { useTranslationRule } from "@/hooks";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import useUserStore from "@/store/userStore";
 import type { UserInfo } from "@/types/entity";
@@ -24,7 +24,7 @@ export type UserModalProps = {
 
 const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: UserModalProps) => {
 	const { t } = useTranslation();
-	const status = useDictionaryByType("status");
+	const { data: status } = useDictionaryByTypeWithCache("status");
 	const [loading, setLoading] = useState(false);
 	const [open, setOpen] = useState(false);
 	const { userToken } = useUserStore.getState();
@@ -213,7 +213,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 											}}
 											value={String(field.value)}
 										>
-											{status.map((item) => (
+											{status?.map((item) => (
 												<Radio.Button key={item.value} value={String(item.value)}>
 													{item.label}
 												</Radio.Button>

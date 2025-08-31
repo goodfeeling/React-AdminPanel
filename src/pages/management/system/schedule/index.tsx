@@ -1,6 +1,6 @@
 import { Icon } from "@/components/icon";
 
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import {
 	useBatchRemoveScheduledTaskMutation,
 	useDisableTaskMutation,
@@ -74,9 +74,9 @@ const App: React.FC = () => {
 	const { setCondition } = useScheduledTaskManegeActions();
 
 	// enum type
-	const taskTypes = useDictionaryByType("task_type");
-	const statusType = useDictionaryByType("task_status");
-	const statusTypeMap = new Map<string, string>(statusType.map((item) => [item.value, item.label]));
+	const { data: taskTypes } = useDictionaryByTypeWithCache("task_type");
+	const { data: statusType } = useDictionaryByTypeWithCache("task_status");
+	const statusTypeMap = new Map<string, string>(statusType?.map((item) => [item.value, item.label]));
 
 	const [processingTaskIds, setProcessingTaskIds] = useState<Set<number>>(new Set());
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
@@ -192,7 +192,7 @@ const App: React.FC = () => {
 			dataIndex: "task_type",
 			key: "task_type",
 			render: (task_type) => {
-				const taskType = taskTypes.find((item) => item.value === task_type);
+				const taskType = taskTypes?.find((item) => item.value === task_type);
 				return taskType?.label || task_type;
 			},
 		},

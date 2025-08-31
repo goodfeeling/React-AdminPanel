@@ -1,17 +1,17 @@
-import { UploadApi } from "@/api/services/uploadService";
-import { Upload } from "@/components/upload";
+import UploadTool from "@/components/upload/upload-multiple";
 import { useConfigQuery, useUpdateOrCreateConfigMutation } from "@/store/configManageStore";
-import useUserStore from "@/store/userStore";
 import type { Config } from "@/types/entity";
-import { Button, Card, Form, Input, InputNumber, Select, Switch, Tabs } from "antd";
-import { useEffect } from "react";
+import { parseUriFromUrl } from "@/utils";
+import { Card, Form, Input, InputNumber, Select, Switch, Tabs } from "antd";
+import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
 import { toast } from "sonner";
 
 const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }) => {
 	const [form] = Form.useForm();
+	const changedValuesRef = useRef<{ [key: string]: any }>({});
+	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
 	const { t } = useTranslation();
-	const { userToken } = useUserStore.getState();
 	const updateOrCreateMutation = useUpdateOrCreateConfigMutation();
 
 	// 当 items 变化时，设置表单初始值
@@ -22,6 +22,55 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 		}
 		form.setFieldsValue(initialValues);
 	}, [items, form]);
+
+	// 处理表单值变化
+	const handleValuesChange = (changedValues: any, allValues: any) => {
+		// 合并变化的值
+		changedValuesRef.current = {
+			...changedValuesRef.current,
+			...changedValues,
+		};
+
+		// 清除之前的定时器
+		if (saveTimeoutRef.current) {
+			clearTimeout(saveTimeoutRef.current);
+		}
+
+		// 设置新的保存定时器
+		saveTimeoutRef.current = setTimeout(() => {
+			saveFormData(changedValuesRef.current, allValues);
+			changedValuesRef.current = {}; // 清空已保存的值
+		}, 1000);
+	};
+
+	const saveFormData = async (changedValues: any, allValues: any) => {
+		try {
+			console.log("保存变化的字段:", changedValues);
+			console.log("所有字段值:", allValues);
+			// 在这里处理表单提交逻辑
+			updateOrCreateMutation.mutate(
+				{ data: allValues, module },
+				{
+					onSuccess: () => {
+						toast.success("success!");
+					},
+				},
+			);
+			// 调用 API 保存数据
+			// await api.saveConfig(changedValues);
+		} catch (error) {
+			console.error("保存失败:", error);
+		}
+	};
+
+	// 清理定时器
+	useEffect(() => {
+		return () => {
+			if (saveTimeoutRef.current) {
+				clearTimeout(saveTimeoutRef.current);
+			}
+		};
+	}, []);
 
 	const renderConfigItem = (config: Config) => {
 		switch (config.config_type) {
@@ -83,37 +132,21 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 						key={config.config_key}
 						rules={[{ required: true, message: `Please Upload ${config.config_key}` }]}
 					>
-						<Upload
-							maxCount={1}
-							fileList={[
-								{
-									uid: "-1",
-									name: "image.png",
-									status: "done",
-									url: config.config_value,
-								},
-							]}
-							name="file"
-							action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
-							headers={{
-								Authorization: `Bearer ${userToken?.accessToken}`,
-							}}
-							onChange={(info) => {
-								const { file } = info;
-
-								// 检查文件是否上传成功
-								if (file.status === "done" && file.response) {
-									// 假设服务器返回的文件URL在 file.response.url 中
-									const fileUrl = file.response.data.file_url || "";
-									form.setFieldValue(config.config_key, fileUrl);
-								} else if (file.status === "removed") {
-									// 文件被移除时更新状态
-									form.setFieldValue(config.config_key, "");
-								} else if (file.status === "error") {
-								} else {
-									// 上传过程中更新文件列表
+						<UploadTool
+							onHandleSuccess={(result) => {
+								form.setFieldValue;
+								form.setFieldValue("file_url", result.url ?? "");
+								form.setFieldValue("file_name", result.name ?? "");
+								form.setFieldValue("file_origin_name", result.name);
+								if (result.url) {
+									const uri = parseUriFromUrl(result.url);
+									form.setFieldValue("file_path", uri);
 								}
 							}}
+							listType="text"
+							renderType="image"
+							showUploadList={false}
+							renderImageUrl={config.config_value}
 						/>
 					</Form.Item>
 				);
@@ -142,27 +175,15 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 				);
 		}
 	};
-	// 处理表单提交
-	const onFinish = (values: any) => {
-		console.log("表单提交数据:", values);
-		// 在这里处理表单提交逻辑
-		updateOrCreateMutation.mutate(
-			{ data: values, module },
-			{
-				onSuccess: () => {
-					toast.success("success!");
-				},
-			},
-		);
-	};
+
 	return (
 		<Form
 			form={form}
 			layout="horizontal"
 			labelAlign="right"
-			onFinish={onFinish}
 			labelCol={{ span: 6 }}
 			wrapperCol={{ span: 18 }}
+			onValuesChange={handleValuesChange}
 			style={{
 				flex: 1,
 				display: "flex",
@@ -173,11 +194,6 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			}}
 		>
 			{items.map((item) => renderConfigItem(item))}
-			<Form.Item wrapperCol={{ offset: 6, span: 16 }} style={{ marginTop: "20px", textAlign: "right" }}>
-				<Button type="primary" htmlType="submit">
-					{t("sys.config.save")}
-				</Button>
-			</Form.Item>
 		</Form>
 	);
 };
@@ -187,7 +203,7 @@ const App: React.FC = () => {
 	const { t } = useTranslation();
 	return (
 		<div>
-			<Card title={t("sys.menu.system.setting")} size="small">
+			<Card>
 				<Tabs
 					defaultActiveKey="1"
 					tabPosition={"top"}

@@ -1,13 +1,13 @@
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
-import useDictionaryByType from "@/hooks/dict";
+import { useTranslationRule } from "@/hooks";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { Button, Modal, Radio, Switch } from "antd";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { Dictionary } from "#/entity";
-import { useTranslationRule } from "@/hooks";
 
 export type DictionaryModalProps = {
 	formValue: Dictionary;
@@ -21,7 +21,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const form = useForm<Dictionary>({
 		defaultValues: formValue,
 	});
-	const status = useDictionaryByType("status");
+	const { data: status } = useDictionaryByTypeWithCache("status");
 	const { t } = useTranslation();
 	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
@@ -77,7 +77,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="name"
-						rules={{ required: useTranslationRule(t("table.columns.dictionary.name")) }}
+						rules={{
+							required: useTranslationRule(t("table.columns.dictionary.name")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.dictionary.name")}</FormLabel>
@@ -91,7 +93,9 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 					<FormField
 						control={form.control}
 						name="type"
-						rules={{ required: useTranslationRule(t("table.columns.dictionary.type")) }}
+						rules={{
+							required: useTranslationRule(t("table.columns.dictionary.type")),
+						}}
 						render={({ field }) => (
 							<FormItem>
 								<FormLabel>{t("table.columns.dictionary.type")}</FormLabel>
@@ -130,7 +134,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 										}}
 										value={String(field.value)}
 									>
-										{status.map((item) => (
+										{status?.map((item) => (
 											<Radio.Button key={item.value} value={String(item.value)}>
 												{item.label}
 											</Radio.Button>

@@ -1,7 +1,7 @@
 import roleService from "@/api/services/roleService";
 import userService from "@/api/services/userService";
 import { Icon } from "@/components/icon";
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import RoleSelect from "@/pages/components/role-select/RoleSelect";
 import {
 	usePasswordResetMutation,
@@ -59,8 +59,8 @@ const App: React.FC = () => {
 	const { data, isLoading } = useUserQuery();
 	const condition = useUserManageCondition();
 	const { setCondition } = useUserManageActions();
-	const statusType = useDictionaryByType("status");
 
+	const { data: statusType } = useDictionaryByTypeWithCache("status");
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
 
 	const searchForm = useForm<SearchFormFieldType>({
@@ -215,7 +215,7 @@ const App: React.FC = () => {
 			align: "center",
 			width: 120,
 			render: (status) => {
-				const statusItem = statusType.find((item) => Number(item.value) === status);
+				const statusItem = statusType?.find((item) => Number(item.value) === status);
 
 				return <Badge variant={status === 1 ? "success" : "error"}>{statusItem?.label}</Badge>;
 			},

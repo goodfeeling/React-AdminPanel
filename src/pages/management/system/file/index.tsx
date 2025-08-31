@@ -11,7 +11,7 @@ import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
 
-import useDictionaryByType from "@/hooks/dict";
+import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { useQueryClient } from "@tanstack/react-query";
 import type { TableProps } from "antd";
 import { Card, Input, Popconfirm, Select, Table } from "antd";
@@ -58,7 +58,7 @@ const App: React.FC = () => {
 	const { data, isLoading } = useFileInfoQuery();
 	const condition = useFileInfoManageCondition();
 	const { setCondition } = useFileInfoActions();
-	const storageEngine = useDictionaryByType("file_storage_engine");
+	const { data: storageEngine } = useDictionaryByTypeWithCache("file_storage_engine");
 
 	const [selectedRowKeys, setSelectedRowKeys] = useState<React.Key[]>([]);
 	const [apiModalProps, setFileModalProps] = useState<FileModalProps>({
