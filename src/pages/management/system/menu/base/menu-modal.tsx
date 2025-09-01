@@ -39,7 +39,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const { t, i18n } = useTranslation();
 
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<MenuTree[]>([]);
 	const dirTree = useDirTree();
 	const [isManualInput, setIsManualInput] = useState(true);
@@ -48,10 +47,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	const form = useForm<Menu>({
 		defaultValues: formValue,
 	});
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
@@ -78,7 +73,6 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 
@@ -96,7 +90,7 @@ const MenuNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: M
 		<>
 			<Modal
 				width={600}
-				open={open}
+				open={show}
 				title={title}
 				onOk={handleOk}
 				styles={{

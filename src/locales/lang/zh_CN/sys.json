@@ -117,6 +117,7 @@
 				"menu_btn": "可控按钮设置",
 				"menu_parameter": "菜单参数设置"
 			},
+			"current_role": "当前角色",
 			"blog": "博客",
 			"components": "组件",
 			"icon": "图标",
@@ -178,6 +179,7 @@
 			"fullscreen": "全屏",
 			"exitFullscreen": "退出全屏"
 		},
+
 		"account": {
 			"general": "资料设置",
 			"notifications": "通知设置",

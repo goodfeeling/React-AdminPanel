@@ -25,13 +25,8 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 		defaultValues: formValue,
 	});
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 	const [isManualTitleInput, setIsManualTitleInput] = useState(true);
 	const langTree = useLangTree(i18n.store.data[i18n.language].translation);
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
@@ -47,7 +42,6 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 		})();
 	};
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 	const handleValue = (value: any) => {
@@ -63,7 +57,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Me
 	return (
 		<Modal
 			width={400}
-			open={open}
+			open={show}
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}

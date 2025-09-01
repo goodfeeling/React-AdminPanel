@@ -3,7 +3,7 @@ import { useOssUpload } from "@/hooks/ossUpload";
 import { useRemoveFileInfoMutation } from "@/store/fileManageStore";
 import { useSTSTokenLoading } from "@/store/stsTokenStore";
 import useUserStore from "@/store/userStore";
-import { LoadingOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
+import { LoadingOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
 import { App, Button, Upload } from "antd";
 import type { UploadListType } from "antd/es/upload/interface";
@@ -11,15 +11,21 @@ import type { UploadFile } from "antd/lib";
 import type React from "react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import "./upload-multiple.css";
+import { Icon } from "@/components/icon";
+type ResultFile = {
+	name?: string;
+	url?: string;
+};
 
 interface UploadToolProps {
 	uploadType?: string;
-	onHandleSuccess?: (fileList: any) => void;
+	onHandleSuccess?: (file: ResultFile) => void;
 	listType: UploadListType | undefined;
 	fileList?: UploadFile<any>[] | undefined;
 	showUploadList?: boolean;
-	renderType: "button" | "image";
-	renderImageUrl: string;
+	renderType?: "button" | "image";
+	renderImageUrl?: string;
 }
 
 const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
@@ -62,7 +68,10 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 				case "done":
 					message.success(`${info.file.name} ${t("table.handle_message.upload_success")}`);
 					if (onHandleSuccess) {
-						onHandleSuccess(null);
+						onHandleSuccess({
+							url: info.file.response.data[0].file_url,
+							name: info.file.name,
+						});
 					}
 					setImageUrl(info.file.response.data[0].file_url);
 					break;
@@ -83,10 +92,12 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 				setLoading(false);
 				if (result.success) {
 					// 上传成功后更新表单数据
-
 					setImageUrl(result.url);
 					if (onHandleSuccess) {
-						onHandleSuccess(result);
+						onHandleSuccess({
+							url: result.url,
+							name: result.name || "",
+						});
 					}
 					message.success(`${file.name} ${t("table.handle_message.upload_success")}`);
 				} else {
@@ -106,39 +117,40 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 				},
 			});
 		},
-		// 禁用默认上传行为当使用OSS时
 		disabled: !isOssLoading,
 	};
 
 	const render = () => {
 		if (renderType === "button") {
-			return <Button icon={<UploadOutlined />}>Click to Upload</Button>;
+			return (
+				<Button>
+					<Icon icon="solar:cloud-upload-broken" size={18} />
+					{t("sys.menu.upload")}
+				</Button>
+			);
 		}
 		return imageUrl ? (
-			<img
-				src={imageUrl}
-				alt="avatar"
-				style={{
-					width: "30%",
-					height: "auto",
-					objectFit: "cover",
-					borderRadius: "8px",
-					boxShadow: "0 2px 8px rgba(0, 0, 0, 0.1)",
-					transition: "all 0.3s ease",
-				}}
-				onMouseEnter={(e) => {
-					e.currentTarget.style.transform = "scale(1.05)";
-					e.currentTarget.style.boxShadow = "0 4px 16px rgba(0, 0, 0, 0.15)";
-				}}
-				onMouseLeave={(e) => {
-					e.currentTarget.style.transform = "scale(1)";
-					e.currentTarget.style.boxShadow = "0 2px 8px rgba(0, 0, 0, 0.1)";
-				}}
-			/>
+			<div className="upload-image-container">
+				<img
+					src={imageUrl}
+					alt="avatar"
+					style={{
+						width: "100%",
+						height: "150px",
+						objectFit: "cover",
+						borderRadius: "6px",
+						display: "block",
+					}}
+				/>
+				<div className="upload-image-overlay">
+					<Icon icon="solar:cloud-upload-broken" size={18} />
+					{t("sys.menu.upload")}
+				</div>
+			</div>
 		) : (
 			<button style={{ border: 0, background: "none" }} type="button">
-				{loading ? <LoadingOutlined /> : <PlusOutlined />}
-				<div style={{ marginTop: 8 }}>Upload</div>
+				{loading ? <LoadingOutlined /> : <Icon icon="solar:cloud-upload-broken" size={18} />}
+				<div style={{ marginTop: 8 }}>{t("sys.menu.upload")}</div>
 			</button>
 		);
 	};

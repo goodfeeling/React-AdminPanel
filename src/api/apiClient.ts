@@ -50,8 +50,6 @@ axiosInstance.interceptors.request.use(
 // 响应拦截
 axiosInstance.interceptors.response.use(
 	(res: AxiosResponse<Result>) => {
-		console.log(res.request.responseURL);
-
 		if (!res.data) throw new Error(t("sys.api.apiRequestFailed"));
 
 		const { status = 0, data, message = "" } = res.data;

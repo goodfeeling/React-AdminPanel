@@ -75,7 +75,7 @@ export default function AccountDropdown() {
 				</div>
 				<DropdownMenuSeparator />
 				<DropdownMenuItem asChild>
-					<span>当前角色：{current_role ? current_role.name : "暂无"}</span>
+					<span>{`${t("sys.menu.current_role")}: ${current_role ? current_role.name : t("common.none")}`}</span>
 				</DropdownMenuItem>
 
 				<DropdownMenuItem onClick={handleSwitch}>{t("sys.menu.user.switch_role")}</DropdownMenuItem>

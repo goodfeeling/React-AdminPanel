@@ -17,6 +17,7 @@
 		"back": "Back",
 
 		"light": "Light",
-		"dark": "Dark"
+		"dark": "Dark",
+		"none": "None"
 	}
 }

@@ -4,6 +4,7 @@ import { useUserActions, useUserInfo } from "@/store/userStore";
 import { DownOutlined } from "@ant-design/icons";
 import { Modal, Tree, type TreeProps } from "antd";
 import { useEffect, useState } from "react";
+import { useTranslation } from "react-i18next";
 
 export type SwitchModalProps = {
 	title: string;
@@ -12,15 +13,10 @@ export type SwitchModalProps = {
 };
 const SwitchModal = ({ show, onCancel }: SwitchModalProps) => {
 	const { switchRole } = useUserActions();
+	const { t } = useTranslation();
 	const menuActions = useMenuActions();
 	const { roles, current_role } = useUserInfo();
 	const [selectedKeys, setSelectedKeys] = useState<string[]>([]);
-	const [open, setOpen] = useState(false);
-
-	// 是否开启
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	// 初始化默认选中 current_role
 	useEffect(() => {
@@ -29,7 +25,6 @@ const SwitchModal = ({ show, onCancel }: SwitchModalProps) => {
 		}
 	}, [current_role]);
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 	const onSelect: TreeProps["onSelect"] = async (keys) => {
@@ -54,8 +49,8 @@ const SwitchModal = ({ show, onCancel }: SwitchModalProps) => {
 	return (
 		<>
 			<Modal
-				open={open}
-				title={`当前角色选中：${current_role ? current_role.name : "暂无"}`}
+				open={show}
+				title={`${t("sys.menu.current_role")}: ${current_role ? current_role.name : t("common.none")}`}
 				onCancel={handleCancel}
 				footer={null}
 			>

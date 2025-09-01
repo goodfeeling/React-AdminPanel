@@ -29,7 +29,6 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const { data: status } = useDictionaryByTypeWithCache("status");
 	const { t } = useTranslation();
 	const { userToken } = useUserStore.getState();
-	const [open, setOpen] = useState(false);
 	const [loading, setLoading] = useState(false);
 	const [fileList, setFileList] = useState<UploadFile[]>([]);
 
@@ -49,10 +48,6 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 		}
 	}, [formValue, form]);
 
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
-
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
 			values.sort = Number(values.sort);
@@ -65,12 +60,11 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 	return (
 		<Modal
-			open={open}
+			open={show}
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}

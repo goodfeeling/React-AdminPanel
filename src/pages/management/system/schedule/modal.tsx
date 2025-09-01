@@ -27,17 +27,12 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 		defaultValues: formValue,
 	});
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 
 	const taskType = form.watch("task_type");
 
 	useEffect(() => {
 		form.reset(formValue);
 	}, [formValue, form]);
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
@@ -50,7 +45,6 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 
@@ -238,7 +232,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 	return (
 		<Modal
 			width={600}
-			open={open}
+			open={show}
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}

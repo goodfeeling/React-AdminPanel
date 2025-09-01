@@ -24,15 +24,10 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 		defaultValues: formValue,
 	});
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 
 	useEffect(() => {
 		form.reset(formValue);
 	}, [formValue, form]);
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
@@ -45,13 +40,12 @@ export default function ApiModal({ title, show, formValue, apiGroup, apiMethod, 
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 
 	return (
 		<Modal
-			open={open}
+			open={show}
 			title={title}
 			onOk={handleOk}
 			onCancel={handleCancel}

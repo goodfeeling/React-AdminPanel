@@ -31,15 +31,10 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 	const { t } = useTranslation();
 	const { data: status } = useDictionaryByTypeWithCache("status");
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 	const [treeData, setTreeData] = useState<RoleTree[]>([]);
 	const form = useForm<Role>({
 		defaultValues: formValue,
 	});
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
@@ -65,14 +60,13 @@ const RoleNewModal = ({ title, show, treeRawData, formValue, onOk, onCancel }: R
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 
 	return (
 		<>
 			<Modal
-				open={open}
+				open={show}
 				title={title}
 				onOk={handleOk}
 				onCancel={handleCancel}

@@ -26,15 +26,10 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 	const { t } = useTranslation();
 	const { data: status } = useDictionaryByTypeWithCache("status");
 	const [loading, setLoading] = useState(false);
-	const [open, setOpen] = useState(false);
 	const { userToken } = useUserStore.getState();
 	const form = useForm<UserInfo>({
 		defaultValues: formValue,
 	});
-
-	useEffect(() => {
-		setOpen(show);
-	}, [show]);
 
 	useEffect(() => {
 		form.reset(formValue);
@@ -51,14 +46,13 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 	};
 
 	const handleCancel = () => {
-		setOpen(false);
 		onCancel();
 	};
 
 	return (
 		<>
 			<Modal
-				open={open}
+				open={show}
 				title={title}
 				onOk={handleOk}
 				onCancel={handleCancel}

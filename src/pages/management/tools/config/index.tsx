@@ -1,13 +1,18 @@
 import UploadTool from "@/components/upload/upload-multiple";
 import { useConfigQuery, useUpdateOrCreateConfigMutation } from "@/store/configManageStore";
+import { useSystemConfig } from "@/store/configSystemStore";
 import type { Config } from "@/types/entity";
-import { parseUriFromUrl } from "@/utils";
 import { Card, Form, Input, InputNumber, Select, Switch, Tabs } from "antd";
 import { useEffect, useRef } from "react";
 import { useTranslation } from "react-i18next";
-import { toast } from "sonner";
 
-const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }) => {
+type SubBoxProps = {
+	items: Config[];
+	module: string;
+	fileStorageEngine?: string;
+};
+
+const SubBox: React.FC<SubBoxProps> = ({ items, module, fileStorageEngine }) => {
 	const [form] = Form.useForm();
 	const changedValuesRef = useRef<{ [key: string]: any }>({});
 	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
@@ -48,14 +53,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 			console.log("保存变化的字段:", changedValues);
 			console.log("所有字段值:", allValues);
 			// 在这里处理表单提交逻辑
-			updateOrCreateMutation.mutate(
-				{ data: allValues, module },
-				{
-					onSuccess: () => {
-						toast.success("success!");
-					},
-				},
-			);
+			updateOrCreateMutation.mutate({ data: allValues, module });
 			// 调用 API 保存数据
 			// await api.saveConfig(changedValues);
 		} catch (error) {
@@ -134,19 +132,22 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 					>
 						<UploadTool
 							onHandleSuccess={(result) => {
-								form.setFieldValue;
-								form.setFieldValue("file_url", result.url ?? "");
-								form.setFieldValue("file_name", result.name ?? "");
-								form.setFieldValue("file_origin_name", result.name);
 								if (result.url) {
-									const uri = parseUriFromUrl(result.url);
-									form.setFieldValue("file_path", uri);
+									form.setFieldValue(config.config_key, result.url);
+									handleValuesChange(
+										{ [config.config_key]: result.url },
+										{
+											...form.getFieldsValue(),
+											[config.config_key]: result.url,
+										},
+									);
 								}
 							}}
 							listType="text"
 							renderType="image"
 							showUploadList={false}
 							renderImageUrl={config.config_value}
+							uploadType={fileStorageEngine}
 						/>
 					</Form.Item>
 				);
@@ -201,6 +202,7 @@ const SubBox: React.FC<{ items: Config[]; module: string }> = ({ items, module }
 const App: React.FC = () => {
 	const { data, isLoading } = useConfigQuery();
 	const { t } = useTranslation();
+	const systemStorageEngine = useSystemConfig();
 	return (
 		<div>
 			<Card>
@@ -213,7 +215,13 @@ const App: React.FC = () => {
 									return {
 										label: t(`sys.config.${item.name}`),
 										key: item.name,
-										children: <SubBox items={item.configs} module={item.name} />,
+										children: (
+											<SubBox
+												items={item.configs}
+												module={item.name}
+												fileStorageEngine={systemStorageEngine.get("file_storage_engine")}
+											/>
+										),
 									};
 								})
 							: []
