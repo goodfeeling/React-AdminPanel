@@ -25,7 +25,7 @@ function LoginPage() {
 				<div className="flex justify-center gap-2 md:justify-start">
 					<div className="flex items-center gap-2 font-medium cursor-pointer">
 						<Logo size={28} />
-						<span>{siteConfig?.site_name}</span>
+						<span>{siteConfig?.name}</span>
 					</div>
 				</div>
 				<div className="flex flex-1 items-center justify-center">
@@ -42,7 +42,7 @@ function LoginPage() {
 			</div>
 
 			<div className="relative hidden bg-background-paper lg:block">
-				<img src={siteConfig?.site_login_bg} alt="placeholder img" className="absolute inset-0 h-full w-full" />
+				<img src={siteConfig?.login_img} alt="placeholder img" className="absolute inset-0 h-full w-full" />
 			</div>
 
 			<div className="absolute right-2 top-0 flex flex-row">

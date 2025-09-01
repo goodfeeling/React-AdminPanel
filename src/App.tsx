@@ -8,34 +8,37 @@ import Toast from "./components/toast";
 import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
-import { useEffect } from "react";
 import { AliveScope } from "react-activation";
-import { useSystemConfig, useSystemConfigActions } from "./store/configSystemStore";
+import { useMapBySystemConfig } from "./hooks";
+
+const queryClient = new QueryClient();
+
 function App({ children }: { children: React.ReactNode }) {
-	const { fetchConfig } = useSystemConfigActions();
-
-	useEffect(() => {
-		fetchConfig();
-	}, [fetchConfig]);
-	const systemConfig = useSystemConfig();
-
 	return (
 		<HelmetProvider>
-			<QueryClientProvider client={new QueryClient()}>
-				<ThemeProvider adapters={[AntdAdapter]}>
-					<AliveScope>
-						<VercelAnalytics />
-						<Helmet>
-							<title>{systemConfig.get("site_name")}</title>
-							<link rel="icon" href={systemConfig.get("site_logo")} />
-						</Helmet>
-						<Toast />
-						<RouteLoadingProgress />
-						<MotionLazy>{children}</MotionLazy>
-					</AliveScope>
-				</ThemeProvider>
+			<QueryClientProvider client={queryClient}>
+				<AppContent>{children}</AppContent>
 			</QueryClientProvider>
 		</HelmetProvider>
+	);
+}
+
+function AppContent({ children }: { children: React.ReactNode }) {
+	const { data: systemConfig } = useMapBySystemConfig();
+
+	return (
+		<ThemeProvider adapters={[AntdAdapter]}>
+			<AliveScope>
+				<VercelAnalytics />
+				<Helmet>
+					<title>{systemConfig?.name || "My Admin"}</title>
+					<link rel="icon" href={systemConfig?.favicon || "/favicon.ico"} />
+				</Helmet>
+				<Toast />
+				<RouteLoadingProgress />
+				<MotionLazy>{children}</MotionLazy>
+			</AliveScope>
+		</ThemeProvider>
 	);
 }
 

@@ -32,7 +32,7 @@ export function NavVerticalLayout({ data, className }: Props) {
 				<div className="flex items-center gap-2">
 					<Logo />
 					{themeLayout !== ThemeLayout.Mini && (
-						<span className="text-xl font-bold text-primary">{siteConfig?.site_name}</span>
+						<span className="text-xl font-bold text-primary">{siteConfig?.name}</span>
 					)}
 				</div>
 			</div>

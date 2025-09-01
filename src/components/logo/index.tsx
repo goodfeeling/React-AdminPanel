@@ -11,15 +11,11 @@ interface Props {
 function Logo({ size = 50, className }: Props) {
 	const { themeTokens } = useTheme();
 	const { data: siteConfig } = useMapBySystemConfig();
-	if (
-		siteConfig?.site_logo?.endsWith(".svg") ||
-		siteConfig?.site_logo?.endsWith(".png") ||
-		siteConfig?.site_logo?.endsWith(".jpg")
-	) {
+	if (siteConfig?.logo?.endsWith(".svg") || siteConfig?.logo?.endsWith(".png") || siteConfig?.logo?.endsWith(".jpg")) {
 		// 显示网络SVG图片
 		return (
 			<NavLink to="/" className={cn(className)}>
-				<img src={siteConfig?.site_logo} alt="Logo" style={{ width: size, height: size }} />
+				<img src={siteConfig?.logo} alt="Logo" style={{ width: size, height: size }} />
 			</NavLink>
 		);
 	}

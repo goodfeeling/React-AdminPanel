@@ -1,235 +1,132 @@
+import configService from "@/api/services/configService";
 import UploadTool from "@/components/upload/upload-multiple";
-import { useConfigQuery, useUpdateOrCreateConfigMutation } from "@/store/configManageStore";
-import { useSystemConfig } from "@/store/configSystemStore";
-import type { Config } from "@/types/entity";
-import { Card, Form, Input, InputNumber, Select, Switch, Tabs } from "antd";
-import { useEffect, useRef } from "react";
-import { useTranslation } from "react-i18next";
+import type { ConfigResponse } from "@/types/entity";
+import { Button, Card, Form, Input, InputNumber, Switch, Tabs, message } from "antd";
+import { useEffect, useState } from "react";
 
-type SubBoxProps = {
-	items: Config[];
-	module: string;
-	fileStorageEngine?: string;
-};
-
-const SubBox: React.FC<SubBoxProps> = ({ items, module, fileStorageEngine }) => {
+const ConfigTabs = () => {
+	const [formData, setFormData] = useState<ConfigResponse>({ data: {} });
+	const [loading, setLoading] = useState(false);
 	const [form] = Form.useForm();
-	const changedValuesRef = useRef<{ [key: string]: any }>({});
-	const saveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
-	const { t } = useTranslation();
-	const updateOrCreateMutation = useUpdateOrCreateConfigMutation();
 
-	// 当 items 变化时，设置表单初始值
 	useEffect(() => {
-		const initialValues: Record<string, any> = {};
-		for (const item of items) {
-			initialValues[item.config_key] = item.config_value;
-		}
-		form.setFieldsValue(initialValues);
-	}, [items, form]);
-
-	// 处理表单值变化
-	const handleValuesChange = (changedValues: any, allValues: any) => {
-		// 合并变化的值
-		changedValuesRef.current = {
-			...changedValuesRef.current,
-			...changedValues,
-		};
-
-		// 清除之前的定时器
-		if (saveTimeoutRef.current) {
-			clearTimeout(saveTimeoutRef.current);
-		}
-
-		// 设置新的保存定时器
-		saveTimeoutRef.current = setTimeout(() => {
-			saveFormData(changedValuesRef.current, allValues);
-			changedValuesRef.current = {}; // 清空已保存的值
-		}, 1000);
-	};
-
-	const saveFormData = async (changedValues: any, allValues: any) => {
-		try {
-			console.log("保存变化的字段:", changedValues);
-			console.log("所有字段值:", allValues);
-			// 在这里处理表单提交逻辑
-			updateOrCreateMutation.mutate({ data: allValues, module });
-			// 调用 API 保存数据
-			// await api.saveConfig(changedValues);
-		} catch (error) {
-			console.error("保存失败:", error);
-		}
-	};
-
-	// 清理定时器
-	useEffect(() => {
-		return () => {
-			if (saveTimeoutRef.current) {
-				clearTimeout(saveTimeoutRef.current);
-			}
-		};
+		fetchConfigData();
 	}, []);
 
-	const renderConfigItem = (config: Config) => {
-		switch (config.config_type) {
-			case "string":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-						rules={[{ required: true, message: `Please input ${config.config_key}` }]}
-					>
-						<Input />
-					</Form.Item>
-				);
-			case "number":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-						rules={[{ required: true, message: `Please input ${config.config_key}` }]}
-					>
-						<InputNumber style={{ width: "100%" }} />
-					</Form.Item>
-				);
-			case "select":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-						rules={[{ required: true, message: `Please Select ${config.config_key}` }]}
-					>
-						<Select style={{ width: 150 }} options={config.select_options} />
-					</Form.Item>
-				);
-			case "boolean":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						valuePropName="checked"
-						initialValue={config.config_value === "true"}
-						key={config.config_key}
-						rules={[{ required: true, message: `Please Select ${config.config_key}` }]}
-					>
-						<Switch />
-					</Form.Item>
-				);
-			case "image":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-						rules={[{ required: true, message: `Please Upload ${config.config_key}` }]}
-					>
-						<UploadTool
-							onHandleSuccess={(result) => {
-								if (result.url) {
-									form.setFieldValue(config.config_key, result.url);
-									handleValuesChange(
-										{ [config.config_key]: result.url },
-										{
-											...form.getFieldsValue(),
-											[config.config_key]: result.url,
-										},
-									);
-								}
-							}}
-							listType="text"
-							renderType="image"
-							showUploadList={false}
-							renderImageUrl={config.config_value}
-							uploadType={fileStorageEngine}
-						/>
-					</Form.Item>
-				);
-			case "json":
-			case "array":
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-					>
-						<Input.TextArea rows={4} />
-					</Form.Item>
-				);
-			default:
-				return (
-					<Form.Item
-						label={t(`sys.config.${config.config_key}`)}
-						name={config.config_key}
-						initialValue={config.config_value}
-						key={config.config_key}
-					>
-						<Input />
-					</Form.Item>
-				);
+	const fetchConfigData = async () => {
+		setLoading(true);
+		try {
+			const response = await configService.getConfigs();
+			setFormData(response);
+		} catch (error) {
+			console.error("Failed to fetch config data:", error);
+			message.error("获取配置数据失败");
+		} finally {
+			setLoading(false);
 		}
 	};
 
-	return (
-		<Form
-			form={form}
-			layout="horizontal"
-			labelAlign="right"
-			labelCol={{ span: 6 }}
-			wrapperCol={{ span: 18 }}
-			onValuesChange={handleValuesChange}
-			style={{
-				flex: 1,
-				display: "flex",
-				flexDirection: "column",
-				maxWidth: "800px",
-				width: "100%",
-				padding: "20px",
-			}}
-		>
-			{items.map((item) => renderConfigItem(item))}
-		</Form>
-	);
-};
+	const handleSave = (key: string) => {
+		form
+			.validateFields()
+			.then(async (values) => {
+				// 在实际项目中，这里应该调用API保存数据
+				try {
+					setLoading(true);
+					await configService.updateConfig(values, key);
+					console.log(`Saving ${key} config:`, values);
+					message.success(`${key} 配置已保存`);
+					// 更新状态
+					setFormData({
+						...formData,
+						data: {
+							...formData.data,
+							[key]: values,
+						},
+					});
+				} catch (error) {
+					console.error("Save failed:", error);
+					message.error("保存配置失败");
+				} finally {
+					setLoading(false);
+				}
+			})
+			.catch((error) => {
+				console.error("Validate Failed:", error);
+				message.error("表单验证失败");
+			});
+	};
 
-const App: React.FC = () => {
-	const { data, isLoading } = useConfigQuery();
-	const { t } = useTranslation();
-	const systemStorageEngine = useSystemConfig();
-	return (
-		<div>
-			<Card>
-				<Tabs
-					defaultActiveKey="1"
-					tabPosition={"top"}
-					items={
-						!isLoading && data
-							? data?.map((item) => {
-									return {
-										label: t(`sys.config.${item.name}`),
-										key: item.name,
-										children: (
-											<SubBox
-												items={item.configs}
-												module={item.name}
-												fileStorageEngine={systemStorageEngine.get("file_storage_engine")}
-											/>
-										),
-									};
-								})
-							: []
-					}
+	const configKeys = Object.keys(formData.data);
+
+	const render = (key: string, configKey: string, configValue: string) => {
+		if (key === "site" && ["logo", "favicon", "login_img"].findIndex((item) => item === configKey) >= 0) {
+			return (
+				<UploadTool
+					onHandleSuccess={(result) => {
+						if (result.url) {
+							form.setFieldValue(configKey, result.url);
+							handleSave(key);
+						}
+					}}
+					listType="text"
+					renderType="image"
+					showUploadList={false}
+					renderImageUrl={configValue}
 				/>
+			);
+		}
+		return typeof configValue === "number" ? (
+			<InputNumber style={{ width: "100%" }} />
+		) : typeof configValue === "boolean" ? (
+			<Switch checked={configValue} />
+		) : typeof configValue === "object" ? (
+			<Input.TextArea rows={4} defaultValue={JSON.stringify(configValue, null, 2)} />
+		) : (
+			<Input defaultValue={String(configValue)} />
+		);
+	};
+
+	const items = configKeys.map((key) => {
+		const configData = formData.data[key];
+		return {
+			label: key,
+			key: key,
+			children: (
+				<Form form={form} layout="vertical" initialValues={configData} onFinish={() => handleSave(key)}>
+					<div className="p-4">
+						<h2 className="text-lg font-semibold mb-4 capitalize">{key} Configuration</h2>
+						<div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+							{Object.entries(configData || {}).map(([configKey, configValue]) => (
+								<Form.Item
+									key={configKey}
+									label={configKey}
+									name={configKey}
+									rules={[{ required: true, message: `请输入 ${configKey}` }]}
+								>
+									{render(key, configKey, configValue)}
+								</Form.Item>
+							))}
+						</div>
+						<div className="flex justify-end mt-6">
+							<Button type="primary" onClick={() => handleSave(key)} loading={loading}>
+								保存 {key} 配置
+							</Button>
+						</div>
+					</div>
+				</Form>
+			),
+		};
+	});
+
+	return (
+		<div className="p-6">
+			<Card>
+				<h1 className="text-2xl font-bold mb-6">系统配置管理</h1>
+				<Tabs defaultActiveKey={configKeys[0]} items={items} tabPosition="top" />
 			</Card>
 		</div>
 	);
 };
 
-export default App;
+export default ConfigTabs;
