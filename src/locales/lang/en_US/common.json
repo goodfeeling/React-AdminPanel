@@ -18,6 +18,8 @@
 
 		"light": "Light",
 		"dark": "Dark",
-		"none": "None"
+		"none": "None",
+		"configuration": "Configuration",
+		"reloadServerText": "ReloadServer"
 	}
 }

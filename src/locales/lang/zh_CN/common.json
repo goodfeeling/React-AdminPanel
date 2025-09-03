@@ -19,6 +19,8 @@
 
 		"light": "亮色主题",
 		"dark": "黑暗主题",
-		"none": "暂无"
+		"none": "暂无",
+		"configuration": "配置",
+		"reloadServerText": "重载服务"
 	}
 }

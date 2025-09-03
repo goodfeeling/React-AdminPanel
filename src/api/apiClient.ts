@@ -2,6 +2,7 @@ import axios, { type AxiosRequestConfig, type AxiosError, type AxiosResponse } f
 
 import { t } from "@/locales/i18n";
 import userStore from "@/store/userStore";
+import { Modal } from "antd";
 import { toast } from "sonner";
 import type { Result } from "#/api";
 import { PagePath, ResultEnum, StorageEnum } from "#/enum";
@@ -68,15 +69,7 @@ axiosInstance.interceptors.response.use(
 			_retry?: boolean;
 		};
 
-		// token invalid or expire
-		if (
-			error.response?.status === 401 &&
-			error.response.data.error === "Invalid token" &&
-			error.request.responseURL.includes(UserApi.Refresh)
-		) {
-			clearUserTokenToLoginPage();
-			return Promise.reject(new Error(error.response.data.error));
-		}
+		error.response?.status === 401 && handleAuthError(error);
 
 		// 检查是否是 401 错误，并且不是重试请求
 		if (error.response?.status === 401 && !originalRequest._retry) {
@@ -98,7 +91,7 @@ axiosInstance.interceptors.response.use(
 
 			const { userToken, actions } = userStore.getState();
 			if (!userToken?.refreshToken) {
-				clearUserTokenToLoginPage();
+				clearUserTokenToLoginPage("Token refresh failed ,token is empty");
 				return Promise.reject(new Error("Token refresh failed ,token is empty"));
 			}
 
@@ -118,7 +111,7 @@ axiosInstance.interceptors.response.use(
 			} catch (err) {
 				console.log(err);
 				processQueue(err);
-				clearUserTokenToLoginPage();
+				clearUserTokenToLoginPage(err);
 				return Promise.reject(new Error("Token refresh failed"));
 			} finally {
 				isRefreshing = false;
@@ -134,13 +127,56 @@ axiosInstance.interceptors.response.use(
 	},
 );
 
+// handler Error
+function handleAuthError(error: AxiosError<Result<any>, any>) {
+	if (error.response?.data.error === "Token has been replaced") {
+		clearUserTokenToLoginPage(error.response.data.error);
+		return Promise.reject(new Error(error.response.data.error));
+	}
+
+	// token invalid or expire
+	if (
+		(error.response?.data.error === "Invalid token" || error.response?.data.error === "Token expired") &&
+		error.request.responseURL.includes(UserApi.Refresh)
+	) {
+		clearUserTokenToLoginPage(error.response.data.error);
+		return Promise.reject(new Error(error.response.data.error));
+	}
+}
+
 // clear user token
-function clearUserTokenToLoginPage() {
+function clearUserTokenToLoginPage(message: string | undefined) {
 	// clear localStorage in user store
 	localStorage.removeItem(StorageEnum.STSToken);
 	localStorage.removeItem(StorageEnum.UserStore);
 	localStorage.removeItem(StorageEnum.Menu);
-	window.location.replace(`#${PagePath.Login}`);
+	let title = "";
+	let content = "";
+
+	switch (message) {
+		case "Token has been replaced":
+			title = "账号已在别处登录";
+			content = "您的账号在另一台设备上登录，当前会话已被终止。请重新登录。";
+			break;
+		case "Invalid token":
+		case "Token expired":
+			title = "令牌失效提示";
+			content = "令牌已过期，请重新登录";
+			break;
+		default:
+			title = "系统错误提示";
+			content = message || "系统错误，请联系管理员";
+			break;
+	}
+	Modal.warning({
+		title,
+		content,
+		okText: "重新登录",
+		onOk: () => {
+			window.location.replace(`#${PagePath.Login}`);
+			window.location.reload();
+		},
+	});
 }
 
 class APIClient {

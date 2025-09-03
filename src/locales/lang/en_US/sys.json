@@ -93,7 +93,7 @@
 				"file": "File",
 				"tools": "Tools",
 				"schedule": "Schedule",
-				"setting": "Setting",
+				"setting": "Configuration",
 				"from_create": "From",
 				"menu_btn": "Menu Button Setting",
 				"menu_parameter": "Menu Parameter Setting"
@@ -188,13 +188,93 @@
 			"confirm_new_password": "Confirm New Password"
 		},
 		"config": {
-			"site_name": "SiteName",
-			"site_logo": "SiteLogo",
-			"site_login_bg": "SiteLoginBackground",
-			"file_storage_engine": "FileStorageEngine",
-			"database_driver": "DatabaseDriver",
-			"save": "Save",
-			"system": "System"
+			"tabs": {
+				"site": "Site",
+				"server": "Server",
+				"email": "Email",
+				"postgres": "Postgres",
+				"redis": "Redis",
+				"cors": "CORS",
+				"jwt": "JWT",
+				"zap": "Zap",
+				"aliyun_oss": "AliyunOSS",
+				"rabbitmq": "RabbitMQ",
+				"native_storage": "NativeStorage"
+			},
+			"columns": {
+				"aliyun_oss": {
+					"access_key_id": "AccessKeyId",
+					"access_key_secret": "AccessKeySecret",
+					"base_url": "BaseUrl",
+					"bucket_name": "BucketName",
+					"ram_role_arn": "RamRoleArn",
+					"security_region_id": "SecurityRegionId",
+					"security_service_address": "SecurityServiceAddress"
+				},
+				"cors": {
+					"allowed_headers": "AllowedHeaders",
+					"allowed_methods": "AllowedMethods",
+					"allowed_origins": "AllowedOrigins"
+				},
+				"postgres": {
+					"conn_max_lifetime": "ConnMaxLifetime",
+					"host": "Host",
+					"max_idle_conns": "MaxIdleConns",
+					"max_open_conns": "MaxOpenConns",
+					"name": "Name",
+					"password": "Password",
+					"port": "Port",
+					"sslmode": "Sslmode",
+					"user": "User"
+				},
+				"jwt": {
+					"access_secret": "AccessSecret",
+					"access_time_minute": "AccessTimeMinute",
+					"refresh_secret": "RefreshSecret",
+					"refresh_time_hour": "RefreshTimeHour"
+				},
+				"native_storage": {
+					"access_path": "AccessPath",
+					"base_url": "BaseUrl",
+					"upload_dir": "UploadDir"
+				},
+				"rabbitmq": {
+					"exchange": "Exchange",
+					"queue": "Queue",
+					"url": "Url"
+				},
+				"redis": {
+					"db": "Db",
+					"host": "Host",
+					"password": "Password",
+					"pool_size": "PoolSize",
+					"port": "Port"
+				},
+				"server": {
+					"database": "Database",
+					"event_bus": "EventBus",
+					"port": "Port",
+					"storage_engine": "StorageEngine",
+					"limit_time": "RequestTime(seconds)",
+					"limit_rate": "RequestCount",
+					"multi_login": "MultiLogin"
+				},
+				"site": {
+					"favicon": "Favicon",
+					"login_img": "LoginImg",
+					"logo": "Logo",
+					"name": "Name"
+				},
+				"zap": {
+					"dirname": "Dirname",
+					"encode_level": "EncodeLevel",
+					"encoding": "Encoding",
+					"level": "Level",
+					"log_in_console": "LogInConsole",
+					"max_age": "MaxAge",
+					"stacktrace_key": "StacktraceKey"
+				}
+			}
 		}
 	}
 }

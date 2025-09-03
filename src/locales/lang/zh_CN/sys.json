@@ -193,13 +193,93 @@
 			"confirm_new_password": "确认新密码"
 		},
 		"config": {
-			"site_name": "站点名称",
-			"site_logo": "站点LOGO",
-			"site_login_bg": "站点登录背景",
-			"file_storage_engine": "文件存储引擎",
-			"database_driver": "数据库驱动",
-			"save": "保存",
-			"system": "默认设置"
+			"tabs": {
+				"site": "站点配置",
+				"server": "服务配置",
+				"email": "邮件配置",
+				"postgres": "Postgres配置",
+				"redis": "Redis配置",
+				"cors": "CORS配置",
+				"jwt": "JWT配置",
+				"zap": "Zap配置",
+				"aliyun_oss": "阿里云OSS配置",
+				"rabbitmq": "RabbitMQ配置",
+				"native_storage": "本地存储配置"
+			},
+			"columns": {
+				"aliyun_oss": {
+					"access_key_id": "访问密钥ID",
+					"access_key_secret": "访问密钥密码",
+					"base_url": "基础URL",
+					"bucket_name": "存储桶名称",
+					"ram_role_arn": "RAM角色ARN",
+					"security_region_id": "安全区域ID",
+					"security_service_address": "安全服务地址"
+				},
+				"cors": {
+					"allowed_headers": "允许的请求头",
+					"allowed_methods": "允许的方法",
+					"allowed_origins": "允许的来源"
+				},
+				"postgres": {
+					"conn_max_lifetime": "连接最大生命周期",
+					"host": "主机",
+					"max_idle_conns": "最大空闲连接数",
+					"max_open_conns": "最大打开连接数",
+					"name": "数据库名",
+					"password": "密码",
+					"port": "端口",
+					"sslmode": "SSL模式",
+					"user": "用户"
+				},
+				"jwt": {
+					"access_secret": "访问密钥",
+					"access_time_minute": "访问时间（分钟）",
+					"refresh_secret": "刷新密钥",
+					"refresh_time_hour": "刷新时间（小时）"
+				},
+				"native_storage": {
+					"access_path": "访问路径",
+					"base_url": "基础URL",
+					"upload_dir": "上传目录"
+				},
+				"rabbitmq": {
+					"exchange": "交换机",
+					"queue": "队列",
+					"url": "链接"
+				},
+				"redis": {
+					"db": "DB",
+					"host": "主机",
+					"password": "密码",
+					"pool_size": "连接池大小",
+					"port": "端口"
+				},
+				"server": {
+					"database": "数据库",
+					"event_bus": "事件总线",
+					"port": "端口",
+					"storage_engine": "存储引擎",
+					"limit_time": "限流时间",
+					"limit_rate": "限流次数",
+					"multi_login": "多点登录拦截"
+				},
+				"site": {
+					"favicon": "网站图标",
+					"login_img": "登录图片",
+					"logo": "标志",
+					"name": "名称"
+				},
+				"zap": {
+					"dirname": "目录名",
+					"encode_level": "编码级别",
+					"encoding": "编码方式",
+					"level": "级别",
+					"log_in_console": "是否在控制台打印",
+					"max_age": "最长保存时间",
+					"stacktrace_key": "堆栈跟踪键"
+				}
+			}
 		}
 	}
 }
