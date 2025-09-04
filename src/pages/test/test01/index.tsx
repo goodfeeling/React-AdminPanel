@@ -1,168 +1,57 @@
-import { UploadApi } from "@/api/services/uploadService";
-import { useOssUpload } from "@/hooks/ossUpload";
-import { useRemoveFileInfoMutation } from "@/store/fileManageStore";
-import { useSTSTokenLoading } from "@/store/stsTokenStore";
-import useUserStore from "@/store/userStore";
-import type { FileInfo } from "@/types/entity";
-import { LoadingOutlined, PlusOutlined, UploadOutlined } from "@ant-design/icons";
-import type { UploadProps } from "antd";
-import { App, Button, Form, Upload } from "antd";
-import type { UploadListType } from "antd/es/upload/interface";
-import type { UploadFile } from "antd/lib";
-import type React from "react";
+import PermissionButton from "@/components/premission/button";
 import { useState } from "react";
-import { type UseFormReturn, useForm } from "react-hook-form";
-import { useTranslation } from "react-i18next";
-
-interface UploadToolProps {
-	uploadType?: string;
-	onHandleSuccess?: (fileList: any) => void;
-	form: UseFormReturn<FileInfo, any, FileInfo>;
-	listType: UploadListType | undefined;
-	fileList?: UploadFile<any>[] | undefined;
-	showUploadList?: boolean;
-	renderType: "button" | "image";
-}
-const parseUriFromUrl = (fileUrl: string): string => {
-	try {
-		const url = new URL(fileUrl);
-		return url.pathname.startsWith("/") ? url.pathname.substring(1) : url.pathname;
-	} catch (error) {
-		// 如果不是有效的URL，返回原始字符串或处理错误
-		console.error("Invalid URL:", error);
-		return fileUrl;
-	}
-};
-const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
-	uploadType,
-	onHandleSuccess,
-	form,
-	listType,
-	showUploadList,
-	fileList,
-	renderType,
-}) => {
-	const { t } = useTranslation();
-	const { message } = App.useApp();
-	const { userToken } = useUserStore.getState();
-	const { uploadFile } = useOssUpload();
-	const isOssLoading = useSTSTokenLoading();
-	const removeMutation = useRemoveFileInfoMutation();
-	const [imageUrl, setImageUrl] = useState<string>();
-	const [loading, setLoading] = useState(false);
-	const props: UploadProps = {
-		name: "file",
-		listType: listType,
-		showUploadList: showUploadList,
-		defaultFileList: fileList,
-		action: `${import.meta.env.VITE_APP_BASE_API}${UploadApi.Multiple}`,
-		headers: {
-			Authorization: `Bearer ${userToken?.accessToken}`,
-		},
-		onChange(info) {
-			const { status } = info.file;
-			switch (status) {
-				case "uploading":
-					console.log(info.file, info.fileList);
-					break;
-				case "done":
-					message.success(`${info.file.name} ${t("table.handle_message.upload_success")}`);
-					if (onHandleSuccess) {
-						onHandleSuccess(null);
-					}
-					setImageUrl(info.file.response.data[0].file_url);
-					break;
-				case "error":
-					message.error(`${info.file.name} ${t("table.handle_message.upload_error")}`);
-
-					break;
-				default:
-					console.log(info);
-			}
-		},
-		// 根据存储引擎类型决定是否使用自定义上传
-		beforeUpload: async (file) => {
-			if (uploadType === "aliyunoss") {
-				setLoading(true);
-				// 使用阿里云OSS上传
-				const result = await uploadFile(file);
-				setLoading(false);
-				if (result.success) {
-					// 上传成功后更新表单数据
-					form.setValue("file_url", result.url ?? "");
-					form.setValue("file_name", result.name ?? "");
-					form.setValue("file_origin_name", file.name);
-					if (result.url) {
-						const uri = parseUriFromUrl(result.url);
-						form.setValue("file_path", uri);
-					}
-					setImageUrl(result.url);
-					if (onHandleSuccess) {
-						onHandleSuccess(form.getValues());
-					}
-					message.success(`${file.name} ${t("table.handle_message.upload_success")}`);
-				} else {
-					message.error(`${file.name} ${t("table.handle_message.upload_error")}`);
-				}
-				return false;
-			}
-			return true;
-		},
-		onRemove: async (file) => {
-			removeMutation.mutate(file.response.data[0].id, {
-				onSuccess: () => {
-					message.success(t("table.handle_message.delete_success"));
-				},
-				onError: () => {
-					message.error(t("table.handle_message.error"));
-				},
-			});
-		},
-		// 禁用默认上传行为当使用OSS时
-		disabled: !isOssLoading,
-	};
-
-	const render = () => {
-		if (renderType === "button") {
-			return <Button icon={<UploadOutlined />}>Click to Upload</Button>;
-		}
-		return imageUrl ? (
-			<img src={imageUrl} alt="avatar" style={{ width: "100%" }} />
-		) : (
-			<button style={{ border: 0, background: "none" }} type="button">
-				{loading ? <LoadingOutlined /> : <PlusOutlined />}
-				<div style={{ marginTop: 8 }}>Upload</div>
-			</button>
-		);
-	};
-
-	console.log(imageUrl);
-
-	return <Upload {...props}>{render()}</Upload>;
-};
-
-const Demo = () => {
-	const defaultFileValue: FileInfo = {
-		id: 0,
-		file_name: "",
-		file_md5: "",
-		file_path: "",
-		file_url: "",
-		file_origin_name: "",
-		storage_engine: "",
-		created_at: "",
-		updated_at: "",
-	};
-
-	const form = useForm<FileInfo>({
-		defaultValues: defaultFileValue,
-	});
+const SelectDemo = () => {
+	const [count, setCount] = useState(0);
+	const [inputValue, setInputValue] = useState("");
 	return (
-		<Form labelCol={{ span: 4 }}>
-			<Form.Item label="Photos" name="photos">
-				<UploadTool form={form} listType="text" renderType="image" showUploadList={false} />
-			</Form.Item>
-		</Form>
+		<>
+			<PermissionButton
+				permissionString={"test"}
+				onClick={() => {
+					console.log("hello world");
+				}}
+				className="btn btn-primary"
+				variant="link"
+			>
+				编辑
+			</PermissionButton>
+
+			<div className="p-4">
+				<h2>Keep Alive 测试页面</h2>
+				<p>这个页面用于测试 keep alive 功能</p>
+
+				<div className="mt-4">
+					<p>计数器: {count}</p>
+					{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+					<button onClick={() => setCount((c) => c + 1)} className="bg-blue-500 text-white px-4 py-2 rounded mr-2">
+						增加计数
+					</button>
+					{/* biome-ignore lint/a11y/useButtonType: <explanation> */}
+					<button onClick={() => setCount(0)} className="bg-gray-500 text-white px-4 py-2 rounded">
+						重置计数
+					</button>
+				</div>
+
+				<div className="mt-4">
+					<label htmlFor="inputTest" className="block mb-2">
+						输入测试:
+					</label>
+					<input
+						id="inputTest"
+						type="text"
+						value={inputValue}
+						onChange={(e) => setInputValue(e.target.value)}
+						className="border p-2 rounded w-full"
+						placeholder="输入一些文字，然后切换页面再回来"
+					/>
+				</div>
+
+				<div className="mt-4">
+					<p>当前时间: {new Date().toLocaleTimeString()}</p>
+				</div>
+			</div>
+		</>
 	);
 };
-export default Demo;
+
+export default SelectDemo;
