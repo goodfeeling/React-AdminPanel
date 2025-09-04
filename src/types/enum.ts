@@ -21,6 +21,7 @@ export enum StorageEnum {
 	STSToken = "stsToken",
 	SysConfig = "sysConfig",
 	UserStore = "userStore",
+	DeviceId = "deviceId",
 }
 
 export enum ThemeMode {
@@ -77,3 +78,28 @@ export enum SortDirection {
 export enum PagePath {
 	Login = "/auth/login",
 }
+
+export const MessageType = {
+	"You have been logged in from another device": {
+		title: "账号已在别处登录",
+		content: "您的账号在另一台设备上登录，当前会话已被终止。请重新登录。",
+	},
+	"Token has been replaced": {
+		title: "账号已在别处登录",
+		content: "您的账号在另一台设备上登录，当前会话已被终止。请重新登录。",
+	},
+	"refresh token has been revoked": {
+		title: "令牌失效提示",
+		content: "令牌已过期，请重新登录",
+	},
+	"Invalid token": {
+		title: "令牌失效提示",
+		content: "令牌已过期，请重新登录",
+	},
+	"Token expired": {
+		title: "令牌失效提示",
+		content: "令牌已过期，请重新登录",
+	},
+} as const;
+
+export type MessageKey = keyof typeof MessageType;

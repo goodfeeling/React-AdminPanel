@@ -10,7 +10,10 @@ import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
 import { AliveScope } from "react-activation";
 import { useMapBySystemConfig } from "./hooks";
-
+import useUserStatusNotification from "./hooks/userStatusWatch/useUserStatusNotification";
+import { getOrCreateDeviceId } from "./utils/deviceId";
+// 初始化设备ID
+getOrCreateDeviceId();
 const queryClient = new QueryClient();
 
 function App({ children }: { children: React.ReactNode }) {
@@ -25,7 +28,7 @@ function App({ children }: { children: React.ReactNode }) {
 
 function AppContent({ children }: { children: React.ReactNode }) {
 	const { data: systemConfig } = useMapBySystemConfig();
-
+	useUserStatusNotification();
 	return (
 		<ThemeProvider adapters={[AntdAdapter]}>
 			<AliveScope>

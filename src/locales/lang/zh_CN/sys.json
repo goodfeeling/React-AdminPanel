@@ -262,7 +262,7 @@
 					"storage_engine": "存储引擎",
 					"limit_time": "限流时间",
 					"limit_rate": "限流次数",
-					"multi_login": "多点登录拦截"
+					"single_sign_on": "开启单点登录"
 				},
 				"site": {
 					"favicon": "网站图标",

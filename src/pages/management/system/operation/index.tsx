@@ -246,7 +246,7 @@ const App: React.FC = () => {
 										<FormLabel>{t("table.columns.operation.method")}</FormLabel>
 										<Select
 											onChange={(value: string) => {
-												field.onChange(Number(value));
+												field.onChange(value);
 											}}
 											value={field.value}
 											options={apiMethod}

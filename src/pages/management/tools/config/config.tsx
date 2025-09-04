@@ -50,7 +50,7 @@ const ConfigBox = ({
 				try {
 					setLoading(true);
 					await configService.updateConfig(values, key);
-					toast.success(`${key} 配置已保存`);
+					toast.success(`${key} 配置已保存，下次重启服务后生效`);
 					setFormData({
 						...formData,
 						data: {
@@ -165,9 +165,6 @@ const ConfigBox = ({
 					))}
 				</div>
 				<div className="flex justify-end mt-6 gap-5">
-					<Button type="primary" onClick={() => handleSave(module)} loading={loading}>
-						{t("common.reloadServerText")}
-					</Button>
 					<Button type="primary" onClick={() => handleSave(module)} loading={loading}>
 						{`${t("common.saveText")}${t("common.configuration")}`}
 					</Button>

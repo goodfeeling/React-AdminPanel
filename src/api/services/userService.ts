@@ -29,6 +29,7 @@ export enum UserApi {
 
 	User = "/user",
 	SearchUser = "/user/search",
+	UserStatusWs = "/ws/user/status",
 }
 
 const signin = (data: SignInReq) => apiClient.post<SignInRes>({ url: UserApi.SignIn, data });

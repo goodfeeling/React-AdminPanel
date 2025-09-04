@@ -7,6 +7,11 @@ export const useSharedWebSocket = (uri: string) => {
 	const [message, setMessage] = useState<any>(null);
 
 	useEffect(() => {
+		// url is empty, do not establish a connection
+		if (!uri) {
+			return;
+		}
+
 		const unsubscribe = webSocketManager.connect(url, (data) => {
 			setMessage(data);
 			setConnected(true);
@@ -17,18 +22,21 @@ export const useSharedWebSocket = (uri: string) => {
 			setConnected(false);
 			setMessage(null);
 		};
-	}, [url]);
+	}, [url, uri]);
 
 	const sendMessage = useCallback(
 		(data: string | ArrayBuffer | Blob | ArrayBufferView) => {
+			// uri is empty string, do not send message
+			if (!uri) {
+				return;
+			}
 			webSocketManager.sendMessage(url, data);
 		},
-		[url],
+		[url, uri],
 	);
 
 	return {
-		connected: webSocketManager.isConnected(url),
-
+		connected: uri ? webSocketManager.isConnected(url) : false,
 		message,
 		sendMessage,
 	};
