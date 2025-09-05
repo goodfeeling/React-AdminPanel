@@ -38,13 +38,14 @@ function PcLayout({ navData }: LayoutProps) {
 	if (themeLayout === ThemeLayout.Horizontal) return <PcHorizontalLayout navData={navData} />;
 	return <PcVerticalLayout navData={navData} />;
 }
+
 function PcHorizontalLayout({ navData }: LayoutProps) {
 	return (
 		<div
 			data-slot="slash-layout-content"
 			className={cn("w-full h-screen flex flex-col transition-all duration-300 ease-in-out")}
 		>
-			<Header leftSlot={<Logo />} />
+			<Header leftSlot={<Logo />} navData={navData} />
 			<NavHorizontalLayout data={navData} />
 			<Main />
 		</div>
@@ -65,7 +66,7 @@ function PcVerticalLayout({ navData }: LayoutProps) {
 					"pl-[var(--layout-nav-width-mini)]": themeLayout === ThemeLayout.Mini,
 				})}
 			>
-				<Header leftSlot={<NavToggleButton />} />
+				<Header leftSlot={<NavToggleButton />} navData={navData} />
 				<Main />
 			</div>
 		</>
@@ -76,7 +77,7 @@ function PcVerticalLayout({ navData }: LayoutProps) {
 function MobileLayout({ navData }: LayoutProps) {
 	return (
 		<>
-			<Header leftSlot={<NavMobileLayout data={navData} />} />
+			<Header leftSlot={<NavMobileLayout data={navData} />} navData={navData} />
 			<Main />
 		</>
 	);

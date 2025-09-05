@@ -1,5 +1,4 @@
 import type { NavItemDataProps } from "@/components/nav";
-import { navData } from "@/layouts/dashboard/nav";
 import useLocale from "@/locales/use-locale";
 import {
 	Breadcrumb,
@@ -15,9 +14,13 @@ import { ChevronDown } from "lucide-react";
 import * as React from "react";
 import { useCallback, useMemo } from "react";
 import { Link, useMatches } from "react-router";
-
 interface BreadCrumbProps {
 	maxItems?: number;
+	navData: {
+		name?: string;
+		path?: string;
+		items: NavItemDataProps[];
+	}[];
 }
 
 type NavItem = Pick<NavItemDataProps, "path" | "title"> & {
@@ -33,9 +36,30 @@ interface BreadcrumbItemData {
 	}>;
 }
 
-export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
+export default function BreadCrumb({ maxItems = 3, navData }: BreadCrumbProps) {
 	const { t } = useLocale();
 	const matches = useMatches();
+
+	const newNavData = useMemo(() => {
+		return navData.map((values) => {
+			// 创建一个新的 values 对象，避免修改原始数据
+			const newValues = {
+				...values,
+				items: values.items.map((item) => ({ ...item })), // 浅拷贝 items 数组及其中的每个对象
+			};
+
+			if (newValues.items.length > 0) {
+				for (const key in newValues.items) {
+					newValues.items[key] = {
+						...newValues.items[key],
+						path: `/${newValues.path}/${newValues.items[key].path}`,
+					};
+				}
+			}
+			return newValues;
+		});
+	}, [navData]);
+
 	const findPathInNavData = useCallback((path: string, items: NavItem[]): NavItem[] => {
 		for (const item of items) {
 			if (item.path === path) {
@@ -53,15 +77,18 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 
 	const breadCrumbs = useMemo(() => {
 		const paths = matches.filter((item) => item.pathname !== "/").map((item) => item.pathname);
+		console.log("navData", newNavData);
 
 		return paths
 			.map((path) => {
-				const navItems = navData.flatMap((section) => section.items);
+				const navItems = newNavData.flatMap((section) => section.items);
+
 				const pathItems = findPathInNavData(path, navItems);
 
 				if (pathItems.length === 0) return null;
 
 				const currentItem = pathItems[pathItems.length - 1];
+
 				const children =
 					currentItem.children?.map((child) => ({
 						key: child.path,
@@ -75,7 +102,7 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 				};
 			})
 			.filter((item): item is BreadcrumbItemData => item !== null);
-	}, [matches, t, findPathInNavData]);
+	}, [matches, t, findPathInNavData, newNavData]);
 
 	const renderBreadcrumbItem = (item: BreadcrumbItemData, isLast: boolean) => {
 		const hasItems = item.items && item.items.length > 0;
@@ -88,6 +115,7 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 							{item.label}
 							<ChevronDown className="h-4 w-4" />
 						</DropdownMenuTrigger>
+
 						<DropdownMenuContent align="start">
 							{item.items.map((subItem) => (
 								<DropdownMenuItem key={subItem.key} asChild>
@@ -112,6 +140,7 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 			</BreadcrumbItem>
 		);
 	};
+	console.log(breadCrumbs, maxItems);
 
 	const renderBreadcrumbs = () => {
 		if (breadCrumbs.length <= maxItems) {
@@ -131,7 +160,9 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 		return (
 			<>
 				{renderBreadcrumbItem(firstItem, false)}
+
 				<BreadcrumbSeparator />
+
 				<BreadcrumbItem>
 					<DropdownMenu>
 						<DropdownMenuTrigger className="flex items-center gap-1">
@@ -146,7 +177,9 @@ export default function BreadCrumb({ maxItems = 3 }: BreadCrumbProps) {
 						</DropdownMenuContent>
 					</DropdownMenu>
 				</BreadcrumbItem>
+
 				<BreadcrumbSeparator />
+
 				{lastItems.map((item, index) => (
 					<React.Fragment key={item.key}>
 						{renderBreadcrumbItem(item, index === lastItems.length - 1)}

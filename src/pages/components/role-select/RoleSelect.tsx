@@ -5,11 +5,11 @@ import type { Role } from "#/entity";
 interface RoleSelectProps {
 	roles: Role[];
 	treeData: any[];
-	recordId: number;
+	recordKey: string;
 	onChange?: (values: string[]) => void;
 }
 
-const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordId, onChange }) => {
+const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordKey, onChange }) => {
 	const [selectedRoleIds, setSelectedRoleIds] = useState<string[]>([]);
 
 	useEffect(() => {
@@ -26,7 +26,7 @@ const RoleSelect: React.FC<RoleSelectProps> = ({ roles, treeData, recordId, onCh
 
 	return (
 		<TreeSelect
-			key={recordId}
+			key={recordKey}
 			treeData={treeData}
 			value={selectedRoleIds}
 			onChange={handleSelectChange}

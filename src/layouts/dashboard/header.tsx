@@ -1,4 +1,5 @@
 import LocalePicker from "@/components/locale-picker";
+import type { NavItemDataProps } from "@/components/nav/types";
 import { useSettings } from "@/store/settingStore";
 import { cn } from "@/utils";
 import type { ReactNode } from "react";
@@ -10,9 +11,13 @@ import SettingButton from "../components/setting-button";
 
 interface HeaderProps {
 	leftSlot?: ReactNode;
+	navData: {
+		name?: string;
+		items: NavItemDataProps[];
+	}[];
 }
 
-export default function Header({ leftSlot }: HeaderProps) {
+export default function Header({ leftSlot, navData }: HeaderProps) {
 	const { breadCrumb } = useSettings();
 	return (
 		<header
@@ -25,7 +30,7 @@ export default function Header({ leftSlot }: HeaderProps) {
 			<div className="flex items-center">
 				{leftSlot}
 
-				<div className="hidden md:block ml-4">{breadCrumb && <BreadCrumb />}</div>
+				<div className="hidden md:block ml-4">{breadCrumb && <BreadCrumb navData={navData} />}</div>
 			</div>
 
 			<div className="flex items-center gap-1">

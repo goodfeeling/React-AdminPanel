@@ -163,7 +163,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 										<RoleSelect
 											roles={field.value ?? []}
 											treeData={treeData}
-											recordId={form.getValues().id}
+											recordKey={`modal_${form.getValues().id}`}
 											onChange={async (values) => {
 												try {
 													await userService.bindRole(form.getValues().id, values);

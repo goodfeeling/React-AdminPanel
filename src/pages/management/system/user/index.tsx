@@ -229,7 +229,7 @@ const App: React.FC = () => {
 					<RoleSelect
 						roles={roles}
 						treeData={treeData}
-						recordId={record.id}
+						recordKey={`list_${record.id}`}
 						onChange={async (values) => {
 							try {
 								await userService.bindRole(record.id, values);
