@@ -274,23 +274,6 @@ export type TaskExecutionLog = {
 	updated_at: string;
 };
 
-// export type Config = {
-//   id: number;
-//   config_key: string;
-//   config_value: string;
-//   config_type: string;
-//   module: string;
-//   is_enable: number;
-//   created_at: string;
-//   updated_at: string;
-//   select_options: DictionaryDetail[];
-// };
-
-// export type GroupConfig = {
-//   name: string;
-//   configs: Config[];
-// };
-
 export type WebSocketMessage<T> = {
 	type: string;
 	data: T;

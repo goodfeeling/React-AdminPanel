@@ -62,6 +62,7 @@
 
 			"userName": "账号",
 			"password": "密码",
+			"newPassword": "新密码",
 			"confirmPassword": "确认密码",
 			"email": "邮箱",
 			"smsCode": "短信验证码",
@@ -72,7 +73,9 @@
 			"privacyPolicy": " 隐私政策 ",
 			"logout": "退出",
 			"signInFormDescription": "输入您的账号登录到您的账户",
-			"noAccount": "没有账号？"
+			"resetPasswordDescription": "请输入新密码进行重置",
+			"noAccount": "没有账号？",
+			"resetPasswordRequestToYourEmail": "已经给您的邮箱发送重置请求，请注意查看"
 		},
 		"tab": {
 			"fullscreen": "内容全屏",

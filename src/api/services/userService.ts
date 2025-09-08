@@ -10,6 +10,7 @@ export interface SignInReq {
 export interface SignUpReq extends SignInReq {
 	email: string;
 }
+
 export type SignInRes = {
 	security: {
 		expirationAccessDateTime: string;
@@ -18,6 +19,12 @@ export type SignInRes = {
 		jwtRefreshToken: string;
 	};
 	userinfo: UserInfo;
+};
+
+export type PasswordResetReq = {
+	email: string;
+	new_password: string;
+	confirm_password: string;
 };
 
 export enum UserApi {
@@ -74,6 +81,12 @@ const editPassword = (id: number, updateInfo: PasswordEditReq) =>
 		url: `${UserApi.User}/${id}/edit-password`,
 		data: updateInfo,
 	});
+const changePassword = (resetInfo: PasswordResetReq, resetToken: string) =>
+	apiClient.post<boolean>({
+		url: `${UserApi.User}/change-password?token=${resetToken}`,
+		data: resetInfo,
+	});
+
 const switchRole = (roleId: number) =>
 	apiClient.post<SignInRes>({
 		url: `${UserApi.SwitchRole}?role_id=${roleId}`,
@@ -93,4 +106,5 @@ export default {
 	resetPassword,
 	switchRole,
 	editPassword,
+	changePassword,
 };

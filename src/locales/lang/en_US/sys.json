@@ -44,6 +44,7 @@
 			"mobileSignInFormTitle": "Mobile sign in",
 			"otherSignIn": "Or continue with",
 			"password": "Password",
+			"newPassword": "New Password",
 			"passwordPlaceholder": "Please input password",
 			"policy": "I agree to the xxx Privacy Policy",
 			"policyPlaceholder": "Register after checking",
@@ -67,7 +68,9 @@
 			"termsOfService": " Terms of service ",
 			"userName": "Username",
 			"signInFormDescription": "Enter your username to login to your account",
-			"noAccount": "Don't have an account?"
+			"resetPasswordDescription": "Please enter a new password to reset it.",
+			"noAccount": "Don't have an account?",
+			"resetPasswordRequestToYourEmail": "A password reset request has been sent to your email. Please check it."
 		},
 		"menu": {
 			"pages": "Pages",

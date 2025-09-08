@@ -16,7 +16,7 @@ function LoginPage() {
 	const { data: siteConfig } = useMapBySystemConfig();
 	const { current_role: currentRole } = useUserInfo();
 	if (token.accessToken) {
-		return <Navigate to={currentRole?.default_router ?? "/"} replace />;
+		return <Navigate to={currentRole?.default_router ? currentRole.default_router : "/dashboard/workbench"} replace />;
 	}
 
 	return (

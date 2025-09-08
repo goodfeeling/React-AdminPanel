@@ -45,7 +45,7 @@ function createAppRouter(menuData: Menu[], role: Role | undefined) {
 					children: [
 						{
 							index: true,
-							element: <Navigate to={defaultRouter || "/dashboard/workbench"} replace />,
+							element: <Navigate to={!defaultRouter ? "/dashboard/workbench" : defaultRouter} replace />,
 						},
 						...routesSection,
 					],
