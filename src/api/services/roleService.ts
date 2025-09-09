@@ -10,59 +10,133 @@ export interface UpdateRole {
 	order: number;
 	description: string;
 }
-export enum RoleApi {
-	Role = "/role",
-	SearchRole = "/role/search",
-	RoleTree = "/role/tree",
+
+export class RoleService {
+	/**
+	 * 获取角色列表
+	 * @param status 角色状态
+	 */
+	getRoles(status = 0) {
+		return apiClient.get<Role[]>({
+			url: `${RoleService.Client.Role}?status=${status}`,
+		});
+	}
+
+	/**
+	 * 创建角色
+	 * @param info 角色信息
+	 */
+	updateRole(id: number, info: UpdateRole) {
+		return apiClient.put<Role>({
+			url: `${RoleService.Client.Role}/${id}`,
+			data: info,
+		});
+	}
+
+	/**
+	 * 创建角色
+	 * @param info 角色信息
+	 */
+	createRole(info: Role) {
+		return apiClient.post<Role>({
+			url: `${RoleService.Client.Role}`,
+			data: info,
+		});
+	}
+
+	/**
+	 * 获取角色列表
+	 * @param searchStr 查询条件
+	 */
+	searchPageList(searchStr: string) {
+		return apiClient.get<PageList<Role>>({
+			url: `${RoleService.Client.SearchRole}?${searchStr}`,
+		});
+	}
+
+	/**
+	 * 删除角色
+	 * @param id 角色id
+	 */
+	deleteRole(id: number) {
+		return apiClient.delete<string>({
+			url: `${RoleService.Client.Role}/${id}`,
+		});
+	}
+
+	/**
+	 * 获取角色树
+	 */
+	getRoleTree() {
+		return apiClient.get<RoleTree>({ url: `${RoleService.Client.RoleTree}` });
+	}
+
+	/**
+	 * 获取角色设置
+	 * @param id 角色id
+	 */
+	getRoleSetting(id: number) {
+		return apiClient.get<roleSetting>({
+			url: `${RoleService.Client.Role}/${id}/setting`,
+		});
+	}
+
+	/**
+	 * 更新角色菜单
+	 * @param id 角色id
+	 * @param menuIds 菜单id
+	 */
+	updateRoleMenus(id: number, menuIds: number[]) {
+		return apiClient.post<boolean>({
+			url: `${RoleService.Client.Role}/${id}/menu`,
+			data: { menuIds },
+		});
+	}
+
+	/**
+	 * 更新角色接口权限
+	 * @param id 角色id
+	 * @param apiPaths 接口权限
+	 */
+	updateRoleApis(id: number, apiPaths: string[]) {
+		return apiClient.post<boolean>({
+			url: `${RoleService.Client.Role}/${id}/api`,
+			data: { apiPaths },
+		});
+	}
+
+	/**
+	 * 绑定按钮权限
+	 * @param id 角色id
+	 * @param menuId 菜单id
+	 * @param btnIds 按钮id列表
+	 */
+	updateRoleBtns(id: number, menuId: number, btnIds: number[]) {
+		return apiClient.post<boolean>({
+			url: `${RoleService.Client.Role}/${id}/menu-btns`,
+			data: { btnIds, menuId },
+		});
+	}
+
+	/**
+	 * 设置默认路由
+	 * @param id 角色id
+	 * @param routerPath 路由路径
+	 */
+	updateDefaultRouter(id: number, routerPath: string) {
+		return apiClient.put<Role>({
+			url: `${RoleService.Client.Role}/${id}`,
+			data: { default_router: routerPath },
+		});
+	}
 }
-const getRoles = (status = 0) => apiClient.get<Role[]>({ url: `${RoleApi.Role}?status=${status}` });
-const updateRole = (id: number, info: UpdateRole) => apiClient.put<Role>({ url: `${RoleApi.Role}/${id}`, data: info });
 
-const createRole = (info: Role) => apiClient.post<Role>({ url: `${RoleApi.Role}`, data: info });
+export namespace RoleService {
+	export enum Client {
+		Role = "/role",
+		SearchRole = "/role/search",
+		RoleTree = "/role/tree",
+	}
+}
 
-const searchPageList = (searchStr: string) =>
-	apiClient.get<PageList<Role>>({
-		url: `${RoleApi.SearchRole}?${searchStr}`,
-	});
-
-const deleteRole = (id: number) => apiClient.delete<string>({ url: `${RoleApi.Role}/${id}` });
-
-const getRoleTree = () => apiClient.get<RoleTree>({ url: `${RoleApi.RoleTree}` });
-
-const getRoleSetting = (id: number) => apiClient.get<roleSetting>({ url: `${RoleApi.Role}/${id}/setting` });
-
-const updateRoleMenus = (id: number, menuIds: number[]) =>
-	apiClient.post<boolean>({
-		url: `${RoleApi.Role}/${id}/menu`,
-		data: { menuIds },
-	});
-
-const updateRoleApis = (id: number, apiPaths: string[]) =>
-	apiClient.post<boolean>({
-		url: `${RoleApi.Role}/${id}/api`,
-		data: { apiPaths },
-	});
-const updateRoleBtns = (id: number, menuId: number, btnIds: number[]) =>
-	apiClient.post<boolean>({
-		url: `${RoleApi.Role}/${id}/menu-btns`,
-		data: { btnIds, menuId },
-	});
-
-const updateDefaultRouter = (id: number, routerPath: string) =>
-	apiClient.put<Role>({
-		url: `${RoleApi.Role}/${id}`,
-		data: { default_router: routerPath },
-	});
-export default {
-	updateRole,
-	searchPageList,
-	createRole,
-	deleteRole,
-	getRoleTree,
-	getRoles,
-	getRoleSetting,
-	updateRoleMenus,
-	updateRoleApis,
-	updateRoleBtns,
-	updateDefaultRouter,
-};
+export default new RoleService();

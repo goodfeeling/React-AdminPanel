@@ -1,4 +1,4 @@
-import taskExecutionLogService, { TaskExecutionLogClient } from "@/api/services/taskExecutionLogService";
+import taskExecutionLogService, { TaskExecutionLogService } from "@/api/services/taskExecutionLogService";
 import { useSharedWebSocket } from "@/hooks/sharedWebSocket";
 import type { TaskExecutionLog } from "@/types/entity";
 import { Badge } from "@/ui/badge";
@@ -29,7 +29,7 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 	const [loading, setLoading] = useState(false);
 	// 控制显示模式：实时模式或历史模式
 	const [viewMode, setViewMode] = useState<"realtime" | "historical">("realtime");
-	const { connected, message, sendMessage } = useSharedWebSocket(TaskExecutionLogClient.WsUri);
+	const { connected, message, sendMessage } = useSharedWebSocket(TaskExecutionLogService.Client.WsUri);
 
 	// 发送获取数据请求
 	useEffect(() => {

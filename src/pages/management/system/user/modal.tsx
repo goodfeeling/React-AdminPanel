@@ -1,4 +1,4 @@
-import { UploadApi } from "@/api/services/uploadService";
+import { UploadService } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
 import { useTranslationRule } from "@/hooks";
@@ -92,7 +92,7 @@ const UserNewModal = ({ title, show, formValue, treeData, onOk, onCancel }: User
 											onHeaderImgChange={(fileUrl: string) => {
 												form.setValue("header_img", fileUrl);
 											}}
-											action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
+											action={`${import.meta.env.VITE_APP_BASE_API}${UploadService.Client.Single}`}
 											headers={{
 												Authorization: `Bearer ${userToken?.accessToken}`,
 											}}

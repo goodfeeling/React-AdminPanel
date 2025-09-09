@@ -2,40 +2,65 @@ import apiClient from "../apiClient";
 
 import type { MenuGroup, PageList } from "#/entity";
 
-export enum MenuGroupClient {
-	MenuGroup = "/menu_group",
-	SearchMenuGroup = "/menu_group/search",
+export class MenuGroupService {
+	/**
+	 * 获取菜单组列表
+	 */
+	getDictionaries() {
+		return apiClient.get<MenuGroup[]>({
+			url: `${MenuGroupService.Client.MenuGroup}`,
+		});
+	}
+
+	/**
+	 * 更新菜单组
+	 * @param id 菜单组ID
+	 * @param apiInfo 菜单组信息
+	 */
+	updateMenuGroup(id: number, apiInfo: MenuGroup) {
+		return apiClient.put<MenuGroup>({
+			url: `${MenuGroupService.Client.MenuGroup}/${id}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 创建菜单组
+	 * @param apiInfo 菜单组信息
+	 */
+	createMenuGroup(apiInfo: MenuGroup) {
+		return apiClient.post<MenuGroup>({
+			url: `${MenuGroupService.Client.MenuGroup}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 搜索菜单组分页列表
+	 * @param searchStr 搜索字符串
+	 */
+	searchPageList(searchStr: string) {
+		return apiClient.get<PageList<MenuGroup>>({
+			url: `${MenuGroupService.Client.SearchMenuGroup}?${searchStr}`,
+		});
+	}
+
+	/**
+	 * 删除菜单组
+	 * @param id 菜单组ID
+	 */
+	deleteMenuGroup(id: number) {
+		return apiClient.delete<string>({
+			url: `${MenuGroupService.Client.MenuGroup}/${id}`,
+		});
+	}
 }
-const getDictionaries = () =>
-	apiClient.get<MenuGroup[]>({
-		url: `${MenuGroupClient.MenuGroup}`,
-	});
-const updateMenuGroup = (id: number, apiInfo: MenuGroup) =>
-	apiClient.put<MenuGroup>({
-		url: `${MenuGroupClient.MenuGroup}/${id}`,
-		data: apiInfo,
-	});
 
-const createMenuGroup = (apiInfo: MenuGroup) =>
-	apiClient.post<MenuGroup>({
-		url: `${MenuGroupClient.MenuGroup}`,
-		data: apiInfo,
-	});
+export namespace MenuGroupService {
+	export enum Client {
+		MenuGroup = "/menu_group",
+		SearchMenuGroup = "/menu_group/search",
+	}
+}
 
-const searchPageList = (searchStr: string) =>
-	apiClient.get<PageList<MenuGroup>>({
-		url: `${MenuGroupClient.SearchMenuGroup}?${searchStr}`,
-	});
-
-const deleteMenuGroup = (id: number) =>
-	apiClient.delete<string>({
-		url: `${MenuGroupClient.MenuGroup}/${id}`,
-	});
-
-export default {
-	updateMenuGroup,
-	searchPageList,
-	createMenuGroup,
-	deleteMenuGroup,
-	getDictionaries,
-};
+export default new MenuGroupService();

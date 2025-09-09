@@ -35,7 +35,7 @@ const useSTSTokenStore = create<STSTokenState>()(
 				fetchSTSToken: async () => {
 					set({ loading: true, error: null });
 					try {
-						const response = await uploadService.GetSTSToken();
+						const response = await uploadService.getSTSToken();
 						set({
 							stsToken: response,
 							loading: false,
@@ -54,7 +54,7 @@ const useSTSTokenStore = create<STSTokenState>()(
 						}
 
 						// 调用刷新接口，这里假设后端支持使用 refresh_token 刷新 STS Token
-						const response = await uploadService.RefreshSTSToken(currentStsToken.refresh_token);
+						const response = await uploadService.refreshSTSToken(currentStsToken.refresh_token);
 						set({
 							stsToken: response,
 							loading: false,

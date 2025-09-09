@@ -1,15 +1,12 @@
-import { UploadApi } from "@/api/services/uploadService";
-import { Upload } from "@/components/upload";
-import useUserStore from "@/store/userStore";
 import { Card, CardContent } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "@/ui/form";
 import { Input } from "@/ui/input";
 
+import UploadTool from "@/components/upload/upload-multiple";
 import { useTranslationRule } from "@/hooks";
 import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { Button, Modal, Radio, Select, Switch } from "antd";
-import type { UploadFile } from "antd/lib";
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { DictionaryDetail } from "#/entity";
@@ -28,25 +25,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	});
 	const { data: status } = useDictionaryByTypeWithCache("status");
 	const { t } = useTranslation();
-	const { userToken } = useUserStore.getState();
 	const [loading, setLoading] = useState(false);
-	const [fileList, setFileList] = useState<UploadFile[]>([]);
-
-	useEffect(() => {
-		form.reset(formValue);
-		// 初始化文件列表状态 - 如果有现有的图片URL，则创建一个文件对象用于回显
-		if (formValue.type === "image" && formValue.value && typeof formValue.value === "string") {
-			const existingFile: UploadFile = {
-				uid: "-1",
-				name: "image.png",
-				status: "done",
-				url: formValue.value,
-			};
-			setFileList([existingFile]);
-		} else {
-			setFileList([]);
-		}
-	}, [formValue, form]);
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
@@ -160,36 +139,18 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 
 								case "image":
 									result = (
-										<Card title="Upload Single File">
+										<Card>
 											<CardContent>
-												<Upload
-													maxCount={1}
-													fileList={fileList}
-													name="file"
-													action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
-													headers={{
-														Authorization: `Bearer ${userToken?.accessToken}`,
-													}}
-													onChange={(info) => {
-														const { file } = info;
-
-														// 检查文件是否上传成功
-														if (file.status === "done" && file.response) {
-															// 假设服务器返回的文件URL在 file.response.url 中
-															const fileUrl = file.response.data.file_url || "";
-															field.onChange(fileUrl);
-															setFileList([file]);
-														} else if (file.status === "removed") {
-															// 文件被移除时更新状态
-															field.onChange("");
-															setFileList([]);
-														} else if (file.status === "error") {
-															setFileList([file]);
-														} else {
-															// 上传过程中更新文件列表
-															setFileList([file]);
+												<UploadTool
+													onHandleSuccess={(result) => {
+														if (result.url) {
+															field.onChange(result.url);
 														}
 													}}
+													listType="picture-card"
+													renderType="image"
+													showUploadList={false}
+													renderImageUrl={field.value}
 												/>
 											</CardContent>
 										</Card>

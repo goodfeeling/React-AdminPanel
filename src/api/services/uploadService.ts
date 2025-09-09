@@ -2,27 +2,50 @@ import apiClient from "../apiClient";
 
 import type { FileInfo, STSToken } from "#/entity";
 
-export enum UploadApi {
-	Single = "/upload/single",
-	Multiple = "/upload/multiple",
-	AliYUnSTSToken = "/upload/sts-token",
-	RefreshSTSToken = "/upload/refresh-sts",
+export class UploadService {
+	/**
+	 * 单文件上传
+	 */
+	singleUpload() {
+		return apiClient.get<FileInfo[]>({ url: `${UploadService.Client.Single}` });
+	}
+
+	/**
+	 * 多文件上传
+	 */
+	multipleUpload() {
+		return apiClient.get<FileInfo[]>({
+			url: `${UploadService.Client.Multiple}`,
+		});
+	}
+
+	/**
+	 * 获取阿里云STS令牌
+	 */
+	getSTSToken() {
+		return apiClient.get<STSToken>({
+			url: UploadService.Client.AliYUnSTSToken,
+		});
+	}
+
+	/**
+	 * 刷新阿里云STS令牌
+	 * @param refreshToken 刷新令牌
+	 */
+	refreshSTSToken(refreshToken: string) {
+		return apiClient.get<STSToken>({
+			url: `${UploadService.Client.RefreshSTSToken}?refresh_token=${refreshToken}`,
+		});
+	}
 }
 
-const SingleUpload = () => apiClient.get<FileInfo[]>({ url: UploadApi.Single });
+export namespace UploadService {
+	export enum Client {
+		Single = "/upload/single",
+		Multiple = "/upload/multiple",
+		AliYUnSTSToken = "/upload/sts-token",
+		RefreshSTSToken = "/upload/refresh-sts",
+	}
+}
 
-const MultipleUpload = () => apiClient.get<FileInfo[]>({ url: UploadApi.Multiple });
-
-const GetSTSToken = () => apiClient.get<STSToken>({ url: UploadApi.AliYUnSTSToken });
-
-const RefreshSTSToken = (refreshToken: string) =>
-	apiClient.get<STSToken>({
-		url: `${UploadApi.RefreshSTSToken}?refresh_token=${refreshToken}`,
-	});
-
-export default {
-	SingleUpload,
-	MultipleUpload,
-	GetSTSToken,
-	RefreshSTSToken,
-};
+export default new UploadService();

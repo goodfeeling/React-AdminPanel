@@ -2,34 +2,77 @@ import apiClient from "../apiClient";
 
 import type { Menu, MenuTreeUserGroup, PageList } from "#/entity";
 
-export enum MenuApi {
-	Menu = "/menu",
-	SearchMenu = "/menu/search",
-	UserMenu = "/menu/user",
+export class MenuService {
+	/**
+	 * 获取菜单列表
+	 * @param groupId 组ID
+	 */
+	getMenus(groupId: number) {
+		return apiClient.get<Menu[]>({
+			url: `${MenuService.Client.Menu}?group_id=${groupId}`,
+		});
+	}
+
+	/**
+	 * 更新菜单
+	 * @param id 菜单ID
+	 * @param menuInfo 菜单信息
+	 */
+	updateMenu(id: number, menuInfo: Menu) {
+		return apiClient.put<Menu>({
+			url: `${MenuService.Client.Menu}/${id}`,
+			data: menuInfo,
+		});
+	}
+
+	/**
+	 * 创建菜单
+	 * @param menuInfo 菜单信息
+	 */
+	createMenu(menuInfo: Menu) {
+		return apiClient.post<Menu>({
+			url: `${MenuService.Client.Menu}`,
+			data: menuInfo,
+		});
+	}
+
+	/**
+	 * 搜索菜单分页列表
+	 * @param searchStr 搜索字符串
+	 */
+	searchPageList(searchStr: string) {
+		return apiClient.get<PageList<Menu>>({
+			url: `${MenuService.Client.SearchMenu}?${searchStr}`,
+		});
+	}
+
+	/**
+	 * 删除菜单
+	 * @param id 菜单ID
+	 */
+	deleteMenu(id: number) {
+		return apiClient.delete<string>({
+			url: `${MenuService.Client.Menu}/${id}`,
+		});
+	}
+
+	/**
+	 * 获取用户菜单
+	 * @param isAll 是否获取所有菜单
+	 */
+	getUserMenu(isAll = false) {
+		return apiClient.get<MenuTreeUserGroup[]>({
+			url: `${MenuService.Client.UserMenu}?all=${isAll}`,
+		});
+	}
 }
-const getMenus = (groupId: number) => apiClient.get<Menu[]>({ url: `${MenuApi.Menu}?group_id=${groupId}` });
-const updateMenu = (id: number, userInfo: Menu) =>
-	apiClient.put<Menu>({ url: `${MenuApi.Menu}/${id}`, data: userInfo });
 
-const createMenu = (userInfo: Menu) => apiClient.post<Menu>({ url: `${MenuApi.Menu}`, data: userInfo });
+export namespace MenuService {
+	export enum Client {
+		Menu = "/menu",
+		SearchMenu = "/menu/search",
+		UserMenu = "/menu/user",
+	}
+}
 
-const searchPageList = (searchStr: string) =>
-	apiClient.get<PageList<Menu>>({
-		url: `${MenuApi.SearchMenu}?${searchStr}`,
-	});
-
-const deleteMenu = (id: number) => apiClient.delete<string>({ url: `${MenuApi.Menu}/${id}` });
-
-const getUserMenu = (isAll = false) =>
-	apiClient.get<MenuTreeUserGroup[]>({
-		url: `${MenuApi.UserMenu}?all=${isAll}`,
-	});
-
-export default {
-	updateMenu,
-	searchPageList,
-	createMenu,
-	deleteMenu,
-	getMenus,
-	getUserMenu,
-};
+export default new MenuService();

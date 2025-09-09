@@ -2,43 +2,78 @@ import apiClient from "../apiClient";
 
 import type { FileInfo, PageList } from "#/entity";
 
-export enum FileInfoClient {
-	FileInfo = "/file",
-	SearchFileInfo = "/file/search",
-	GroupsFileInfo = "/file/groups",
-	DeleteBatch = "/file/batch",
+export class FileService {
+	/**
+	 * 获取文件列表
+	 */
+	getFileInfos() {
+		return apiClient.get<FileInfo[]>({
+			url: `${FileService.Client.FileInfo}`,
+		});
+	}
+
+	/**
+	 * 更新文件信息
+	 * @param id 文件ID
+	 * @param apiInfo 文件信息
+	 */
+	updateFileInfo(id: number, apiInfo: FileInfo) {
+		return apiClient.put<FileInfo>({
+			url: `${FileService.Client.FileInfo}/${id}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 创建文件信息
+	 * @param apiInfo 文件信息
+	 */
+	createFileInfo(apiInfo: FileInfo) {
+		return apiClient.post<FileInfo>({
+			url: `${FileService.Client.FileInfo}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 搜索文件分页列表
+	 * @param searchStr 搜索字符串
+	 */
+	searchPageList(searchStr: string) {
+		return apiClient.get<PageList<FileInfo>>({
+			url: `${FileService.Client.SearchFileInfo}?${searchStr}`,
+		});
+	}
+
+	/**
+	 * 删除文件
+	 * @param id 文件ID
+	 */
+	deleteFileInfo(id: number) {
+		return apiClient.delete<string>({
+			url: `${FileService.Client.FileInfo}/${id}`,
+		});
+	}
+
+	/**
+	 * 批量删除文件
+	 * @param ids 文件ID数组
+	 */
+	deleteBatch(ids: number[]) {
+		return apiClient.post<number>({
+			url: `${FileService.Client.DeleteBatch}`,
+			data: { ids },
+		});
+	}
 }
-const getFileInfos = () => apiClient.get<FileInfo[]>({ url: `${FileInfoClient.FileInfo}` });
-const updateFileInfo = (id: number, apiInfo: FileInfo) =>
-	apiClient.put<FileInfo>({
-		url: `${FileInfoClient.FileInfo}/${id}`,
-		data: apiInfo,
-	});
 
-const createFileInfo = (apiInfo: FileInfo) =>
-	apiClient.post<FileInfo>({
-		url: `${FileInfoClient.FileInfo}`,
-		data: apiInfo,
-	});
+export namespace FileService {
+	export enum Client {
+		FileInfo = "/file",
+		SearchFileInfo = "/file/search",
+		GroupsFileInfo = "/file/groups",
+		DeleteBatch = "/file/batch",
+	}
+}
 
-const searchPageList = (searchStr: string) =>
-	apiClient.get<PageList<FileInfo>>({
-		url: `${FileInfoClient.SearchFileInfo}?${searchStr}`,
-	});
-
-const deleteFileInfo = (id: number) => apiClient.delete<string>({ url: `${FileInfoClient.FileInfo}/${id}` });
-
-const deleteBatch = (ids: number[]) =>
-	apiClient.post<number>({
-		url: `${FileInfoClient.DeleteBatch}`,
-		data: { ids },
-	});
-
-export default {
-	updateFileInfo,
-	searchPageList,
-	createFileInfo,
-	deleteFileInfo,
-	getFileInfos,
-	deleteBatch,
-};
+export default new FileService();

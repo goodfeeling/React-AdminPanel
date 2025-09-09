@@ -1,5 +1,6 @@
 import { DEFAULT_USER } from "@/_mock/assets";
-import type { SignInReq } from "@/api/services/userService";
+import captchaService, { type CaptchaService } from "@/api/services/captchaService";
+import type { UserService } from "@/api/services/userService";
 import { Icon } from "@/components/icon";
 import { useSignIn } from "@/store/userStore";
 import { Button } from "@/ui/button";
@@ -8,36 +9,78 @@ import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from "
 import { Input } from "@/ui/input";
 import { cn } from "@/utils";
 import { Loader2 } from "lucide-react";
-import { useState } from "react";
+import { useCallback, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
+import { toast } from "sonner";
 import { LoginStateEnum, useLoginStateContext } from "./providers/login-provider";
 
 export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRef<"form">) {
 	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
 	const [remember, setRemember] = useState(true);
+	const [captcha, setCaptcha] = useState<CaptchaService.CaptchaGenerateResult | null>(null);
+	const [captchaLoading, setCaptchaLoading] = useState(false);
 
 	const { loginState, setLoginState } = useLoginStateContext();
 	const signIn = useSignIn();
 
-	const form = useForm<SignInReq>({
+	const form = useForm<UserService.SignInReq & { captcha_code: string; captcha_id: string }>({
 		defaultValues: {
 			user_name: DEFAULT_USER.username,
 			password: DEFAULT_USER.password,
+			captcha_code: "",
+			captcha_id: "",
 		},
 	});
 
-	if (loginState !== LoginStateEnum.LOGIN) return null;
+	// 获取验证码
+	const fetchCaptcha = useCallback(
+		async (currentCaptchaId?: string) => {
+			setCaptchaLoading(true);
+			try {
+				const res = await captchaService.generate(currentCaptchaId || "");
+				setCaptcha(res);
+				// 设置验证码ID到表单中
+				form.setValue("captcha_id", res.id);
+			} catch (error) {
+				console.error("Failed to fetch captcha", error);
+			} finally {
+				setCaptchaLoading(false);
+			}
+		},
+		[form],
+	);
 
-	const handleFinish = async (values: SignInReq) => {
+	// 初次加载时获取验证码
+	useEffect(() => {
+		if (loginState === LoginStateEnum.LOGIN) {
+			fetchCaptcha();
+		}
+	}, [loginState, fetchCaptcha]);
+
+	const handleFinish = async (values: UserService.SignInReq & { captcha_code: string; captcha_id: string }) => {
 		setLoading(true);
 		try {
-			await signIn(values);
+			// 先验证验证码
+			if (!values.captcha_id || !values.captcha_code) {
+				toast.error(t("sys.login.captchaPlaceholder"));
+				return;
+			}
+
+			await signIn({
+				user_name: values.user_name,
+				password: values.password,
+				captcha_answer: values.captcha_code,
+				captcha_id: values.captcha_id,
+			});
 		} finally {
+			// 登录后刷新验证码
+			fetchCaptcha();
 			setLoading(false);
 		}
 	};
+	if (loginState !== LoginStateEnum.LOGIN) return null;
 
 	return (
 		<div className={cn("flex flex-col gap-6", className)}>
@@ -83,6 +126,49 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 						)}
 					/>
 
+					<FormField
+						control={form.control}
+						name="captcha_code"
+						rules={{ required: t("sys.login.captchaPlaceholder") }}
+						render={({ field }) => (
+							<FormItem>
+								<FormLabel>{t("sys.login.captcha")}</FormLabel>
+								<div className="flex flex-col gap-2">
+									<FormControl>
+										<Input
+											placeholder={t("sys.login.captchaPlaceholder")}
+											{...field}
+											maxLength={captcha?.config.length}
+										/>
+									</FormControl>
+									<div
+										className="flex cursor-pointer items-center justify-center rounded border bg-slate-50"
+										onClick={() => fetchCaptcha(captcha?.id)}
+										style={{
+											minHeight: `${captcha?.config.height}px`,
+											minWidth: `${captcha?.config.width}px}`,
+										}}
+									>
+										{captchaLoading ? (
+											<Loader2 className="animate-spin" />
+										) : captcha ? (
+											<img
+												src={captcha.b64s}
+												alt="captcha"
+												className="object-contain"
+												style={{ maxWidth: "100%", maxHeight: "100%" }}
+											/>
+										) : (
+											<span className="text-xs text-muted-foreground">验证码</span>
+										)}
+									</div>
+								</div>
+								<FormMessage />
+							</FormItem>
+						)}
+					/>
+					<input type="hidden" {...form.register("captcha_id")} />
+
 					{/* 记住我/忘记密码 */}
 					<div className="flex flex-row justify-between">
 						<div className="flex items-center space-x-2">
@@ -104,7 +190,7 @@ export function LoginForm({ className, ...props }: React.ComponentPropsWithoutRe
 					</div>
 
 					{/* 登录按钮 */}
-					<Button type="submit" className="w-full">
+					<Button type="submit" className="w-full" disabled={captchaLoading}>
 						{loading && <Loader2 className="animate-spin mr-2" />}
 						{t("sys.login.loginButton")}
 					</Button>

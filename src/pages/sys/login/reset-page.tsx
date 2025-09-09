@@ -1,4 +1,4 @@
-import type { PasswordResetReq } from "@/api/services/userService";
+import type { UserService } from "@/api/services/userService";
 import userService from "@/api/services/userService";
 import LocalePicker from "@/components/locale-picker";
 import Logo from "@/components/logo";
@@ -19,7 +19,7 @@ function ResetPasswordPage() {
 	const resetToken = searchParams.get("token");
 	const { data: siteConfig } = useMapBySystemConfig();
 	const { t } = useTranslation();
-	const form = useForm<PasswordResetReq>();
+	const form = useForm<UserService.PasswordResetReq>();
 	const [loading, setLoading] = useState(false);
 
 	if (!resetToken) {
@@ -36,7 +36,7 @@ function ResetPasswordPage() {
 		);
 	}
 
-	const handleFinish = async (values: PasswordResetReq) => {
+	const handleFinish = async (values: UserService.PasswordResetReq) => {
 		setLoading(true);
 		try {
 			await userService.changePassword(values, resetToken || "");
@@ -96,7 +96,7 @@ function ResetPasswordPage() {
 												<FormItem>
 													<FormLabel>{t("sys.login.confirmPassword")}</FormLabel>
 													<FormControl>
-														<Input placeholder={t("sys.login.confirmPasswordPlaceholder")} {...field} />
+														<Input type="password" placeholder={t("sys.login.confirmPasswordPlaceholder")} {...field} />
 													</FormControl>
 													<FormMessage />
 												</FormItem>

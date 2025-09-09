@@ -40,6 +40,7 @@
 			"loginSuccessTitle": "Login successful",
 			"logout": "Logout",
 			"mobile": "Mobile",
+			"captcha": "Captcha",
 			"mobilePlaceholder": "Please input mobile",
 			"mobileSignInFormTitle": "Mobile sign in",
 			"otherSignIn": "Or continue with",
@@ -70,6 +71,7 @@
 			"signInFormDescription": "Enter your username to login to your account",
 			"resetPasswordDescription": "Please enter a new password to reset it.",
 			"noAccount": "Don't have an account?",
+			"captchaPlaceholder": "Please input captcha",
 			"resetPasswordRequestToYourEmail": "A password reset request has been sent to your email. Please check it."
 		},
 		"menu": {

@@ -1,4 +1,4 @@
-import { UploadApi } from "@/api/services/uploadService";
+import { UploadService } from "@/api/services/uploadService";
 import userService from "@/api/services/userService";
 import { UploadAvatar } from "@/components/upload";
 import useUserStore, { useUserInfo } from "@/store/userStore";
@@ -62,7 +62,7 @@ export default function GeneralTab() {
 					<UploadAvatar
 						defaultAvatar={header_img}
 						onHeaderImgChange={onHeaderImgChange}
-						action={`${import.meta.env.VITE_APP_BASE_API}${UploadApi.Single}`}
+						action={`${import.meta.env.VITE_APP_BASE_API}${UploadService.Client.Single}`}
 						headers={{
 							Authorization: `Bearer ${userToken?.accessToken}`,
 						}}

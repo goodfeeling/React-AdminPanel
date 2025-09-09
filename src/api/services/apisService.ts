@@ -2,39 +2,94 @@ import apiClient from "../apiClient";
 
 import type { Api, ApiGroupItem, PageList } from "#/entity";
 
-export enum ApiClient {
-	Api = "/api",
-	SearchApi = "/api/search",
-	GroupsApi = "/api/groups",
-	DeleteBatch = "/api/batch",
-	ApiGroupList = "/api/group-list",
-	ApiSynchronize = "/api/synchronize",
+export class ApisService {
+	/**
+	 * 获取所有API列表
+	 */
+	getApis() {
+		return apiClient.get<Api[]>({ url: `${ApisService.Client.Api}` });
+	}
+
+	/**
+	 * 更新API信息
+	 * @param id API ID
+	 * @param apiInfo API信息
+	 */
+	updateApi(id: number, apiInfo: Api) {
+		return apiClient.put<Api>({
+			url: `${ApisService.Client.Api}/${id}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 创建新API
+	 * @param apiInfo API信息
+	 */
+	createApi(apiInfo: Api) {
+		return apiClient.post<Api>({
+			url: `${ApisService.Client.Api}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 搜索API分页列表
+	 * @param searchStr 搜索字符串
+	 */
+	searchPageList(searchStr: string) {
+		return apiClient.get<PageList<Api>>({
+			url: `${ApisService.Client.SearchApi}?${searchStr}`,
+		});
+	}
+
+	/**
+	 * 删除指定API
+	 * @param id API ID
+	 */
+	deleteApi(id: number) {
+		return apiClient.delete<string>({ url: `${ApisService.Client.Api}/${id}` });
+	}
+
+	/**
+	 * 批量删除API
+	 * @param ids API ID数组
+	 */
+	deleteBatch(ids: number[]) {
+		return apiClient.post<number>({
+			url: `${ApisService.Client.DeleteBatch}`,
+			data: { ids },
+		});
+	}
+
+	/**
+	 * 获取API分组列表
+	 */
+	getApiGroupList() {
+		return apiClient.get<ApiGroupItem[]>({
+			url: `${ApisService.Client.ApiGroupList}`,
+		});
+	}
+
+	/**
+	 * 同步API
+	 */
+	synchronizeApi() {
+		return apiClient.post<{ count: number }>({
+			url: `${ApisService.Client.ApiSynchronize}`,
+		});
+	}
 }
-const getApis = () => apiClient.get<Api[]>({ url: `${ApiClient.Api}` });
-const updateApi = (id: number, apiInfo: Api) => apiClient.put<Api>({ url: `${ApiClient.Api}/${id}`, data: apiInfo });
 
-const createApi = (apiInfo: Api) => apiClient.post<Api>({ url: `${ApiClient.Api}`, data: apiInfo });
+export namespace ApisService {
+	export enum Client {
+		Api = "/api",
+		SearchApi = "/api/search",
+		GroupsApi = "/api/groups",
+		DeleteBatch = "/api/batch",
+		ApiGroupList = "/api/group-list",
+		ApiSynchronize = "/api/synchronize",
+	}
+}
 
-const searchPageList = (searchStr: string) =>
-	apiClient.get<PageList<Api>>({
-		url: `${ApiClient.SearchApi}?${searchStr}`,
-	});
-
-const deleteApi = (id: number) => apiClient.delete<string>({ url: `${ApiClient.Api}/${id}` });
-
-const deleteBatch = (ids: number[]) => apiClient.post<number>({ url: `${ApiClient.DeleteBatch}`, data: { ids } });
-
-const getApiGroupList = () => apiClient.get<ApiGroupItem[]>({ url: `${ApiClient.ApiGroupList}` });
-
-const synchronizeApi = () => apiClient.post<{ count: number }>({ url: `${ApiClient.ApiSynchronize}` });
-
-export default {
-	updateApi,
-	searchPageList,
-	createApi,
-	deleteApi,
-	getApis,
-	deleteBatch,
-	getApiGroupList,
-	synchronizeApi,
-};
+export default new ApisService();

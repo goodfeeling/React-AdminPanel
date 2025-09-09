@@ -2,7 +2,7 @@ import { useMutation } from "@tanstack/react-query";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
-import userService, { type SignInReq } from "@/api/services/userService";
+import userService, { type UserService } from "@/api/services/userService";
 
 import { toast } from "sonner";
 import type { PasswordEditReq, UserInfo, UserToken } from "#/entity";
@@ -101,7 +101,7 @@ export const useSignIn = () => {
 		mutationFn: userService.signin,
 	});
 
-	const signIn = async (data: SignInReq) => {
+	const signIn = async (data: UserService.SignInReq) => {
 		try {
 			const res = await signInMutation.mutateAsync(data);
 			const { userinfo: userInfo, security } = res;

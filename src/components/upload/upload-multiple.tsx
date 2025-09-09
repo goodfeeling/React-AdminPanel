@@ -1,4 +1,4 @@
-import { UploadApi } from "@/api/services/uploadService";
+import { UploadService } from "@/api/services/uploadService";
 import { useOssUpload } from "@/hooks/ossUpload";
 import { useRemoveFileInfoMutation } from "@/store/fileManageStore";
 import { useSTSTokenLoading } from "@/store/stsTokenStore";
@@ -55,7 +55,7 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 		listType: listType,
 		showUploadList: showUploadList,
 		defaultFileList: fileList,
-		action: `${import.meta.env.VITE_APP_BASE_API}${UploadApi.Multiple}`,
+		action: `${import.meta.env.VITE_APP_BASE_API}${UploadService.Client.Multiple}`,
 		headers: {
 			Authorization: `Bearer ${userToken?.accessToken}`,
 		},

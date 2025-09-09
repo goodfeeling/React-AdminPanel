@@ -1,15 +1,22 @@
 import apiClient from "../apiClient";
 
-export enum EmailClient {
-	Email = "/email",
+class EmailService {
+	/**
+	 * 发送忘记密码邮件
+	 * @param email
+	 */
+	sendForgetPassword(email: string) {
+		return apiClient.post<boolean>({
+			url: `${EmailService.Client.Email}/forget-password`,
+			data: { email },
+		});
+	}
 }
 
-const sendForgetPassword = (email: string) =>
-	apiClient.post<boolean>({
-		url: `${EmailClient.Email}/forget-password`,
-		data: { email },
-	});
+namespace EmailService {
+	export enum Client {
+		Email = "/email",
+	}
+}
 
-export default {
-	sendForgetPassword,
-};
+export default new EmailService();

@@ -28,6 +28,13 @@ function ResetForm() {
 		sendEmailMutation.mutate(values.email);
 	};
 
+	// 修改返回按钮的处理函数
+	const handleReturn = () => {
+		// 重置mutation状态
+		sendEmailMutation.reset();
+		// 调用原有的返回逻辑
+		backToLogin();
+	};
 	if (loginState !== LoginStateEnum.RESET_PASSWORD) return null;
 
 	// 请求成功后显示成功消息
@@ -77,7 +84,7 @@ function ResetForm() {
 					<Button type="submit" className="w-full" disabled={sendEmailMutation.isPending}>
 						{sendEmailMutation.isPending ? t("sys.login.sendingEmailButton") : t("sys.login.sendEmailButton")}
 					</Button>
-					<ReturnButton onClick={backToLogin} />
+					<ReturnButton onClick={handleReturn} />
 				</form>
 			</Form>
 		</>

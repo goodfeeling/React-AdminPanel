@@ -1,5 +1,5 @@
 import { clearUserTokenToLoginPage } from "@/api/apiClient";
-import { UserApi } from "@/api/services/userService";
+import { UserService } from "@/api/services/userService";
 import { useSharedWebSocket } from "@/hooks/sharedWebSocket";
 import { useUserToken } from "@/store/userStore";
 import { getOrCreateDeviceId } from "@/utils/deviceId";
@@ -9,7 +9,7 @@ const useUserStatusNotification = () => {
 	const { accessToken } = useUserToken();
 	const deviceId = getOrCreateDeviceId(); // 获取设备ID
 	// 使用已有的WebSocket hook监听用户状态
-	const { message } = useSharedWebSocket(accessToken ? `${UserApi.UserStatusWs}?deviceId=${deviceId}` : "");
+	const { message } = useSharedWebSocket(accessToken ? `${UserService.Client.UserStatusWs}?deviceId=${deviceId}` : "");
 	useEffect(() => {
 		if (!accessToken) return;
 		if (message) {

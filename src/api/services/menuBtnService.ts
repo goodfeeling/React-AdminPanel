@@ -2,33 +2,55 @@ import apiClient from "../apiClient";
 
 import type { MenuBtn } from "#/entity";
 
-export enum MenuBtnClient {
-	MenuBtn = "/menu_btn",
+export class MenuBtnService {
+	/**
+	 * 获取菜单按钮列表
+	 * @param menuId 菜单ID
+	 */
+	getMenuBtns(menuId: number) {
+		return apiClient.get<MenuBtn[]>({
+			url: `${MenuBtnService.Client.MenuBtn}?menu_id=${menuId}`,
+		});
+	}
+
+	/**
+	 * 更新菜单按钮
+	 * @param id 按钮ID
+	 * @param apiInfo 按钮信息
+	 */
+	updateMenuBtn(id: number, apiInfo: MenuBtn) {
+		return apiClient.put<MenuBtn>({
+			url: `${MenuBtnService.Client.MenuBtn}/${id}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 创建菜单按钮
+	 * @param apiInfo 按钮信息
+	 */
+	createMenuBtn(apiInfo: MenuBtn) {
+		return apiClient.post<MenuBtn>({
+			url: `${MenuBtnService.Client.MenuBtn}`,
+			data: apiInfo,
+		});
+	}
+
+	/**
+	 * 删除菜单按钮
+	 * @param id 按钮ID
+	 */
+	deleteMenuBtn(id: number) {
+		return apiClient.delete<string>({
+			url: `${MenuBtnService.Client.MenuBtn}/${id}`,
+		});
+	}
 }
-const getMenuBtns = (menuId: number) =>
-	apiClient.get<MenuBtn[]>({
-		url: `${MenuBtnClient.MenuBtn}?menu_id=${menuId}`,
-	});
-const updateMenuBtn = (id: number, apiInfo: MenuBtn) =>
-	apiClient.put<MenuBtn>({
-		url: `${MenuBtnClient.MenuBtn}/${id}`,
-		data: apiInfo,
-	});
 
-const createMenuBtn = (apiInfo: MenuBtn) =>
-	apiClient.post<MenuBtn>({
-		url: `${MenuBtnClient.MenuBtn}`,
-		data: apiInfo,
-	});
+export namespace MenuBtnService {
+	export enum Client {
+		MenuBtn = "/menu_btn",
+	}
+}
 
-const deleteMenuBtn = (id: number) =>
-	apiClient.delete<string>({
-		url: `${MenuBtnClient.MenuBtn}/${id}`,
-	});
-
-export default {
-	updateMenuBtn,
-	createMenuBtn,
-	deleteMenuBtn,
-	getMenuBtns,
-};
+export default new MenuBtnService();
