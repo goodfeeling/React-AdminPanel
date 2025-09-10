@@ -1,12 +1,10 @@
 import { getPathnames, groupCheck } from "@/components/premission/common";
 import { useMenu } from "@/store/useMenuStore";
-import type { Menu } from "@/types/entity";
 import { createContext, useContext, useEffect, useMemo, useState } from "react";
 import { useLocation } from "react-router";
 import { useTabOperations } from "../hooks/use-tab-operations";
 import type { KeepAliveTab, MultiTabsContextType } from "../types";
-
-const menuPathCache = new Map<string, Menu | null>();
+import { menuPathCache } from "./menu-path-cache";
 
 const MultiTabsContext = createContext<MultiTabsContextType>({
 	tabs: [],
@@ -86,8 +84,4 @@ export function MultiTabsProvider({ children }: { children: React.ReactNode }) {
 
 export function useMultiTabsContext() {
 	return useContext(MultiTabsContext);
-}
-// 提供一个清除缓存的方法，当菜单数据更新时可以调用
-export function clearMenuPathCache() {
-	menuPathCache.clear();
 }

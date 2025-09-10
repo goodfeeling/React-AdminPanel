@@ -2,14 +2,12 @@ import menuService from "@/api/services/menuService";
 import { useRoleSettingActions } from "@/store/roleSettingStore";
 import type { MenuBtn, MenuTree, MenuTreeUserGroup } from "@/types/entity";
 import { Button } from "@/ui/button";
-import { Collapse, Input, Tag, Tree } from "antd";
+import { List, Tag, Tree } from "antd";
 import type { TreeProps } from "antd";
 import { useCallback, useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { buildTree } from "../../menu/base/menu-modal";
 import { getAllKeys, type selectMenuData } from "./index";
-
-const { Search } = Input;
 
 type MenuSettingProps = {
 	id: number;
@@ -19,12 +17,10 @@ type MenuSettingProps = {
 };
 
 const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: MenuSettingProps) => {
-	const [searchValue, setSearchValue] = useState("");
 	const { t } = useTranslation();
 	const [roleMenuData, setRoleMenuData] = useState<{ [key: string]: any }>([]);
 	const [groupData, setGroupData] = useState<MenuTreeUserGroup[]>([]);
 	const [defaultRouter, setDefaultRouter] = useState<string>("");
-
 	// 加载菜单树
 	const onLoadMenuTree = useCallback(async () => {
 		const response = await menuService.getUserMenu(true);
@@ -46,35 +42,28 @@ const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: 
 
 	return (
 		<div>
-			<Search
-				style={{ marginBottom: 8 }}
-				placeholder="Search"
-				onChange={(e: React.ChangeEvent<HTMLInputElement>) => {
-					console.log("onChange", e);
-					setSearchValue(e.target.value);
-					console.log(searchValue);
-				}}
-			/>
-			<Collapse
-				accordion
-				items={groupData.map((item: MenuTreeUserGroup) => {
+			<List
+				itemLayout="vertical"
+				dataSource={groupData}
+				renderItem={(item) => {
 					const treeData = buildTree(item.items, t);
-					return {
-						key: item.path,
-						label: t(item.name),
-						children: (
-							<TreeList
-								id={id}
-								groupId={item.id}
-								defaultRouter={defaultRouter}
-								treeData={treeData}
-								checkKeys={roleMenuData}
-								setSelectMenuBtn={setSelectMenuBtn}
-								setDefaultRouter={setDefaultRouter}
-							/>
-						),
-					};
-				})}
+					return (
+						<List.Item>
+							<List.Item.Meta title={t(item.name)} />
+							<div>
+								<TreeList
+									id={id}
+									groupId={item.id}
+									defaultRouter={defaultRouter}
+									treeData={treeData}
+									checkKeys={roleMenuData}
+									setSelectMenuBtn={setSelectMenuBtn}
+									setDefaultRouter={setDefaultRouter}
+								/>
+							</div>
+						</List.Item>
+					);
+				}}
 			/>
 		</div>
 	);
@@ -106,6 +95,7 @@ const TreeList = ({
 	const { t } = useTranslation();
 	const { updateMenus, updateRouterPath } = useRoleSettingActions();
 	const [checkedKeys, setCheckedKeys] = useState<React.Key[]>([]);
+	const [expandedKeys, setExpandedKeys] = useState<React.Key[]>([]);
 
 	useEffect(() => {
 		const tempData = checkKeys[groupId];
@@ -114,18 +104,31 @@ const TreeList = ({
 		}
 	}, [checkKeys, groupId]);
 
+	// 初始化展开所有节点
+	useEffect(() => {
+		setExpandedKeys(getAllKeys(treeData));
+	}, [treeData]);
+
 	// 组件卸载时清理状态
 	useEffect(() => {
 		return () => {
 			setCheckedKeys([]);
+			setExpandedKeys([]);
 		};
 	}, []);
+
 	const onCheck: TreeProps["onCheck"] = (checkedKeysValue) => {
 		console.log("onCheck", checkedKeysValue);
 		const temp: checkedKeys = checkedKeysValue as checkedKeys;
 		setCheckedKeys(temp.checked);
 		updateMenus(id, String(groupId), temp.checked);
 	};
+
+	// 处理节点展开/收起
+	const onExpand: TreeProps["onExpand"] = (expandedKeysValue) => {
+		setExpandedKeys(expandedKeysValue);
+	};
+
 	// 更新默认路由
 	const updateDefaultRouter = (data: MenuTree) => {
 		const routerPath = data.origin ? data.origin.path : "";
@@ -145,7 +148,8 @@ const TreeList = ({
 			checkable
 			selectable={false}
 			checkStrictly={true}
-			expandedKeys={getAllKeys(treeData)}
+			expandedKeys={expandedKeys}
+			onExpand={onExpand}
 			onCheck={onCheck}
 			checkedKeys={checkedKeys}
 			treeData={treeData}

@@ -65,9 +65,9 @@ export class ApisService {
 	/**
 	 * 获取API分组列表
 	 */
-	getApiGroupList() {
+	getApiGroupList(path?: string) {
 		return apiClient.get<ApiGroupItem[]>({
-			url: `${ApisService.Client.ApiGroupList}`,
+			url: `${ApisService.Client.ApiGroupList}?path=${path}`,
 		});
 	}
 

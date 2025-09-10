@@ -207,7 +207,8 @@
 				"zap": "Zap配置",
 				"aliyun_oss": "阿里云OSS配置",
 				"rabbitmq": "RabbitMQ配置",
-				"native_storage": "本地存储配置"
+				"native_storage": "本地存储配置",
+				"captcha": "验证码配置"
 			},
 			"columns": {
 				"aliyun_oss": {
@@ -265,7 +266,8 @@
 					"storage_engine": "存储引擎",
 					"limit_time": "限流时间",
 					"limit_rate": "限流次数",
-					"single_sign_on": "开启单点登录"
+					"single_sign_on": "开启单点登录",
+					"frontend_url": "前端URL"
 				},
 				"site": {
 					"favicon": "网站图标",
@@ -281,6 +283,13 @@
 					"log_in_console": "是否在控制台打印",
 					"max_age": "最长保存时间",
 					"stacktrace_key": "堆栈跟踪键"
+				},
+				"captcha": {
+					"height": "高度",
+					"width": "宽度",
+					"length": "长度",
+					"complexity": "复杂度",
+					"timeout_minute": "超时时间（分钟）"
 				}
 			}
 		}

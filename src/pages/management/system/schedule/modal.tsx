@@ -23,9 +23,7 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 	const { data: apiMethod } = useDictionaryByTypeWithCache("api_method");
 	const { data: taskExecType } = useDictionaryByTypeWithCache("task_exec");
 
-	const form = useForm<ScheduledTask>({
-		defaultValues: formValue,
-	});
+	const form = useForm<ScheduledTask>();
 	const [loading, setLoading] = useState(false);
 
 	const taskType = form.watch("task_type");

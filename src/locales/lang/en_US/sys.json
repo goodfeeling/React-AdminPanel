@@ -204,7 +204,8 @@
 				"zap": "Zap",
 				"aliyun_oss": "AliyunOSS",
 				"rabbitmq": "RabbitMQ",
-				"native_storage": "NativeStorage"
+				"native_storage": "NativeStorage",
+				"captcha": "Captcha"
 			},
 			"columns": {
 				"aliyun_oss": {
@@ -262,7 +263,8 @@
 					"storage_engine": "StorageEngine",
 					"limit_time": "RequestTime(seconds)",
 					"limit_rate": "RequestCount",
-					"multi_login": "MultiLogin"
+					"multi_login": "MultiLogin",
+					"frontend_url": "FrontendUrl"
 				},
 				"site": {
 					"favicon": "Favicon",
@@ -278,6 +280,13 @@
 					"log_in_console": "LogInConsole",
 					"max_age": "MaxAge",
 					"stacktrace_key": "StacktraceKey"
+				},
+				"captcha": {
+					"height": "Height",
+					"width": "Width",
+					"length": "Length",
+					"complexity": "Complexity",
+					"timeout_minute": "Timeout(minutes)"
 				}
 			}
 		}

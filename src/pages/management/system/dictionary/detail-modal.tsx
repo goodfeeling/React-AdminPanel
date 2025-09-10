@@ -6,7 +6,7 @@ import UploadTool from "@/components/upload/upload-multiple";
 import { useTranslationRule } from "@/hooks";
 import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import { Button, Modal, Radio, Select, Switch } from "antd";
-import { type ReactNode, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
 import { useTranslation } from "react-i18next";
 import type { DictionaryDetail } from "#/entity";
@@ -20,12 +20,14 @@ export type DictionaryDetailModalProps = {
 };
 
 export default function UserModal({ title, show, formValue, onOk, onCancel }: DictionaryDetailModalProps) {
-	const form = useForm<DictionaryDetail>({
-		defaultValues: formValue,
-	});
+	const form = useForm<DictionaryDetail>();
 	const { data: status } = useDictionaryByTypeWithCache("status");
 	const { t } = useTranslation();
 	const [loading, setLoading] = useState(false);
+
+	useEffect(() => {
+		form.reset(formValue);
+	}, [formValue, form]);
 
 	const handleOk = async () => {
 		form.handleSubmit(async (values) => {
@@ -41,6 +43,7 @@ export default function UserModal({ title, show, formValue, onOk, onCancel }: Di
 	const handleCancel = () => {
 		onCancel();
 	};
+
 	return (
 		<Modal
 			open={show}

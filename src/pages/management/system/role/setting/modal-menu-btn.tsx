@@ -39,7 +39,6 @@ const MenuBtnSetting = ({ selectMenuBtn, roleId }: MenuBtnSettingProps) => {
 			setSelectedRowKeys(selectedRowKeys);
 			updateRoleBtns(roleId, selectMenuBtn.menuId, selectedRowKeys as number[]);
 		},
-		selections: [Table.SELECTION_ALL, Table.SELECTION_INVERT, Table.SELECTION_NONE],
 	};
 	return (
 		<>
