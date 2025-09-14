@@ -1,6 +1,6 @@
 import { cn } from "@/utils";
-import { FavoritesBar } from "../favorites-bar";
 import type { NavProps } from "../types";
+import { FavoritesBar } from "./favorites-bar";
 import { NavGroup } from "./nav-group";
 
 export function NavVertical({ data, className, ...props }: NavProps) {
