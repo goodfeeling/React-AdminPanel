@@ -103,6 +103,7 @@
 				"menu_btn": "Menu Button Setting",
 				"menu_parameter": "Menu Parameter Setting"
 			},
+			"favorites": "Favorites",
 			"current_role": "CurrentRole",
 			"blog": "Blog",
 			"calendar": "Calendar",

@@ -120,6 +120,7 @@
 				"menu_btn": "可控按钮设置",
 				"menu_parameter": "菜单参数设置"
 			},
+			"favorites": "收藏夹",
 			"current_role": "当前角色",
 			"blog": "博客",
 			"components": "组件",

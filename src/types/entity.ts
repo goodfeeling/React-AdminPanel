@@ -211,9 +211,9 @@ export interface MenuGroup {
 }
 
 export interface MenuTreeUserGroup {
-	id: number;
-	name: string;
-	path: string;
+	id?: number;
+	name?: string;
+	path?: string;
 	items: Menu[];
 }
 

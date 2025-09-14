@@ -49,11 +49,11 @@ const MenuSetting = ({ id, defaultRoleRouter, menuGroupIds, setSelectMenuBtn }: 
 					const treeData = buildTree(item.items, t);
 					return (
 						<List.Item>
-							<List.Item.Meta title={t(item.name)} />
+							<List.Item.Meta title={t(item.name || "default")} />
 							<div>
 								<TreeList
 									id={id}
-									groupId={item.id}
+									groupId={item.id || 0}
 									defaultRouter={defaultRouter}
 									treeData={treeData}
 									checkKeys={roleMenuData}

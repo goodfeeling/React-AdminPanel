@@ -6,12 +6,34 @@ import { TooltipTrigger } from "@/ui/tooltip";
 import { TooltipProvider } from "@/ui/tooltip";
 import { cn } from "@/utils";
 import { NavItemRenderer } from "../components";
+import { useFavorites } from "../favorites-context";
 import { navItemClasses, navItemStyles } from "../styles";
 import type { NavItemProps } from "../types";
 
 export function NavItem(item: NavItemProps) {
-	const { title, icon, info, caption, open, active, disabled, depth, hasChild, hidden } = item;
+	const { title, icon, info, caption, open, active, disabled, depth, hasChild, hidden, path } = item;
 	const { t } = useLocale();
+
+	const { addFavorite, removeFavorite, isFavorite } = useFavorites();
+	const favorite = isFavorite(path);
+
+	const toggleFavorite = (e: React.MouseEvent) => {
+		e.stopPropagation();
+		e.preventDefault();
+
+		if (favorite) {
+			removeFavorite(path);
+		} else {
+			// 添加当前项到收藏夹，只保留必要的属性
+			const favoriteItem = {
+				title,
+				path,
+				icon,
+			};
+			addFavorite(favoriteItem);
+		}
+	};
+
 	const content = (
 		<>
 			{/* Icon */}
@@ -51,6 +73,19 @@ export function NavItem(item: NavItemProps) {
 						transform: open ? "rotate(90deg)" : "rotate(0deg)",
 					}}
 				/>
+			)}
+
+			{/* Favorite Button */}
+			{!hasChild && (
+				<div
+					onClick={toggleFavorite}
+					className={cn(
+						"h-6 w-6 p-0 ml-auto mr-1 flex items-center justify-center cursor-pointer rounded-full hover:bg-gray-200 dark:hover:bg-gray-700",
+						favorite && "text-yellow-500 hover:text-yellow-600",
+					)}
+				>
+					<Icon icon={favorite ? "eva:star-fill" : "eva:star-outline"} className="h-3.5 w-3.5" />
+				</div>
 			)}
 		</>
 	);

@@ -1,7 +1,7 @@
 import { Icon } from "@/components/icon";
 import useLocale from "@/locales/use-locale";
 import { useRouter } from "@/routes/hooks";
-import { useMenu } from "@/store/useMenuStore";
+import { type MenuType, useMenu } from "@/store/useMenuStore";
 import { Badge } from "@/ui/badge";
 import { Button } from "@/ui/button";
 import {
@@ -16,7 +16,6 @@ import {
 import { Text } from "@/ui/typography";
 import { useCallback, useEffect, useMemo, useState } from "react";
 import { useBoolean } from "react-use";
-import type { navData } from "../dashboard/nav/nav-config";
 
 interface SearchItem {
 	key: string;
@@ -57,7 +56,7 @@ const SearchBar = () => {
 	const flattenedItems = useMemo(() => {
 		const items: SearchItem[] = [];
 
-		const flattenItems = (navItems: typeof navData) => {
+		const flattenItems = (navItems: MenuType) => {
 			for (const section of navItems) {
 				for (const item of section.items) {
 					if (item.path) {

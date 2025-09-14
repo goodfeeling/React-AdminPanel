@@ -4,6 +4,8 @@ import { StorageEnum } from "@/types/enum";
 import { create } from "zustand";
 import { createJSONStorage, persist } from "zustand/middleware";
 
+export type MenuType = MenuTreeUserGroup[];
+
 // 定义 store 状态和方法
 interface MenuState {
 	menuData: MenuTreeUserGroup[]; // 菜单数据

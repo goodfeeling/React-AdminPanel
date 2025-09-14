@@ -9,10 +9,12 @@ import { AntdAdapter } from "./theme/adapter/antd.adapter";
 import { ThemeProvider } from "./theme/theme-provider";
 import "@ant-design/v5-patch-for-react-19";
 import { AliveScope } from "react-activation";
+import { FavoritesProvider } from "./components/nav/favorites-context";
 import { useMapBySystemConfig } from "./hooks";
 import useUserStatusNotification from "./hooks/userStatusWatch/useUserStatusNotification";
 import { getOrCreateDeviceId } from "./utils/deviceId";
-// 初始化设备ID
+
+// initial device ID
 getOrCreateDeviceId();
 const queryClient = new QueryClient();
 
@@ -20,7 +22,9 @@ function App({ children }: { children: React.ReactNode }) {
 	return (
 		<HelmetProvider>
 			<QueryClientProvider client={queryClient}>
-				<AppContent>{children}</AppContent>
+				<FavoritesProvider>
+					<AppContent>{children}</AppContent>
+				</FavoritesProvider>
 			</QueryClientProvider>
 		</HelmetProvider>
 	);

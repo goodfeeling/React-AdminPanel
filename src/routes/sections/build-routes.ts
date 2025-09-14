@@ -45,9 +45,9 @@ export function convertMenuTreeUserGroupToMenus(data: MenuTreeUserGroup[]): Menu
 	return data.map((group, index) => {
 		return {
 			// 映射字段
-			name: group.name,
-			path: group.path,
-			title: group.name,
+			name: group.name || "-",
+			path: group.path || "-",
+			title: group.name || "-",
 
 			// 必填的其它字段，可以给默认值或从 group.items 中推断
 			id: index + 1, // 如果没有 id 可用索引或 UUID
