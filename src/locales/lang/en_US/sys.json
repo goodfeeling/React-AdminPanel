@@ -238,7 +238,8 @@
 					"access_secret": "AccessSecret",
 					"access_time_minute": "AccessTimeMinute",
 					"refresh_secret": "RefreshSecret",
-					"refresh_time_hour": "RefreshTimeHour"
+					"refresh_time_hour": "RefreshTimeHour",
+					"reset_secret": "ResetPasswordSecret"
 				},
 				"native_storage": {
 					"access_path": "AccessPath",

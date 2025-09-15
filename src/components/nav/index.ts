@@ -3,4 +3,3 @@ export * from "./vertical";
 export * from "./horizontal";
 export * from "./mini";
 export * from "./favorites-context";
-export * from "./favorites-bar";

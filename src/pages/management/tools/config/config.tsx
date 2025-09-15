@@ -1,6 +1,7 @@
 import configService from "@/api/services/configService";
 import UploadTool from "@/components/upload/upload-multiple";
 import { useDictionaryByTypeWithCache } from "@/hooks";
+import { themeVars } from "@/theme/theme.css";
 import { BasicStatus } from "@/types/enum";
 import { Button, Form, Input, InputNumber, Radio, Select, Tag } from "antd";
 import { useState } from "react";
@@ -115,7 +116,10 @@ const ConfigBox = ({
 								onMouseDown={onPreventMouseDown}
 								closable={closable}
 								onClose={onClose}
-								style={{ marginInlineEnd: 4 }}
+								style={{
+									marginInlineEnd: 4,
+									color: themeVars.colors.text.primary,
+								}}
 							>
 								{label}
 							</Tag>

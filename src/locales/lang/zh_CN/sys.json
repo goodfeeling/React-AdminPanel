@@ -241,7 +241,8 @@
 					"access_secret": "访问密钥",
 					"access_time_minute": "访问时间（分钟）",
 					"refresh_secret": "刷新密钥",
-					"refresh_time_hour": "刷新时间（小时）"
+					"refresh_time_hour": "刷新时间（小时）",
+					"reset_secret": "重置密码密钥"
 				},
 				"native_storage": {
 					"access_path": "访问路径",
