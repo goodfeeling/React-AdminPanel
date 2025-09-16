@@ -266,6 +266,7 @@
 					"limit_time": "RequestTime(seconds)",
 					"limit_rate": "RequestCount",
 					"multi_login": "MultiLogin",
+					"single_sign_on": "SingleSignOn",
 					"frontend_url": "FrontendUrl"
 				},
 				"site": {

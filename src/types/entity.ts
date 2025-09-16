@@ -267,7 +267,7 @@ export type TaskExecutionLog = {
 	id: number;
 	task_id: number;
 	execute_time: string;
-	execute_result: string;
+	execute_result: number;
 	execute_duration: number;
 	error_message: string;
 	created_at: string;

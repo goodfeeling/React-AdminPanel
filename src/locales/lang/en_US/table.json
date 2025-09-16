@@ -199,7 +199,9 @@
 			"show_less": "ShowLess",
 			"previous": "Previous",
 			"next": "Next",
-			"page": "Page"
+			"page": "Page",
+			"execution_success": "Execution Success",
+			"execution_failed": "Execution Failed"
 		},
 		"page": {
 			"total": "Total",

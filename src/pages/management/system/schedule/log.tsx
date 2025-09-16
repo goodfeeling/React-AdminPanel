@@ -49,7 +49,11 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 
 		// 实时接收新日志
 		if (message?.data) {
-			setRealTimeLogs(message.data);
+			if (message?.type === "log_update") {
+				setRealTimeLogs((prevLogs) => [message.data, ...prevLogs].slice(0, 100));
+			} else {
+				setRealTimeLogs(message.data);
+			}
 		}
 
 		// 加载第一页历史日志
@@ -64,7 +68,6 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 			setHistoricalLogs(response.list);
 			setTotalLogs(response.total);
 			setLoading(false);
-			// 模拟数据
 			console.log("load data with", page, "page history logs");
 		} catch (error) {
 			console.error("load history log error:", error);
@@ -73,9 +76,9 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 		}
 	};
 
-	const getStatusVariant = (result: string) => {
-		if (result === "success") return "default";
-		if (result === "failed") return "destructive";
+	const getStatusVariant = (result: number) => {
+		if (result === 1) return "default";
+		if (result === 0) return "destructive";
 		return "secondary";
 	};
 
@@ -180,11 +183,19 @@ const LogPage = ({ title, show, onCancel, id }: LogModalProps) => {
 													{format(new Date(log.execute_time), "yyyy-MM-dd HH:mm:ss")}
 												</div>
 											</div>
-											<Badge variant={getStatusVariant(log.execute_result)}>{log.execute_result}</Badge>
+											<Badge variant={getStatusVariant(log.execute_result)}>
+												{log.execute_result === 1
+													? t("table.handle_message.execution_success")
+													: t("table.handle_message.execution_failed")}
+											</Badge>
 										</div>
 										<div className="mt-3 text-sm">
 											<div className="font-medium">{t("table.columns.task_log.execute_result")}:</div>
-											<div className="mt-1 whitespace-pre-wrap">{log.execute_result}</div>
+											<div className="mt-1 whitespace-pre-wrap">
+												{log.execute_result === 1
+													? t("table.handle_message.execution_success")
+													: t("table.handle_message.execution_failed")}
+											</div>
 										</div>
 										{log.error_message && (
 											<div className="mt-2 text-sm text-destructive">
