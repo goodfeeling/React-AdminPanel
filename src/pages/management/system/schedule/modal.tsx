@@ -118,24 +118,6 @@ export default function ScheduledTaskModal({ title, show, formValue, onOk, onCan
 								</FormItem>
 							)}
 						/>
-						<FormField
-							control={form.control}
-							name="task_params.days_to_keep"
-							render={({ field }) => (
-								<FormItem>
-									<FormLabel>{t("table.columns.schedule.days_to_keep")}</FormLabel>
-									<FormControl>
-										<Input
-											type="number"
-											{...field}
-											value={field.value || "30"}
-											onChange={(e) => field.onChange(Number(e.target.value))}
-											placeholder="30"
-										/>
-									</FormControl>
-								</FormItem>
-							)}
-						/>
 					</div>
 				);
 			// 添加脚本任务类型

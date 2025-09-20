@@ -18,8 +18,9 @@ export function FavoritesBar() {
 		<div className="p-2 border-b border-border">
 			<div className="flex items-center justify-between mb-2">
 				<div className="flex items-center" style={{ color: themeVars.colors.text.secondary }}>
+					<Icon icon={"eva:star-fill"} className="h-3.5 w-3.5 mr-1" />
+
 					<span className="text-sm font-medium">{t("sys.menu.favorites")}</span>
-					<Icon icon={"eva:star-fill"} className="h-3.5 w-3.5 ml-1" />
 				</div>
 			</div>
 
