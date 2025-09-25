@@ -6,7 +6,7 @@ import { Modal } from "antd";
 import { toast } from "sonner";
 import type { Result } from "#/api";
 import { MessageType, PagePath, ResultEnum, StorageEnum } from "#/enum";
-import userService, { UserService } from "./services/userService";
+import userService from "./services/userService";
 
 // create axios instance
 const axiosInstance = axios.create({
@@ -135,9 +135,11 @@ function handleAuthError(error: AxiosError<Result<any>, any>) {
 		errorMessage === "refresh token has been replaced" ||
 		errorMessage === "refresh token has been revoked";
 
-	const isTokenInvalid = errorMessage === "Invalid token" || errorMessage === "Token expired";
+	const isTokenInvalid =
+		errorMessage === "Invalid token" || errorMessage === "Token expired" || errorMessage === "Token is expired";
 
-	const isRefreshRequest = error.request.responseURL?.includes(UserService.Client.Refresh);
+	const isRefreshRequest = error.request.responseURL?.includes("/v1/auth/access-token");
+	console.log(isTokenInvalid, isRefreshRequest);
 
 	if (isTokenReplaced || (isTokenInvalid && isRefreshRequest)) {
 		clearUserTokenToLoginPage(errorMessage);
