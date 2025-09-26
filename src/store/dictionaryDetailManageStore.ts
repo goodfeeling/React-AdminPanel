@@ -27,7 +27,7 @@ const useDictionaryDetailManageStore = create<DictionaryDetailManageState>()((se
 			pageSize: 10,
 			total: 0,
 		},
-		sortField: "id",
+		sortField: "sort",
 		sortOrder: "descend",
 	},
 	actions: {

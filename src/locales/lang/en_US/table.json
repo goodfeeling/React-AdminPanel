@@ -166,7 +166,9 @@
 			"hide_builder": "HideBuilder",
 			"show_builder": "ShowBuilder",
 			"apply_expression": "ApplyExpression",
-			"generated_expression": "GeneratedExpression"
+			"generated_expression": "GeneratedExpression",
+			"export_all": "ExportAll",
+			"export_current": "ExportCurrent"
 		},
 		"handle_message": {
 			"success": "Operation Successful",

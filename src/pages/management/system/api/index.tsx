@@ -12,9 +12,9 @@ import {
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-
+import type { MenuProps } from "antd";
 import type { TableProps } from "antd";
-import { Card, Input, Popconfirm, Select, Table } from "antd";
+import { Card, Dropdown, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -291,6 +291,32 @@ const App: React.FC = () => {
 		],
 	};
 
+	// 在 App 组件内部，找到导出按钮的位置，替换为以下代码：
+	const exportMenuItems: MenuProps["items"] = [
+		{
+			key: "export-all",
+			label: t("table.button.export_all"), // 需要在翻译文件中添加对应文本
+		},
+		{
+			key: "export-current",
+			label: t("table.button.export_current"), // 需要在翻译文件中添加对应文本
+		},
+	];
+
+	const handleExportMenuClick: MenuProps["onClick"] = ({ key }) => {
+		if (key === "export-all") {
+			// 处理导出全部数据逻辑
+			console.log("导出全部数据");
+		} else if (key === "export-current") {
+			// 处理导出当前查询数据逻辑
+			console.log("导出当前查询数据");
+		}
+	};
+
+	const downloadTemplate = async () => {};
+
+	const handleImport = async () => {};
+
 	return (
 		<div className="flex flex-col gap-4">
 			<Card>
@@ -390,18 +416,20 @@ const App: React.FC = () => {
 							<Icon icon="solar:refresh-outline" size={18} />
 							{t("table.button.synchronize")}
 						</Button>
-						<Button onClick={() => onCreate()} className="ml-2" variant="default">
+						<Button onClick={() => downloadTemplate()} className="ml-2" variant="default">
 							<Icon icon="solar:cloud-download-outline" size={18} />
 							{t("table.button.download_template")}
 						</Button>
-						<Button onClick={() => onCreate()} className="ml-2" variant="default">
+						<Button onClick={() => handleImport()} className="ml-2" variant="default">
 							<Icon icon="solar:import-outline" size={18} />
 							{t("table.button.import")}
 						</Button>
-						<Button onClick={() => onCreate()} className="ml-2" variant="default">
-							<Icon icon="solar:export-outline" size={18} />
-							{t("table.button.export")}
-						</Button>
+						<Dropdown menu={{ items: exportMenuItems, onClick: handleExportMenuClick }} trigger={["click"]}>
+							<Button className="ml-2" variant="default">
+								<Icon icon="solar:export-outline" size={18} />
+								{t("table.button.export")}
+							</Button>
+						</Dropdown>
 					</div>
 				</CardHeader>
 

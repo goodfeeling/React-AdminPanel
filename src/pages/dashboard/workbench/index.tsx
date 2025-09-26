@@ -1,10 +1,6 @@
-import AreaDownload from "./area-download";
 import BannerCard from "./banner-card";
 import { Applications, Conversion } from "./conversion_applications";
-import CurrentDownload from "./current-download";
 import NewInvoice from "./new-invoice";
-import TopAuthor from "./top-authors";
-import TopInstalled from "./top-installed";
 import TopRelated from "./top-related";
 import TotalCard from "./total-card";
 
@@ -57,29 +53,10 @@ function Workbench() {
 
 			<div className="flex flex-col md:flex-row gap-2">
 				<div className="flex-1">
-					<CurrentDownload />
-				</div>
-				<div className="flex-1">
-					<AreaDownload />
-				</div>
-			</div>
-
-			<div className="flex flex-col md:flex-row gap-2">
-				<div className="flex-1">
 					<NewInvoice />
 				</div>
 				<div className="flex-1">
 					<TopRelated />
-				</div>
-			</div>
-
-			<div className="flex flex-col md:flex-row gap-2">
-				<div className="flex-1">
-					<TopInstalled />
-				</div>
-
-				<div className="flex-1">
-					<TopAuthor />
 				</div>
 			</div>
 		</div>

@@ -166,7 +166,9 @@
 			"hide_builder": "隐藏生成器",
 			"show_builder": "显示生成器",
 			"apply_expression": "应用表达式",
-			"generated_expression": "生成的表达式"
+			"generated_expression": "生成的表达式",
+			"export_all": "导出全部",
+			"export_current": "导出当前查询数据"
 		},
 		"handle_message": {
 			"success": "操作成功",

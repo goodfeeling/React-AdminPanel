@@ -76,7 +76,44 @@ export class ApisService {
 	 */
 	synchronizeApi() {
 		return apiClient.post<{ count: number }>({
-			url: `${ApisService.Client.ApiSynchronize}`,
+			url: ApisService.Client.ApiSynchronize,
+		});
+	}
+
+	/**
+	 * 下载导入模板
+	 */
+	downloadTemplate() {
+		return apiClient.get({
+			url: ApisService.Client.DownloadTemplate,
+		});
+	}
+
+	/**
+	 * 导入
+	 */
+	importApi(file: File) {
+		const formData = new FormData();
+		formData.append("file", file);
+		return apiClient.post<{ count: number }>({
+			url: ApisService.Client.Import,
+			data: formData,
+			headers: {
+				"Content-Type": "multipart/form-data",
+			},
+		});
+	}
+
+	/**
+	 * 导出
+	 */
+	exportApi(ids: string[]) {
+		return apiClient.post<Blob>({
+			url: ApisService.Client.Export,
+			data: {
+				ids,
+			},
+			responseType: "blob",
 		});
 	}
 }
@@ -89,6 +126,9 @@ export namespace ApisService {
 		DeleteBatch = "/api/batch",
 		ApiGroupList = "/api/group-list",
 		ApiSynchronize = "/api/synchronize",
+		DownloadTemplate = "/api/excel/template",
+		Import = "/api/excel/import",
+		Export = "/api/excel/export",
 	}
 }
 
