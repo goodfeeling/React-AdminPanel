@@ -84,8 +84,9 @@ export class ApisService {
 	 * 下载导入模板
 	 */
 	downloadTemplate() {
-		return apiClient.get({
-			url: ApisService.Client.DownloadTemplate,
+		return apiClient.download({
+			url: `${ApisService.Client.DownloadTemplate}`,
+			method: "GET",
 		});
 	}
 
@@ -107,13 +108,10 @@ export class ApisService {
 	/**
 	 * 导出
 	 */
-	exportApi(ids: string[]) {
-		return apiClient.post<Blob>({
-			url: ApisService.Client.Export,
-			data: {
-				ids,
-			},
-			responseType: "blob",
+	exportApi() {
+		return apiClient.download({
+			url: `${ApisService.Client.Export}`,
+			method: "GET",
 		});
 	}
 }

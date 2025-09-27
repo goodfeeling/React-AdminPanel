@@ -53,6 +53,11 @@ axiosInstance.interceptors.request.use(
 // response interceptor
 axiosInstance.interceptors.response.use(
 	(res: AxiosResponse<Result>) => {
+		// check is download file
+		if (res.config.responseType === "blob" || res.data instanceof Blob) {
+			// no handle return blob data
+			return res;
+		}
 		if (!res.data) throw new Error(t("sys.api.apiRequestFailed"));
 		const { status = 0, data, message = "" } = res.data;
 		const hasSuccess = data && Reflect.has(res.data, "status") && status === ResultEnum.SUCCESS;
@@ -200,6 +205,14 @@ class APIClient {
 
 	delete<T = any>(config: AxiosRequestConfig): Promise<T> {
 		return this.request({ ...config, method: "DELETE" });
+	}
+	async download(config: AxiosRequestConfig): Promise<Blob> {
+		const response = await axiosInstance({
+			...config,
+			responseType: "blob",
+		});
+
+		return response.data;
 	}
 
 	request<T = any>(config: AxiosRequestConfig): Promise<T> {

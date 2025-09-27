@@ -1,3 +1,4 @@
+import apisService from "@/api/services/apisService";
 import { Icon } from "@/components/icon";
 import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import {
@@ -303,17 +304,55 @@ const App: React.FC = () => {
 		},
 	];
 
-	const handleExportMenuClick: MenuProps["onClick"] = ({ key }) => {
+	const handleExportMenuClick: MenuProps["onClick"] = async ({ key }) => {
 		if (key === "export-all") {
 			// 处理导出全部数据逻辑
-			console.log("导出全部数据");
+			try {
+				// 调用 downloadTemplate 方法获取 Blob 数据
+				const response = await apisService.exportApi();
+
+				// 创建一个隐藏的 a 标签用于触发下载
+				const url = window.URL.createObjectURL(new Blob([response]));
+				const link = document.createElement("a");
+				link.href = url;
+				link.setAttribute("download", "apis_export.xlsx"); // 设置下载文件名
+				document.body.appendChild(link);
+				link.click(); // 触发点击下载
+
+				// 清理创建的 URL 对象和 a 标签
+				window.URL.revokeObjectURL(url);
+				document.body.removeChild(link);
+			} catch (error) {
+				console.error("Download failed:", error);
+				// 处理错误情况，例如显示通知给用户
+			}
 		} else if (key === "export-current") {
-			// 处理导出当前查询数据逻辑
+			// TODO 处理导出当前查询数据逻辑
 			console.log("导出当前查询数据");
 		}
 	};
 
-	const downloadTemplate = async () => {};
+	const downloadTemplate = async () => {
+		try {
+			// 调用 downloadTemplate 方法获取 Blob 数据
+			const response = await apisService.downloadTemplate();
+
+			// 创建一个隐藏的 a 标签用于触发下载
+			const url = window.URL.createObjectURL(new Blob([response]));
+			const link = document.createElement("a");
+			link.href = url;
+			link.setAttribute("download", "apis_export.xlsx"); // 设置下载文件名
+			document.body.appendChild(link);
+			link.click(); // 触发点击下载
+
+			// 清理创建的 URL 对象和 a 标签
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(link);
+		} catch (error) {
+			console.error("Download failed:", error);
+			// 处理错误情况，例如显示通知给用户
+		}
+	};
 
 	const handleImport = async () => {};
 
