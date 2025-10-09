@@ -216,13 +216,18 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 			fixed: "right",
 			render: (_, record) => (
 				<div className="grid grid-cols-2 gap-2 text-gray-500">
-					<Button variant="link" size="sm" onClick={() => onCreate(record)} className="whitespace-nowrap justify-start">
+					<Button
+						variant="link"
+						size="sm"
+						onClick={() => onCreate(record)}
+						className="whitespace-nowrap justify-start "
+					>
 						<div className="flex items-center">
 							<Icon icon="solar:add-square-bold" size={18} />
 							<span className="ml-1">{t("table.button.add_sub_route")}</span>
 						</div>
 					</Button>
-					<Button variant="link" size="sm" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start">
+					<Button variant="link" size="sm" onClick={() => onEdit(record)} className="whitespace-nowrap justify-start ">
 						<div className="flex items-center">
 							<Icon icon="solar:pen-bold-duotone" size={18} />
 							<span className="ml-1">{t("table.button.edit")}</span>
@@ -247,7 +252,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 						okText={t("table.button.yes")}
 						cancelText={t("table.button.no")}
 					>
-						<Button variant="link" size="sm" className="whitespace-nowrap justify-start">
+						<Button variant="link" size="sm" className="whitespace-nowrap justify-start text-white">
 							<div className="flex items-center">
 								<Icon icon="mingcute:delete-2-fill" size={18} color="red" />
 								<span className="ml-1 text-red-500">{t("table.button.delete")}</span>
@@ -263,7 +268,7 @@ const MenuList = ({ selectedId }: { selectedId: number | null }) => {
 		<>
 			<CardHeader className="p-0">
 				<div className="flex items-start justify-start">
-					<Button onClick={() => onCreate(undefined)}>
+					<Button onClick={() => onCreate(undefined)} className="text-white">
 						<Icon icon="solar:add-circle-outline" size={18} />
 						{t("table.button.add")}
 					</Button>

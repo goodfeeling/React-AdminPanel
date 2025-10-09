@@ -284,7 +284,7 @@ const App: React.FC = () => {
 									<Icon icon="solar:restart-line-duotone" size={18} />
 									{t("table.button.reset")}
 								</Button>
-								<Button variant="default" className="ml-4" onClick={() => onSearch()}>
+								<Button variant="default" className="ml-4 text-white" onClick={() => onSearch()}>
 									<Icon icon="solar:rounded-magnifer-linear" size={18} />
 									{t("table.button.search")}
 								</Button>
@@ -296,7 +296,12 @@ const App: React.FC = () => {
 			<Card title={t("sys.menu.system.operation")} size="small">
 				<CardHeader>
 					<div className="flex items-center justify-between">
-						<Button variant="destructive" onClick={() => handleDeleteSelection()} disabled={!hasSelected}>
+						<Button
+							variant="destructive"
+							className="text-white"
+							onClick={() => handleDeleteSelection()}
+							disabled={!hasSelected}
+						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							{t("table.button.delete")}
 						</Button>

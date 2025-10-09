@@ -305,7 +305,7 @@ const App: React.FC = () => {
 									<Icon icon="solar:restart-line-duotone" size={18} />
 									{t("table.button.reset")}
 								</Button>
-								<Button variant="default" className="ml-4" onClick={() => onSearch()}>
+								<Button variant="default" className="ml-4 text-white" onClick={() => onSearch()}>
 									<Icon icon="solar:rounded-magnifer-linear" size={18} />
 									{t("table.button.search")}
 								</Button>
@@ -317,14 +317,14 @@ const App: React.FC = () => {
 			<Card title={t("sys.menu.system.file")} size="small">
 				<CardHeader>
 					<div className="flex items-start justify-start">
-						<Button onClick={() => onCreate()} variant="default">
+						<Button onClick={() => onCreate()} className="text-white" variant="default">
 							<Icon icon="solar:add-circle-outline" size={18} />
 							{t("table.button.upload")}
 						</Button>
 						<Button
 							onClick={() => handleDeleteSelection()}
 							variant="destructive"
-							className="ml-2"
+							className="ml-2 text-white"
 							disabled={!(selectedRowKeys.length > 0)}
 						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />

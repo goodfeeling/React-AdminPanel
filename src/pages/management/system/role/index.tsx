@@ -245,7 +245,7 @@ const App: React.FC = () => {
 		<Card title={t("sys.menu.system.role")} size="small">
 			<CardHeader>
 				<div className="flex items-center justify-between">
-					<Button onClick={() => onCreate(undefined)}>
+					<Button onClick={() => onCreate(undefined)} className="text-white">
 						<Icon icon="solar:add-circle-outline" size={18} />
 						{t("table.button.add")}
 					</Button>

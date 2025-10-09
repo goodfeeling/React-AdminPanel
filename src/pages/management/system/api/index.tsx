@@ -1,5 +1,6 @@
-import apisService from "@/api/services/apisService";
+import apisService, { ApisService } from "@/api/services/apisService";
 import { Icon } from "@/components/icon";
+import UploadTool from "@/components/upload/upload-multiple";
 import { useDictionaryByTypeWithCache } from "@/hooks/dict";
 import {
 	useApiActions,
@@ -13,9 +14,8 @@ import {
 import { Button } from "@/ui/button";
 import { CardContent, CardHeader } from "@/ui/card";
 import { Form, FormControl, FormField, FormItem, FormLabel } from "@/ui/form";
-import type { MenuProps } from "antd";
 import type { TableProps } from "antd";
-import { Card, Dropdown, Input, Popconfirm, Select, Table } from "antd";
+import { Card, Input, Popconfirm, Select, Table } from "antd";
 import type { TableRowSelection } from "antd/es/table/interface";
 import { useEffect, useState } from "react";
 import { useForm } from "react-hook-form";
@@ -292,43 +292,26 @@ const App: React.FC = () => {
 		],
 	};
 
-	// 在 App 组件内部，找到导出按钮的位置，替换为以下代码：
-	const exportMenuItems: MenuProps["items"] = [
-		{
-			key: "export-all",
-			label: t("table.button.export_all"), // 需要在翻译文件中添加对应文本
-		},
-		{
-			key: "export-current",
-			label: t("table.button.export_current"), // 需要在翻译文件中添加对应文本
-		},
-	];
+	const handleExportMenuClick = async () => {
+		// 处理导出全部数据逻辑
+		try {
+			// 调用 downloadTemplate 方法获取 Blob 数据
+			const response = await apisService.exportApi();
 
-	const handleExportMenuClick: MenuProps["onClick"] = async ({ key }) => {
-		if (key === "export-all") {
-			// 处理导出全部数据逻辑
-			try {
-				// 调用 downloadTemplate 方法获取 Blob 数据
-				const response = await apisService.exportApi();
+			// 创建一个隐藏的 a 标签用于触发下载
+			const url = window.URL.createObjectURL(new Blob([response]));
+			const link = document.createElement("a");
+			link.href = url;
+			link.setAttribute("download", "apis_export.xlsx"); // 设置下载文件名
+			document.body.appendChild(link);
+			link.click(); // 触发点击下载
 
-				// 创建一个隐藏的 a 标签用于触发下载
-				const url = window.URL.createObjectURL(new Blob([response]));
-				const link = document.createElement("a");
-				link.href = url;
-				link.setAttribute("download", "apis_export.xlsx"); // 设置下载文件名
-				document.body.appendChild(link);
-				link.click(); // 触发点击下载
-
-				// 清理创建的 URL 对象和 a 标签
-				window.URL.revokeObjectURL(url);
-				document.body.removeChild(link);
-			} catch (error) {
-				console.error("Download failed:", error);
-				// 处理错误情况，例如显示通知给用户
-			}
-		} else if (key === "export-current") {
-			// TODO 处理导出当前查询数据逻辑
-			console.log("导出当前查询数据");
+			// 清理创建的 URL 对象和 a 标签
+			window.URL.revokeObjectURL(url);
+			document.body.removeChild(link);
+		} catch (error) {
+			console.error("Download failed:", error);
+			// 处理错误情况，例如显示通知给用户
 		}
 	};
 
@@ -353,8 +336,6 @@ const App: React.FC = () => {
 			// 处理错误情况，例如显示通知给用户
 		}
 	};
-
-	const handleImport = async () => {};
 
 	return (
 		<div className="flex flex-col gap-4">
@@ -426,7 +407,7 @@ const App: React.FC = () => {
 									<Icon icon="solar:restart-line-duotone" size={18} />
 									{t("table.button.reset")}
 								</Button>
-								<Button variant="default" className="ml-4" onClick={() => onSearch()}>
+								<Button variant="default" className="ml-4 text-white" onClick={() => onSearch()}>
 									<Icon icon="solar:rounded-magnifer-linear" size={18} />
 									{t("table.button.search")}
 								</Button>
@@ -438,37 +419,39 @@ const App: React.FC = () => {
 			<Card title={t("sys.menu.system.api")} size="small">
 				<CardHeader>
 					<div className="flex items-start justify-start">
-						<Button onClick={() => onCreate()} variant="default">
+						<Button onClick={() => onCreate()} variant="default" className="text-white">
 							<Icon icon="solar:add-circle-outline" size={18} />
 							{t("table.button.add")}
 						</Button>
 						<Button
 							onClick={() => handleDeleteSelection()}
 							variant="destructive"
-							className="ml-2"
+							className="ml-2 text-white"
 							disabled={!(selectedRowKeys.length > 0)}
 						>
 							<Icon icon="solar:trash-bin-minimalistic-outline" size={18} />
 							{t("table.button.delete")}
 						</Button>
-						<Button onClick={() => onSynchronize()} variant="outline" className="ml-2">
+						<Button onClick={() => onSynchronize()} variant="outline" className="ml-2 text-white">
 							<Icon icon="solar:refresh-outline" size={18} />
 							{t("table.button.synchronize")}
 						</Button>
-						<Button onClick={() => downloadTemplate()} className="ml-2" variant="default">
+						<Button onClick={() => downloadTemplate()} className="ml-2 text-white" variant="default">
 							<Icon icon="solar:cloud-download-outline" size={18} />
 							{t("table.button.download_template")}
 						</Button>
-						<Button onClick={() => handleImport()} className="ml-2" variant="default">
+						<UploadTool
+							title={t("table.button.import")}
+							listType="text"
+							renderType="button"
+							accept=".xlsx"
+							showUploadList={false}
+							uploadUri={ApisService.Client.Import}
+						/>
+						<Button className="ml-2 text-white" variant="default" onClick={() => handleExportMenuClick()}>
 							<Icon icon="solar:import-outline" size={18} />
-							{t("table.button.import")}
+							{t("table.button.export")}
 						</Button>
-						<Dropdown menu={{ items: exportMenuItems, onClick: handleExportMenuClick }} trigger={["click"]}>
-							<Button className="ml-2" variant="default">
-								<Icon icon="solar:export-outline" size={18} />
-								{t("table.button.export")}
-							</Button>
-						</Dropdown>
 					</div>
 				</CardHeader>
 

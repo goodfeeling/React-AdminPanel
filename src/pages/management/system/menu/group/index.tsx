@@ -159,7 +159,7 @@ const MenuGroupList = ({
 		<>
 			<CardHeader className="p-0">
 				<div className="flex items-start justify-start">
-					<Button onClick={() => onCreate()} variant="default">
+					<Button onClick={() => onCreate()} variant="default" className="text-white">
 						<Icon icon="solar:add-circle-outline" size={18} />
 						{t("table.button.add")}
 					</Button>

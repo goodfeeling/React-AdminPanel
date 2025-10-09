@@ -77,8 +77,6 @@ const ConfigBox = ({
 			return (
 				<UploadTool
 					onHandleSuccess={(result) => {
-						console.log(result);
-
 						if (result.url) {
 							form.setFieldValue(configKey, result.url);
 							handleSave(sectionKey);

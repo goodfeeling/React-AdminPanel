@@ -5,7 +5,7 @@ import { useSTSTokenLoading } from "@/store/stsTokenStore";
 import useUserStore from "@/store/userStore";
 import { LoadingOutlined } from "@ant-design/icons";
 import type { UploadProps } from "antd";
-import { App, Button, Upload } from "antd";
+import { App, Upload } from "antd";
 import type { UploadListType } from "antd/es/upload/interface";
 import type { UploadFile } from "antd/lib";
 import type React from "react";
@@ -13,6 +13,7 @@ import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import "./upload-multiple.css";
 import { Icon } from "@/components/icon";
+import { Button } from "@/ui/button";
 type ResultFile = {
 	name?: string;
 	url?: string;
@@ -26,6 +27,9 @@ interface UploadToolProps {
 	showUploadList?: boolean;
 	renderType?: "button" | "image";
 	renderImageUrl?: string;
+	accept?: string;
+	title?: string;
+	uploadUri?: string;
 }
 
 const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
@@ -36,6 +40,9 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 	fileList,
 	renderType,
 	renderImageUrl,
+	title,
+	accept,
+	uploadUri,
 }) => {
 	const { t } = useTranslation();
 	const { message } = App.useApp();
@@ -55,7 +62,8 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 		listType: listType,
 		showUploadList: showUploadList,
 		defaultFileList: fileList,
-		action: `${import.meta.env.VITE_APP_BASE_API}${UploadService.Client.Multiple}`,
+		accept: accept ?? ".xlsx, .xls, image/*, .pdf, doc, .docx",
+		action: `${import.meta.env.VITE_APP_BASE_API}${uploadUri ?? UploadService.Client.Multiple}`,
 		headers: {
 			Authorization: `Bearer ${userToken?.accessToken}`,
 		},
@@ -123,9 +131,10 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 	const render = () => {
 		if (renderType === "button") {
 			return (
-				<Button>
-					<Icon icon="solar:cloud-upload-broken" size={18} />
-					{t("sys.menu.upload")}
+				<Button className="ml-2 text-white" variant="default">
+					<Icon icon="solar:export-outline" size={18} />
+
+					{title ?? t("sys.menu.upload")}
 				</Button>
 			);
 		}
@@ -144,13 +153,13 @@ const UploadTool: React.FC<Readonly<UploadToolProps>> = ({
 				/>
 				<div className="upload-image-overlay">
 					<Icon icon="solar:cloud-upload-broken" size={18} />
-					{t("sys.menu.upload")}
+					{title ?? t("sys.menu.upload")}
 				</div>
 			</div>
 		) : (
 			<button style={{ border: 0, background: "none" }} type="button">
 				{loading ? <LoadingOutlined /> : <Icon icon="solar:cloud-upload-broken" size={18} />}
-				<div style={{ marginTop: 8 }}>{t("sys.menu.upload")}</div>
+				<div style={{ marginTop: 8 }}> {title ?? t("sys.menu.upload")}</div>
 			</button>
 		);
 	};

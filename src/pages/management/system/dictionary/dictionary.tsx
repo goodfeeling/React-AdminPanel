@@ -157,7 +157,7 @@ const DictionaryList = ({
 		<>
 			<CardHeader className="p-0">
 				<div className="flex items-start justify-start">
-					<Button onClick={() => onCreate()} variant="default">
+					<Button onClick={() => onCreate()} className="text-white" variant="default">
 						<Icon icon="solar:add-circle-outline" size={18} />
 						{t("table.button.add")}
 					</Button>
