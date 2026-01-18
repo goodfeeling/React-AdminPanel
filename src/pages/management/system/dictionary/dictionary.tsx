@@ -182,6 +182,7 @@ const DictionaryList = ({
 					onChange={handleTableChange}
 					onRow={(record) => ({
 						onClick: () => handleRowClick(record),
+						style: { cursor: "pointer" },
 					})}
 					rowClassName={(record: Dictionary) => {
 						return record.id === selectedId

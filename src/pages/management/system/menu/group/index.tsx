@@ -184,6 +184,7 @@ const MenuGroupList = ({
 					onChange={handleTableChange}
 					onRow={(record) => ({
 						onClick: () => handleRowClick(record),
+						style: { cursor: "pointer" },
 					})}
 					rowClassName={(record: MenuGroup) => {
 						return record.id === selectedId
